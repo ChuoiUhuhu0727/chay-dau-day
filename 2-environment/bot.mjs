@@ -11,13 +11,13 @@ import { existsSync } from 'node:fs';
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { startServer } from './serve.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const OUT = path.join(HERE, '..', 'reports', 'latest');
+const GAME = path.join(HERE, '..', 'game');
 const QUIET = process.argv.includes('--quiet');
-const MAX_LEVELS = 5;
 const log = (...a) => { if (!QUIET) console.log(...a); };
 
 function findChrome() {
@@ -119,39 +119,20 @@ async function run() {
   try {
     await page('Page.navigate', { url });
     let ready = false;
-    for (let i = 0; i < 50 && !ready; i++) { await sleep(100); ready = await evaluate('!!window.__game').catch(() => false); }
+    for (let i = 0; i < 50 && !ready; i++) { await sleep(100); ready = await evaluate('document.readyState === "complete" && !!window.__game').catch(() => false); }
     check('Game mở được và có window.__game', ready);
     if (!ready) throw new Error('stop');
+    await sleep(300);
     await shot('Mở game');
 
-    for (let level = 1; level <= MAX_LEVELS; level++) {
-      const name = await evaluate(`document.getElementById('level-name')?.textContent ?? 'level ${level}'`);
-      const total = (await evaluate('window.__game.cars()')).length;
-      check(`${name}: có xe trong bãi`, total > 0, `${total} xe`);
-      let taps = 0;
-      for (; taps < 40; taps++) {
-        const cars = await evaluate('window.__game.cars()');
-        if (cars.length === 0) break;
-        // Chạm thử từng xe như người chơi, xe nào đi được thì đi.
-        let moved = false;
-        for (const id of cars) {
-          const before = cars.length;
-          await evaluate(`document.querySelector('[data-car="${id}"]').click()`);
-          await sleep(450);
-          const after = (await evaluate('window.__game.cars()')).length;
-          if (after < before) { moved = true; await shot(`${name}: chạm xe ${id} → ra bãi`); break; }
-        }
-        if (!moved) break;
-      }
-      const left = (await evaluate('window.__game.cars()')).length;
-      check(`${name}: đưa hết xe ra bãi`, left === 0, left ? `còn ${left} xe không đi được` : '');
-      const shown = await evaluate(`(() => { const el = document.getElementById('complete'); return !!el && !el.hidden; })()`);
-      check(`${name}: hiện màn "Hoàn thành!"`, shown);
-      await shot(`${name}: kết thúc`);
-      const hasNext = await evaluate(`!!document.getElementById('next')`);
-      if (!shown || !hasNext) break;
-      await evaluate(`document.getElementById('next').click()`);
-      await sleep(400);
+    // Kịch bản chơi RIÊNG của từng game nằm trong game/e2e.mjs (AI viết thêm khi làm tính năng có giao diện).
+    const scenario = path.join(GAME, 'e2e.mjs');
+    if (existsSync(scenario)) {
+      const { play } = await import(pathToFileURL(scenario).href);
+      const click = (selector) => evaluate(`(() => { const el = document.querySelector(${JSON.stringify(selector)}); if (!el) throw new Error('Không thấy ' + ${JSON.stringify(selector)}); el.click(); })()`);
+      await play({ evaluate, click, shot, check, sleep });
+    } else {
+      check('Có kịch bản chơi game/e2e.mjs', false, 'chưa có — tính năng có giao diện phải thêm kịch bản để bot chơi thử');
     }
     check('Không có lỗi JavaScript trên trang', errors.length === 0, errors.slice(0, 2).join(' | '));
   } catch (e) {

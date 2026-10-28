@@ -25,6 +25,8 @@ Loại dự án (web hay Android) nằm trong `harness.config`.
 
 ## Riêng game web (STACK=web)
 
-- Luật chơi trong `game/logic.js` (hàm thuần). DOM trong `game/ui.js`.
-- Giữ hợp đồng với bot test: `window.__game.state()`, `window.__game.cars()`, mỗi xe có `data-car="<id>"`,
-  `#complete` hiện ra khi hết xe. (Xem `1-wiki/decisions/bot-test-qua-window-game.md`.)
+- Luật chơi trong `game/logic.js` (hàm thuần, test bằng `node --test`). DOM trong `game/ui.js`.
+- `game/ui.js` luôn có `window.__game = { state: () => … }` để bot đọc được trạng thái.
+- Bot tự chơi theo kịch bản `game/e2e.mjs` (hàm `play`). **Tính năng nào có giao diện thì thêm bước vào `e2e.mjs`**
+  để bot bấm thử và `check(...)` đúng như *Done when* — không chỉ unit test.
+- Mở game: `node 2-environment/serve.mjs` → http://localhost:5173
