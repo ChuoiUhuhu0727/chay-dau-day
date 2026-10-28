@@ -1,7 +1,7 @@
 # Ý tưởng game — Parking Jam (raw)
 
 > File gốc trong `raw/`: ghi chú ý tưởng của người làm sản phẩm. **Không bao giờ sửa file này.**
-> `plan.sh` đọc nó rồi viết các trang `features/`, `screens/`, `decisions/` trong wiki.
+> Lệnh chat `/game` đọc nó rồi viết các trang `features/`, `screens/`, `decisions/` trong wiki.
 
 ## Game là gì
 
