@@ -1,0 +1,10 @@
+# ② ENVIRONMENT · Tool Calling — những công cụ AI ĐƯỢC PHÉP tự gọi khi làm việc.
+# execute.sh đọc file này. Mỗi dòng một công cụ. Dòng bắt đầu bằng # là chú thích.
+Read
+Edit
+Write
+Glob
+Grep
+Bash(node:*)
+Bash(bash 3-verification/verify.sh:*)
+Bash(./3-verification/verify.sh:*)

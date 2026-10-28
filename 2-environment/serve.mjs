@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Server tĩnh nhỏ để mở game trên trình duyệt (module JS không chạy được qua file://).
-//   node harness/serve.mjs          → http://localhost:5173
+//   node 2-environment/serve.mjs          → http://localhost:5173
 //   import { startServer } from './serve.mjs'   (bot dùng, cổng ngẫu nhiên)
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';

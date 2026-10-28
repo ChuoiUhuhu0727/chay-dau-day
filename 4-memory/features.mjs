@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// Quản lý memory/features.json. Chỉ HARNESS gọi file này — AI không tự sửa danh sách tính năng.
-//   node harness/lib/features.mjs list
-//   node harness/lib/features.mjs next              → id tính năng "pending" đầu tiên
-//   node harness/lib/features.mjs show F5           → JSON của 1 tính năng
-//   node harness/lib/features.mjs set F5 passing    → đổi trạng thái (pending | passing | blocked)
-//   node harness/lib/features.mjs validate <file>   → kiểm tra file do Harness Plan sinh ra
+// Quản lý 4-memory/features.json. Chỉ HARNESS gọi file này — AI không tự sửa danh sách tính năng.
+//   node 4-4-memory/features.mjs list
+//   node 4-4-memory/features.mjs next              → id tính năng "pending" đầu tiên
+//   node 4-4-memory/features.mjs show F5           → JSON của 1 tính năng
+//   node 4-4-memory/features.mjs set F5 passing    → đổi trạng thái (pending | passing | blocked)
+//   node 4-4-memory/features.mjs validate <file>   → kiểm tra file do Harness Plan sinh ra
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'memory', 'features.json');
+const FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), 'features.json');
 const STATES = ['pending', 'passing', 'blocked'];
 const ICON = { pending: '⏳', passing: '✅', blocked: '⛔' };
 

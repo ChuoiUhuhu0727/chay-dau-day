@@ -1,0 +1,6 @@
+{
+  "_ghi_chu": "② ENVIRONMENT · MCP (tuỳ chọn). Đổi tên file này thành .mcp.json ở thư mục gốc để AI có thêm 'mắt' là trình duyệt Playwright khi code.",
+  "mcpServers": {
+    "playwright": { "command": "npx", "args": ["-y", "@playwright/mcp@latest"] }
+  }
+}

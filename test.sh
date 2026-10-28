@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # HARNESS AUTOMATION TEST — bot tự mở game, tự chơi như người, chụp ảnh từng bước, xuất báo cáo.
-#   bash harness/test.sh
+#   bash test.sh
 set -u
-cd "$(dirname "$0")/.."
-node harness/bot.mjs
+cd "$(dirname "$0")"
+node 2-environment/bot.mjs
 rc=$?
 REPORT="reports/latest/report.html"
 if [ -f "$REPORT" ]; then

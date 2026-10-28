@@ -2,8 +2,8 @@
 // Harness Automation Test — bot tự mở game trong Chrome, tự chơi như người, chụp ảnh từng bước,
 // rồi viết báo cáo. Đây là "mắt" của harness: AI không tự nhìn được game, bot nhìn thay.
 //
-//   node harness/bot.mjs            → chơi, ghi reports/latest/report.html
-//   node harness/bot.mjs --quiet    → chỉ in kết quả (verify.sh dùng)
+//   node 2-environment/bot.mjs            → chơi, ghi reports/latest/report.html
+//   node 2-environment/bot.mjs --quiet    → chỉ in kết quả (verify.sh dùng)
 //
 // Không cần cài gì thêm: điều khiển Chrome qua DevTools Protocol bằng WebSocket có sẵn của Node 22.
 import { spawn } from 'node:child_process';

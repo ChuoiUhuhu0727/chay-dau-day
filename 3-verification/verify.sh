@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # VERIFICATION — cổng chấm đậu/rớt. Chỉ khi script này thoát mã 0 thì tính năng mới là XONG.
-#   bash harness/verify.sh F5
+#   bash 3-verification/verify.sh F5
 set -u
 cd "$(dirname "$0")/.."
 FID="${1:-}"
@@ -27,7 +27,7 @@ fi
 
 echo "│"
 echo "│ 2) Automation test (bot tự chơi game trong Chrome)"
-bot=$(node harness/bot.mjs --quiet 2>&1) || fail=1
+bot=$(node 2-environment/bot.mjs --quiet 2>&1) || fail=1
 echo "$bot" | sed 's/^/│    /'
 if [ "$fail" != 0 ] && [ -f reports/latest/report.json ]; then
   node -e 'for (const c of JSON.parse(require("fs").readFileSync("reports/latest/report.json","utf8")).checks) if (!c.ok) console.log("│    ✗ " + c.name + (c.detail ? " — " + c.detail : ""))'

@@ -13,58 +13,63 @@ Một harness nhỏ, đọc hết trong 10 phút, để thấy tận mắt: **AI
 
 Không cần `npm install`. Không có thư viện nào.
 
-## 4 thành phần (khớp với sơ đồ trên slide)
+## 4 thành phần = 4 thư mục (khớp với sơ đồ trên slide)
 
 ```
 mini-harness/
-├── CLAUDE.md              ← luật làm việc của AI (Claude Code tự đọc file này)
-├── wiki/                  ← ① WIKI: nguồn sự thật
+├── 1-wiki/                ← ① WIKI · nguồn sự thật
 │   ├── product.md         ←    Product Requirement: game cần làm gì
-│   └── learned.md         ←    Learned Wiki: bài học từ những lần sai (harness tự ghi thêm)
-├── harness/               ← ② ENVIRONMENT + ③ VERIFICATION
-│   ├── plan.sh            ←    Harness Plan: AI đọc Wiki → chia thành danh sách tính năng
-│   ├── execute.sh         ←    Harness Execute: VÒNG LẶP code → verify → sửa → tới khi xanh
-│   ├── test.sh            ←    Harness Automation Test: bot tự chơi game, chụp ảnh, ra báo cáo
-│   ├── verify.sh          ←    Cổng chấm đậu/rớt (unit test + bot)
-│   └── bot.mjs            ←    "Mắt" của harness: điều khiển Chrome như người chơi
-├── memory/                ← ④ MEMORY: sổ tay
-│   ├── features.json      ←    danh sách tính năng + trạng thái (⏳ pending · ✅ passing · ⛔ blocked)
-│   ├── progress.md        ←    nhật ký: làm tới đâu
-│   └── logs/              ←    log từng vòng lặp (tự sinh)
-└── game/                  ← sản phẩm AI đang build
-    ├── index.html, ui.js  ←    giao diện
-    ├── logic.js           ←    luật chơi (hàm thuần, test được)
-    └── tests/F*.test.js   ←    mỗi tính năng một file test
+│   └── learned.md         ←    Learned Wiki: bài học từ lần sai (harness tự ghi thêm)
+├── 2-environment/         ← ② ENVIRONMENT · tay và mắt của AI
+│   ├── rules.md           ←    luật làm việc (CLAUDE.md kéo vào)
+│   ├── tools.txt          ←    Tool Calling: công cụ AI được tự gọi
+│   ├── mcp.example.json   ←    MCP: cắm thêm công cụ (tuỳ chọn)
+│   └── bot.mjs            ←    bot điều khiển Chrome, tự chơi game
+├── 3-verification/        ← ③ VERIFICATION · giám khảo
+│   └── verify.sh          ←    có test? unit test xanh? bot chơi được? → 🟢/🔴
+├── 4-memory/              ← ④ MEMORY · sổ tay
+│   ├── features.json      ←    ⏳ pending · ✅ passing · ⛔ blocked
+│   ├── progress.md        ←    nhật ký
+│   └── logs/              ←    log từng vòng lặp
+│
+├── plan.sh                ← HARNESS PLAN: đọc Wiki → chia việc
+├── execute.sh             ← HARNESS EXECUTE: VÒNG LẶP code → verify → sửa
+├── test.sh                ← HARNESS AUTOMATION TEST: bot chơi + báo cáo ảnh
+│
+├── CLAUDE.md              ← Claude Code tự đọc; trỏ tới 2-environment/rules.md
+└── game/                  ← SẢN PHẨM mà AI đang build (Parking Jam)
 ```
+
+Mỗi thư mục có một `README.md` ngắn nói nó là gì.
 
 ## Chạy thử trong 5 phút
 
 ```bash
 # 0. Xem game hiện tại (F1–F4 đã xong)
-node harness/serve.mjs            # mở http://localhost:5173
+node 2-environment/serve.mjs            # mở http://localhost:5173
 
 # 1. Xem sổ tay: đang ở đâu?
-node harness/lib/features.mjs list
+node 4-4-memory/features.mjs list
 
 # 2. Automation test: bot tự chơi và chụp ảnh
-bash harness/test.sh              # mở reports/latest/report.html
+bash test.sh              # mở reports/latest/report.html
 
 # 3. Verification: cổng đậu/rớt
-bash harness/verify.sh F4         # 🟢 xanh
-bash harness/verify.sh F5         # 🔴 đỏ — chưa có test cho F5
+bash 3-verification/verify.sh F4         # 🟢 xanh
+bash 3-verification/verify.sh F5         # 🔴 đỏ — chưa có test cho F5
 
 # 4. VÒNG LẶP: để AI tự làm F5 tới khi xanh
-bash harness/execute.sh           # tự chọn tính năng ⏳ kế tiếp
+bash execute.sh           # tự chọn tính năng ⏳ kế tiếp
 ```
 
 ## Harness Plan: từ Wiki ra danh sách việc
 
 ```bash
-bash harness/plan.sh              # AI đọc wiki/product.md → memory/features.plan.json (bản nháp)
-bash harness/plan.sh --apply      # bạn duyệt xong → gộp vào memory/features.json
+bash plan.sh              # AI đọc 1-wiki/product.md → 4-memory/features.plan.json (bản nháp)
+bash plan.sh --apply      # bạn duyệt xong → gộp vào 4-memory/features.json
 ```
 
-Thử sửa `wiki/product.md` (thêm tính năng mới, ví dụ "đếm thời gian"), chạy lại `plan.sh`, rồi `execute.sh`.
+Thử sửa `1-wiki/product.md` (thêm tính năng mới, ví dụ "đếm thời gian"), chạy lại `plan.sh`, rồi `execute.sh`.
 
 ## Vòng lặp chạy thế nào
 
@@ -81,7 +86,7 @@ Thử sửa `wiki/product.md` (thêm tính năng mới, ví dụ "đếm thời 
 ```
 
 Sau `MAX_ATTEMPTS` (mặc định 3) vòng vẫn đỏ: tính năng thành ⛔ blocked, harness ghi **một dòng bài học**
-vào `wiki/learned.md` để lần sau AI đọc trước khi code. Người vào xem `memory/logs/`.
+vào `1-wiki/learned.md` để lần sau AI đọc trước khi code. Người vào xem `4-memory/logs/`.
 
 ## Luật quan trọng nhất
 
@@ -92,13 +97,13 @@ vào `wiki/learned.md` để lần sau AI đọc trước khi code. Người và
 Muốn AI tự "nhìn" game trong lúc code, thêm Playwright MCP:
 
 ```bash
-claude mcp add playwright -- npx -y @playwright/mcp@latest
+cp 2-environment/mcp.example.json .mcp.json
 ```
 
 MCP là mắt của AI **khi code**. Còn **cổng chấm** vẫn phải là script chạy ra cùng kết quả mỗi lần (`verify.sh`).
 
 ## Gắn harness này vào app của bạn
 
-1. Thay `wiki/product.md` bằng mô tả app của bạn.
-2. Sửa `harness/verify.sh` để chạy test của app bạn (`npm test`, `pytest`, …).
-3. `bash harness/plan.sh` → duyệt → `--apply` → `bash harness/execute.sh`.
+1. Thay `1-wiki/product.md` bằng mô tả app của bạn.
+2. Sửa `3-verification/verify.sh` để chạy test của app bạn (`npm test`, `pytest`, …).
+3. `bash plan.sh` → duyệt → `--apply` → `bash execute.sh`.
