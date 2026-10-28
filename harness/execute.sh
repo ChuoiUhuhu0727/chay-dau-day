@@ -37,7 +37,7 @@ $feedback"
   fi
   echo "$PROMPT" | claude -p \
       --permission-mode acceptEdits \
-      --allowedTools "Read,Edit,Write,Glob,Grep,Bash(node:*),Bash(bash harness/verify.sh:*)" \
+      --allowedTools "Read,Edit,Write,Glob,Grep,Bash(node:*),Bash(bash harness/verify.sh:*),Bash(./harness/verify.sh:*),Bash(bash ./harness/verify.sh:*)" \
       ${MODEL:+--model "$MODEL"} \
     | tee "memory/logs/$FID-$attempt-model.txt" | sed 's/^/   │ /'
 

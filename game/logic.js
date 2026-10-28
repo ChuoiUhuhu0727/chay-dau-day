@@ -48,7 +48,7 @@ export function cells(car) {
 export function createState(levelIndex = 0) {
   const level = LEVELS[levelIndex];
   if (!level) throw new Error(`Không có level ${levelIndex}`);
-  return { levelIndex, moves: 0, cars: level.cars.map((c) => ({ ...c })) };
+  return { levelIndex, cars: level.cars.map((c) => ({ ...c })) };
 }
 
 function occupied(state, exceptId) {
@@ -81,15 +81,11 @@ export function canExit(state, id) {
   }
 }
 
-/**
- * Chạm vào xe. Trả về { state, result } với result là 'exited' | 'blocked' | 'missing'.
- * Mỗi lần chạm xe có trong bãi (kể cả bị chặn) tính 1 lượt.
- */
+/** Chạm vào xe. Trả về { state, result } với result là 'exited' | 'blocked' | 'missing'. */
 export function tap(state, id) {
   if (!state.cars.some((c) => c.id === id)) return { state, result: 'missing' };
-  const moves = (state.moves ?? 0) + 1;
-  if (!canExit(state, id)) return { state: { ...state, moves }, result: 'blocked' };
-  return { state: { ...state, moves, cars: state.cars.filter((c) => c.id !== id) }, result: 'exited' };
+  if (!canExit(state, id)) return { state, result: 'blocked' };
+  return { state: { ...state, cars: state.cars.filter((c) => c.id !== id) }, result: 'exited' };
 }
 
 export const isComplete = (state) => state.cars.length === 0;
