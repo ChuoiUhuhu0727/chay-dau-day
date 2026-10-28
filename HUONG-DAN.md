@@ -36,6 +36,7 @@ Bạn là người làm sản phẩm (PO): muốn đổi gì cứ chat, ví dụ
 
 **Mẹo:** nói rõ *người chơi làm gì* và *khi nào thắng/thua*; dùng số cụ thể ("12 thẻ", "3 mạng");
 game chơi bằng bấm/chạm, không cần online.
+**Muốn đẹp?** Thêm vài chữ về cảm xúc và hình: *"phong cách vui nhộn, màu kẹo ngọt, nhân vật là con mèo"*. AI tự chọn màu, font, hình miễn phí (xem `1-wiki/design/`). Chơi thử thấy chưa đẹp thì chat: *"nút to hơn, thêm hiệu ứng khi thắng"*.
 
 ## 4 · `/build` — để AI làm
 
