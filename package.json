@@ -1,0 +1,14 @@
+{
+  "name": "mini-harness-parking-jam",
+  "private": true,
+  "type": "module",
+  "description": "Mini harness: Wiki + Environment + Verification + Memory, chạy vòng lặp AI build game Parking Jam.",
+  "scripts": {
+    "plan": "bash harness/plan.sh",
+    "execute": "bash harness/execute.sh",
+    "test:auto": "bash harness/test.sh",
+    "verify": "bash harness/verify.sh",
+    "serve": "node harness/serve.mjs"
+  },
+  "engines": { "node": ">=22" }
+}
