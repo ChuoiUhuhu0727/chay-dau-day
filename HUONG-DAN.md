@@ -27,27 +27,27 @@ Từ đây chỉ **chat**. Có 3 lệnh:
 Gõ `/game` rồi mô tả game. Ví dụ đã chạy thật:
 
 ```
-/game Đoán số: máy nghĩ một số từ 1 đến 100, người chơi nhập số và bấm Đoán,
-máy báo Cao quá hoặc Thấp quá, đoán đúng thì hiện Đúng rồi kèm số lần đoán, có nút Chơi lại
+/game Đập chuột chũi: bàn 3x3 lỗ, mỗi giây một con chuột chũi hiện ở một lỗ ngẫu nhiên,
+bấm trúng được 1 điểm, ván chơi 30 giây, hết giờ hiện Hết giờ kèm điểm, có nút Chơi lại
 ```
 
 Khoảng 3 phút sau, Claude đưa **kế hoạch** (mỗi tính năng một dòng) và **câu hỏi cho bạn**.
-Bạn là người làm sản phẩm (PO): muốn đổi gì cứ chat, ví dụ *"đoán quá 10 lần thì thua"*.
+Bạn là người làm sản phẩm (PO): muốn đổi gì cứ chat, ví dụ *"bấm trượt thì trừ 1 điểm"*.
 
 **Mẹo:** nói rõ *người chơi làm gì* và *khi nào thắng/thua*; dùng số cụ thể ("12 thẻ", "3 mạng");
 game chơi bằng bấm/chạm, không cần online.
 
 ## 4 · `/build` — để AI làm
 
-Gõ `/build`. Claude làm lần lượt từng tính năng (2–4 phút mỗi cái) và báo:
+Gõ `/build`. Claude **tự xếp thứ tự** và làm các tính năng (khoảng 5 phút cho game 6 tính năng), rồi báo:
 
 ```
-F1 · Số bí mật từ 1 đến 100 — 🟢 xanh ở vòng 1
-F2 · Ô nhập số và nút Đoán — 🔴→🟢 xanh ở vòng 2
-…
+Đã làm F1–F6 🟡 · chạy verify.sh → 🟢 xanh · F1–F6 ✅ passing
 ```
 
-🔴 nghĩa là máy chấm chưa đạt → AI tự sửa. Chỉ 🟢 mới là xong.
+- 🟡 = AI nói "đã làm" — **chưa** tính là xong.
+- ✅ = máy (verify.sh) đã chơi thử và chấm đạt — **mới** là xong. AI không tự đánh ✅ được.
+- 🔴 = máy chấm chưa đạt → AI tự sửa rồi chấm lại.
 
 ## 5 · `/play` — chơi thử
 
