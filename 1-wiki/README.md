@@ -7,6 +7,7 @@
 ├── features/       ← mỗi tính năng một trang, có danh sách "Done when"
 ├── screens/        ← mỗi màn hình một trang
 ├── decisions/      ← lựa chọn quan trọng và vì sao
+├── design/         ← cách làm đẹp: README (nguyên tắc), assets (nguồn miễn phí), style.md (của game này), credits
 ├── learned.md      ← Learned Wiki: bài học từ lần sai (harness tự ghi thêm)
 ├── index.md        ← mọi trang, liệt kê
 └── log.md          ← mỗi thay đổi một dòng

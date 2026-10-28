@@ -38,6 +38,14 @@ Harness không xếp việc cho bạn. **Bạn (Model) tự xếp và tự làm*
 5. Không sửa `1-wiki/raw/` (ý tưởng gốc). Không thêm thư viện nếu `decisions/` không cho phép.
 6. **Luôn trả lời bằng tiếng Việt**, ngắn, dễ hiểu với người không biết code.
 
+## Design — làm cho đẹp, không chỉ chạy được
+
+- Trước khi làm giao diện: đọc `1-wiki/design/README.md` và `1-wiki/design/style.md` (của game này).
+- Màu khai báo một lần trong `:root` theo `style.md`; font lấy từ Google Fonts theo `style.md`.
+- Dùng hình đẹp thay ô vuông màu: `bash 2-environment/get-asset.sh <url> <tên-file>` (nguồn trong `1-wiki/design/assets.md`).
+- Mỗi hành động có phản hồi ngay (nảy, lắc, "+1" bay lên…). Chỉ animate `transform`/`opacity`.
+- Bot tự kiểm: không font mặc định, không tràn ngang 390px, hình tải được, vật bấm ≥ 40px, không nút xám mặc định.
+
 ## Riêng game web (STACK=web)
 
 - Luật chơi trong `game/logic.js` (hàm thuần, test bằng `node --test`). DOM trong `game/ui.js`.

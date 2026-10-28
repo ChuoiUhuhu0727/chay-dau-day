@@ -40,7 +40,7 @@ async function launchChrome() {
   const profile = await mkdtemp(path.join(tmpdir(), 'mini-harness-'));
   const proc = spawn(findChrome(), [
     '--headless=new', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
-    '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--window-size=480,820', 'about:blank',
+    '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--window-size=390,844', 'about:blank',
   ], { stdio: ['ignore', 'ignore', 'pipe'] });
   const wsUrl = await new Promise((resolve, reject) => {
     let buf = '';
@@ -99,7 +99,7 @@ async function run() {
   });
   await page('Runtime.enable');
   await page('Page.enable');
-  await page('Emulation.setDeviceMetricsOverride', { width: 480, height: 820, deviceScaleFactor: 1, mobile: true });
+  await page('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
 
   const evaluate = async (expression) => {
     const r = await page('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true });
@@ -124,6 +124,27 @@ async function run() {
     if (!ready) throw new Error('stop');
     await sleep(300);
     await shot('Mở game');
+
+    // Kiểm tra design chung (mọi game): xem 1-wiki/design/README.md mục 7.
+    const ui = await evaluate(`(() => {
+      const font = getComputedStyle(document.body).fontFamily.toLowerCase();
+      const overflow = document.documentElement.scrollWidth - innerWidth;
+      const imgs = [...document.images];
+      const broken = imgs.filter((i) => i.complete && i.naturalWidth === 0).map((i) => i.getAttribute('src'));
+      const clickable = [...document.querySelectorAll('button, [role=button], a[href]')]
+        .filter((el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el);
+          return r.width > 0 && r.height > 0 && s.visibility !== 'hidden' && s.display !== 'none'; });
+      const small = clickable.filter((el) => { const r = el.getBoundingClientRect(); return r.width < 40 || r.height < 40; })
+        .map((el) => (el.id ? '#' + el.id : el.tagName.toLowerCase()) + ' ' + Math.round(el.getBoundingClientRect().width) + '×' + Math.round(el.getBoundingClientRect().height));
+      const greyBtn = clickable.filter((el) => el.tagName === 'BUTTON' && getComputedStyle(el).backgroundColor === 'rgb(239, 239, 239)').length;
+      return { font, overflow, broken, small, greyBtn };
+    })()`);
+    const defaultFont = /^("?times new roman"?|serif|"?times"?)(,|$)/.test(ui.font);
+    check('Design: không dùng font mặc định của trình duyệt', !defaultFont, ui.font.split(',')[0]);
+    check('Design: không tràn ngang trên màn điện thoại 390px', ui.overflow <= 1, ui.overflow > 1 ? `tràn ${ui.overflow}px` : '');
+    check('Design: mọi hình ảnh tải được', ui.broken.length === 0, ui.broken.slice(0, 3).join(', '));
+    check('Design: vật bấm được ≥ 40px (vừa ngón tay)', ui.small.length === 0, ui.small.slice(0, 3).join(', '));
+    check('Design: không còn nút xám mặc định', ui.greyBtn === 0, ui.greyBtn ? `${ui.greyBtn} nút` : '');
 
     // Kịch bản chơi RIÊNG của từng game nằm trong game/e2e.mjs (AI viết thêm khi làm tính năng có giao diện).
     const scenario = path.join(GAME, 'e2e.mjs');

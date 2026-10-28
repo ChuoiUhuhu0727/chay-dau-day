@@ -15,6 +15,7 @@ cp 4-memory/features.json examples/parking-jam/features.json
 
 # ① Wiki trống, giữ learned.md
 rm -rf 1-wiki/features 1-wiki/screens 1-wiki/decisions 1-wiki/raw
+rm -f 1-wiki/design/style.md 1-wiki/design/credits.md
 mkdir -p 1-wiki/features 1-wiki/screens 1-wiki/decisions 1-wiki/raw
 cat > 1-wiki/raw/idea.md <<'IDEA'
 # Ý tưởng game (raw)

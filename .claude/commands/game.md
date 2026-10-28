@@ -21,9 +21,12 @@ Làm lần lượt:
      có cả điều cho unit test lẫn điều bot bấm thử trên giao diện (nêu rõ id/selector, ví dụ `#moves`).
    - `1-wiki/screens/` (màn hình, các selector), `1-wiki/decisions/` (lựa chọn và vì sao), `overview.md`, `index.md`, thêm 1 dòng `log.md`.
    - Chỗ nào ý tưởng không nói rõ: chọn cách hợp lý, ghi `Câu hỏi cho PO: …` vào `4-memory/po-questions.md`.
+   - `1-wiki/design/style.md`: đọc `1-wiki/design/README.md` rồi chốt **3 tính từ cảm xúc**, **5 màu** (`--bg --surface --primary --ink --accent`),
+     **2 font** Google Fonts có dấu tiếng Việt, **hiệu ứng juice** cho từng hành động, và **danh sách asset** (URL cụ thể từ `1-wiki/design/assets.md`).
    - Cuối cùng chạy `node 4-memory/features.mjs sync`.
 5. Trình bày kế hoạch cho người dùng duyệt:
    - Mỗi tính năng một dòng: `F1 · tên — điều quan trọng nhất trong Done when`
+   - Phong cách: 3 tính từ + 5 màu + font + các asset sẽ dùng (một đoạn ngắn).
    - Các câu hỏi cho PO.
    Kết thúc bằng: "Bạn là PO: muốn sửa gì cứ nói. Ổn rồi thì gõ **/build**."
 6. Nếu người dùng muốn sửa: sửa trang tương ứng trong `1-wiki/features/`, rồi chạy `node 4-memory/features.mjs sync`.
