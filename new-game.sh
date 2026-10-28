@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # BẮT ĐẦU GAME MỚI — cất game mẫu Parking Jam vào examples/, tạo trang trắng để harness build game của bạn.
 #   bash new-game.sh
-# Sau đó: viết ý tưởng vào 1-wiki/raw/idea.md → bash plan.sh → bash build.sh
+# Thường không gõ tay: lệnh chat /game trong Claude Code gọi script này.
 set -eu
 cd "$(dirname "$0")"
 if [ -d examples/parking-jam ]; then
@@ -33,7 +33,7 @@ cat > 1-wiki/raw/idea.md <<'IDEA'
 -
 -
 IDEA
-printf '# Overview\n\n(plan.sh sẽ viết trang này từ raw/)\n' > 1-wiki/overview.md
+printf '# Overview\n\n(/game sẽ viết trang này từ raw/)\n' > 1-wiki/overview.md
 printf '# Index — mọi trang trong wiki\n\n- [raw/idea.md](raw/idea.md) — ý tưởng gốc\n' > 1-wiki/index.md
 printf '# Log — mỗi thay đổi một dòng\n\n- %s · new-game · bắt đầu game mới\n' "$(date +%F)" > 1-wiki/log.md
 
@@ -100,6 +100,4 @@ JS
 echo "✅ Đã tạo trang trắng. Game mẫu Parking Jam được cất ở examples/parking-jam/ để tham khảo."
 echo
 echo "Tiếp theo:"
-echo "  1. Mở 1-wiki/raw/idea.md và viết ý tưởng game của bạn"
-echo "  2. bash plan.sh     ← AI viết các trang tính năng"
-echo "  3. bash build.sh    ← AI build lần lượt từng tính năng tới khi xong"
+echo "  Trong Claude Code: /game <ý tưởng> → /build → /play"

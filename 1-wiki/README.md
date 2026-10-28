@@ -12,6 +12,6 @@
 └── log.md          ← mỗi thay đổi một dòng
 ```
 
-- `plan.sh` đọc `raw/` → viết `features/`, `screens/`, `decisions/`, cập nhật `index.md` + `log.md`.
-- `execute.sh` đọc trang feature → Model code; Verification chấm theo *Done when*.
-- Muốn thêm tính năng? Thêm ghi chú vào `raw/`, chạy `bash plan.sh`.
+- `/game` (Harness Plan): Model đọc `raw/` → viết `features/`, `screens/`, `decisions/`, cập nhật `index.md` + `log.md`.
+- `/build`: Model đọc trang feature → code; Verification chấm theo *Done when*.
+- Muốn thêm tính năng? Chat ý tưởng với Claude; nó ghi vào `raw/` và viết trang mới.

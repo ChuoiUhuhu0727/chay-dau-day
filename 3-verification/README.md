@@ -1,9 +1,9 @@
 # ③ VERIFICATION — giám khảo chấm đậu/rớt
 
-`verify.sh <FID>` chấm 3 điều, theo đúng thứ tự:
+`bash 3-verification/verify.sh` chấm **mọi tính năng đang 🟡 claimed** (hoặc `verify.sh F2 F3` để chấm đúng mấy cái):
 
-1. Có file test cho tính năng chưa? (`game/tests/<FID>.test.js`) — luật: viết test trước.
+1. Mỗi tính năng có file test chưa? (`game/tests/<FID>.test.js`) — luật: viết test trước.
 2. Unit test luật chơi có xanh hết không? (`node --test`)
-3. Bot có tự chơi hết game được không? (`2-environment/bot.mjs`)
+3. Bot có tự chơi game được không? (`2-environment/bot.mjs` + kịch bản `game/e2e.mjs`)
 
-Thoát mã **0** = 🟢 đạt. Khác 0 = 🔴 chưa đạt. AI không được tự nói "xong".
+🟢 Xanh → chính verify.sh chuyển 🟡 → ✅ passing và ghi `1-wiki/log.md`. 🔴 Đỏ → tính năng vẫn 🟡, Model phải sửa.

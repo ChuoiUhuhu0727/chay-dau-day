@@ -2,15 +2,22 @@
   "permissions": {
     "allow": [
       "Bash(bash new-game.sh)",
-      "Bash(bash plan.sh)",
-      "Bash(bash build.sh)",
-      "Bash(bash execute.sh:*)",
       "Bash(bash test.sh)",
       "Bash(bash 3-verification/verify.sh:*)",
       "Bash(node 4-memory/features.mjs:*)",
+      "Bash(node --test:*)",
       "Bash(node 2-environment/serve.mjs)",
+      "Bash(node 2-environment/bot.mjs:*)",
       "Bash(open http://localhost:5173)",
-      "Edit(1-wiki/**)"
+      "Edit(1-wiki/**)",
+      "Edit(game/**)",
+      "Edit(4-memory/po-questions.md)",
+      "Edit(4-memory/progress.md)"
+    ],
+    "deny": [
+      "Edit(4-memory/features.json)",
+      "Edit(1-wiki/raw/game-idea.md)",
+      "Edit(3-verification/**)"
     ]
   }
 }

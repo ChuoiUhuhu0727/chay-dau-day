@@ -1,12 +1,16 @@
 #!/usr/bin/env node
-// ④ MEMORY — sổ trạng thái 4-memory/features.json. Chỉ HARNESS gọi file này, AI không tự sửa.
+// ④ MEMORY — sổ trạng thái 4-memory/features.json. Chế độ duy nhất: model_led.
 // Nội dung tính năng (tên, "Done when") lấy từ Wiki: 1-wiki/features/F*.md. Sổ này chỉ giữ TRẠNG THÁI.
-//   node 4-memory/features.mjs sync              → đọc lại 1-wiki/features/*.md, giữ trạng thái cũ
-//   node 4-memory/features.mjs list
-//   node 4-memory/features.mjs next              → id tính năng "pending" đầu tiên
-//   node 4-memory/features.mjs show F5           → JSON của 1 tính năng (kèm trang wiki + Done when)
-//   node 4-memory/features.mjs set F5 passing    → đổi trạng thái (pending | passing | blocked)
-import { readFileSync, readdirSync, writeFileSync, existsSync } from 'node:fs';
+//
+//   Model (AI) được dùng:
+//     node 4-memory/features.mjs sync               → đọc lại 1-wiki/features/*.md, giữ trạng thái cũ
+//     node 4-memory/features.mjs brief              → xem việc: trạng thái + Done when của mọi tính năng
+//     node 4-memory/features.mjs claim F2           → "đã làm, chưa chứng minh"  (⏳ → 🟡 claimed)
+//     node 4-memory/features.mjs block F2 "lý do"   → bỏ cuộc sau 3 lần verify đỏ, ghi lý do  (→ ⛔)
+//     node 4-memory/features.mjs note "đang làm F3" → ghi tiến độ vào progress.md
+//   CHỈ Verification được dùng (Model KHÔNG gọi):
+//     node 4-memory/features.mjs promote F2 --gate  → 🟡 claimed → ✅ passing, khi verify.sh xanh
+import { readFileSync, readdirSync, writeFileSync, existsSync, appendFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,8 +18,11 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(HERE, '..');
 const FILE = path.join(HERE, 'features.json');
 const PAGES = path.join(ROOT, '1-wiki', 'features');
-const STATES = ['pending', 'passing', 'blocked'];
-const ICON = { pending: '⏳', passing: '✅', blocked: '⛔' };
+const STATES = ['pending', 'claimed', 'passing', 'blocked'];
+const ICON = { pending: '⏳', claimed: '🟡', passing: '✅', blocked: '⛔' };
+const PROGRESS = path.join(HERE, 'progress.md');
+const today = () => new Date().toISOString().slice(0, 10);
+const note = (line) => appendFileSync(PROGRESS, `- ${today()} · ${line}\n`);
 
 const load = () => (existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : []);
 const save = (list) => writeFileSync(FILE, `${JSON.stringify(list, null, 2)}\n`);
@@ -56,41 +63,72 @@ const find = (list, id) => {
   return f;
 };
 
-const [cmd, a, b] = process.argv.slice(2);
+const [cmd, a, b, c] = process.argv.slice(2);
 switch (cmd) {
   case 'sync':
     console.log(`Đã đồng bộ ${sync().length} tính năng từ 1-wiki/features/`);
     break;
   case 'list':
-    for (const f of load()) console.log(`${ICON[f.state]} ${f.id.padEnd(4)} ${f.title}${f.attempts ? `  (đã thử ${f.attempts} lần)` : ''}`);
+    for (const f of load()) console.log(`${ICON[f.state]} ${f.id.padEnd(4)} ${f.title}${f.state === 'blocked' && f.reason ? `  — ${f.reason}` : ''}`);
     break;
-  case 'next': {
-    const f = load().find((x) => x.state === 'pending');
-    if (!f) process.exit(1);
-    console.log(f.id);
+  case 'brief': {
+    const list = load();
+    const count = (s) => list.filter((f) => f.state === s).length;
+    console.log(`model_led · ⏳ ${count('pending')} chờ · 🟡 ${count('claimed')} đã làm chưa chứng minh · ✅ ${count('passing')} đạt · ⛔ ${count('blocked')} bị chặn`);
+    console.log('Bạn tự xếp thứ tự: phụ thuộc trước → quan trọng trước → theo số F.');
+    for (const f of list) {
+      console.log(`\n${ICON[f.state]} ${f.id} — ${f.title}  (${f.page})`);
+      if (f.state !== 'passing') for (const d of f.done) console.log(`   - ${d}`);
+    }
     break;
   }
   case 'show':
     console.log(JSON.stringify(find(load(), a), null, 2));
     break;
-  case 'set': {
-    if (!STATES.includes(b)) { console.error(`Trạng thái phải là: ${STATES.join(', ')}`); process.exit(1); }
+  case 'claim': {
     const list = load();
     const f = find(list, a);
-    f.state = b;
-    if (b === 'passing') f.verified_at = new Date().toISOString();
+    if (f.state === 'passing') { console.log(`${a} đã ✅ passing rồi.`); break; }
+    f.state = 'claimed';
     save(list);
+    note(`${a} 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh`);
+    console.log(`🟡 ${a} claimed. Chưa phải xong: chạy bash 3-verification/verify.sh để chứng minh.`);
     break;
   }
-  case 'attempt': {
+  case 'block': {
+    if (!b) { console.error('Cần lý do: node 4-memory/features.mjs block F2 "lý do"'); process.exit(1); }
     const list = load();
     const f = find(list, a);
-    f.attempts = (f.attempts ?? 0) + 1;
+    f.state = 'blocked';
+    f.reason = b;
     save(list);
-    console.log(f.attempts);
+    note(`${a} ⛔ blocked — ${b}`);
+    console.log(`⛔ ${a} blocked. Nhớ ghi một dòng bài học vào 1-wiki/learned.md.`);
+    break;
+  }
+  case 'note':
+    note(a);
+    break;
+  case 'promote': {
+    if (b !== '--gate') { console.error('⛔ Chỉ verify.sh được đánh dấu passing. Model: dùng claim rồi chạy bash 3-verification/verify.sh'); process.exit(1); }
+    const list = load();
+    const f = find(list, a);
+    f.state = 'passing';
+    f.verified_at = new Date().toISOString();
+    save(list);
+    note(`${a} ✅ passing (verify.sh xanh)`);
+    break;
+  }
+  case 'reopen': {
+    const list = load();
+    const f = find(list, a);
+    f.state = 'pending';
+    delete f.reason;
+    save(list);
+    note(`${a} ⏳ mở lại`);
     break;
   }
   default:
-    console.error('Dùng: sync | list | next | show <id> | set <id> <state> | attempt <id>');
+    console.error('Dùng: sync | list | brief | show <id> | claim <id> | block <id> "lý do" | note "…" | reopen <id>');
     process.exit(1);
 }

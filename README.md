@@ -6,17 +6,19 @@ Build được game **web** (mặc định) hoặc game/app **Android**.
 > **Sinh viên: đọc [HUONG-DAN.md](HUONG-DAN.md)** — chỉ cần mở `claude` trong thư mục này rồi chat `/game`, `/build`, `/play`.
 > File README này dành cho ai muốn hiểu bên trong harness.
 
-## Cần cài
+## Chế độ duy nhất: model_led
 
-| Công cụ | Kiểm tra | Ghi chú |
-|---|---|---|
-| Node.js 22+ | `node -v` | https://nodejs.org |
-| Google Chrome | — | Bot test điều khiển Chrome để tự chơi game web |
-| Claude Code | `claude --version` | https://claude.com/claude-code — cần cho `plan` và `execute` |
-| Bash | — | macOS/Linux có sẵn. Windows: Git Bash hoặc WSL |
-| *(Android)* Android Studio + emulator | `adb devices` | Chỉ khi `STACK=android` |
+**Model (Claude) tự xếp việc và tự làm. Harness giữ sổ và chấm.**
 
-Không cần `npm install`. Không có thư viện nào.
+```
+⏳ pending ──Model làm xong──▶ 🟡 claimed ──verify.sh xanh──▶ ✅ passing
+                                   │
+                                   └─ 3 lần verify đỏ ──▶ ⛔ blocked (có lý do + bài học)
+```
+
+- Model chỉ được đánh dấu **🟡 claimed** ("đã làm, chưa chứng minh"). Không tự đánh dấu passing được.
+- **Chỉ `3-verification/verify.sh`** chuyển 🟡 → ✅, sau khi unit test xanh và bot chơi thử đạt.
+- Model được làm nhiều tính năng liên tiếp, chạy verify **một lần** ở cuối, đỏ thì tự sửa.
 
 ## 4 thành phần = 4 thư mục (khớp với sơ đồ trên slide)
 
@@ -27,96 +29,61 @@ mini-harness/
 │   ├── overview.md        ←    game là gì, cho ai
 │   ├── features/          ←    mỗi tính năng một trang, có "Done when"
 │   ├── screens/  decisions/
-│   ├── learned.md         ←    Learned Wiki: bài học từ lần sai (harness tự ghi thêm)
+│   ├── learned.md         ←    Learned Wiki: bài học từ lần sai
 │   └── index.md  log.md   ←    mục lục · nhật ký thay đổi
 ├── 2-environment/         ← ② ENVIRONMENT · tay và mắt của AI
-│   ├── rules.md           ←    luật làm việc (CLAUDE.md kéo vào)
-│   ├── tools.txt          ←    Tool Calling: công cụ AI được tự gọi
+│   ├── rules.md           ←    luật làm việc + quy trình model_led (CLAUDE.md kéo vào)
 │   ├── mcp.example.json   ←    MCP: Playwright, context7 (tuỳ chọn)
 │   ├── bot.mjs            ←    web: bot điều khiển Chrome, tự chơi game
 │   └── android-smoke.sh   ←    android: cài APK lên emulator, mở app, bắt crash
 ├── 3-verification/        ← ③ VERIFICATION · giám khảo
-│   └── verify.sh          ←    có test? unit test xanh? chạy thử được? → 🟢/🔴
+│   └── verify.sh          ←    có test? unit test xanh? chạy thử được? → 🟢 thì 🟡→✅
 ├── 4-memory/              ← ④ MEMORY · sổ tay
-│   ├── features.json      ←    ⏳ pending · ✅ passing · ⛔ blocked (đồng bộ từ 1-wiki/features/)
-│   ├── progress.md        ←    nhật ký từng lần chạy
-│   └── logs/              ←    log từng vòng lặp
+│   ├── features.json      ←    ⏳ · 🟡 · ✅ · ⛔ (đồng bộ từ 1-wiki/features/)
+│   ├── features.mjs       ←    lệnh đọc/ghi sổ: brief · claim · block · note
+│   ├── progress.md        ←    nhật ký tiến độ
+│   └── po-questions.md    ←    câu hỏi AI để lại cho bạn (PO)
 │
-├── plan.sh                ← HARNESS PLAN: raw/ → trang feature/screen/decision
-├── execute.sh             ← HARNESS EXECUTE: VÒNG LẶP code → verify → sửa
-├── test.sh                ← HARNESS AUTOMATION TEST: máy tự chạy thử + báo cáo ảnh
+├── .claude/commands/      ← 3 LỆNH CHAT: /game (Plan) · /build (Execute) · /play (Automation Test)
+├── .claude/settings.json  ← Tool Calling: AI được chạy lệnh nào, KHÔNG được sửa file nào
 ├── harness.config         ← loại dự án: STACK=web | android
+├── new-game.sh · test.sh  ← tạo trang trắng · bot chơi thử + báo cáo ảnh
 ├── CLAUDE.md              ← Claude Code tự đọc; trỏ tới 2-environment/rules.md
-└── game/                  ← SẢN PHẨM mà AI đang build (Parking Jam web)
+└── game/                  ← SẢN PHẨM mà AI đang build (Parking Jam mẫu)
 ```
 
-Mỗi thư mục có một `README.md` ngắn nói nó là gì.
-
-## Chạy thử trong 5 phút
+## Xem harness chạy trong 2 phút (không cần Claude)
 
 ```bash
-# 0. Xem game hiện tại (F1–F4 đã xong)
-node 2-environment/serve.mjs          # mở http://localhost:5173
-
-# 1. Sổ tay: đang ở đâu?
-node 4-memory/features.mjs list
-
-# 2. Automation test: bot tự chơi và chụp ảnh
-bash test.sh                          # mở reports/latest/report.html
-
-# 3. Verification: cổng đậu/rớt
-bash 3-verification/verify.sh F4      # 🟢 xanh
-bash 3-verification/verify.sh F5      # 🔴 đỏ — chưa có test cho F5
-
-# 4. VÒNG LẶP: để AI tự làm F5 tới khi xanh
-bash execute.sh                       # tự chọn tính năng ⏳ kế tiếp
+node 2-environment/serve.mjs          # mở http://localhost:5173 — game mẫu, F1–F4 đã xong
+node 4-memory/features.mjs brief      # sổ tay: đang ở đâu, còn gì
+bash test.sh                          # bot tự chơi, mở báo cáo có ảnh
+bash 3-verification/verify.sh F5      # 🔴 đỏ — F5 chưa có test, nên chưa thể passing
 ```
 
-Muốn mỗi tính năng xanh được lưu thành một commit: chạy `git init && git add -A && git commit -m init` trước.
-
-## Harness Plan: từ ý tưởng ra trang tính năng
-
-```bash
-# Thêm một ghi chú vào 1-wiki/raw/, ví dụ raw/them-dong-ho.md: "Hiện đồng hồ đếm thời gian mỗi level."
-bash plan.sh                          # AI viết features/F8-….md có "Done when", cập nhật index.md, log.md
-git diff 1-wiki/                      # bạn đọc lại kế hoạch trước khi build
-bash execute.sh                       # vòng lặp build F8
-```
-
-## Vòng lặp chạy thế nào
+## Vòng lặp model_led
 
 ```
-           ┌────────────────────────────────────────────┐
-           ▼                                            │
- ① Model đọc trang feature + learned.md → test + code   │ 🔴 đỏ: lỗi cụ thể
-           │  (Tool Calling: sửa file, chạy lệnh)       │      quay lại Model
-           ▼                                            │
- ② verify.sh chấm: test có không? unit test? chạy thử? ─┘
-           │ 🟢 xanh
-           ▼
- ③ features.json ✅ · progress.md + log.md thêm một dòng · git commit
+   ┌──────────────────────────────────────────────────────────────┐
+   ▼                                                              │
+ Model đọc brief + trang feature + learned.md                     │
+   → viết test (đỏ) → code (xanh) → claim 🟡  (lặp cho vài tính năng)
+   ▼                                                              │
+ bash 3-verification/verify.sh ── 🔴 đỏ: lỗi cụ thể ──────────────┘ (tối đa 3 lần/tính năng)
+   │ 🟢 xanh
+   ▼
+ verify.sh chuyển 🟡 → ✅ · log.md + progress.md thêm dòng
 ```
-
-Sau `MAX_ATTEMPTS` (mặc định 3) vòng vẫn đỏ: tính năng thành ⛔ blocked — đó là kết quả hợp lệ.
-Harness ghi **một dòng bài học** vào `1-wiki/learned.md` để lần sau AI đọc trước khi code. Người vào xem `4-memory/logs/`.
 
 ## Build game/app Android
 
 1. Tạo project trong Android Studio (*New Project → Empty Activity*) vào thư mục, ví dụ `android-game/`.
-2. Sửa `harness.config`:
-   ```
-   STACK=android
-   APP_DIR=android-game
-   ANDROID_PACKAGE=com.example.parkingjam
-   ```
-3. Thay ý tưởng trong `1-wiki/raw/`, chạy `bash plan.sh`, rồi `bash execute.sh`.
+2. Sửa `harness.config`: `STACK=android`, `APP_DIR=android-game`, `ANDROID_PACKAGE=com.example.…`,
+   và `ANDROID_SERIAL=emulator-5554` nếu máy cắm nhiều thiết bị.
+3. Trong Claude Code: `/game …` → `/build` → `/play`.
 
 Verification khi đó chạy: `./gradlew testDebugUnitTest` → `./gradlew assembleDebug` → cài APK lên emulator, mở app, bắt crash.
 Không có emulator thì bước chạy thử **bị bỏ qua và báo rõ** — bỏ qua không có nghĩa là đạt.
-
-## Luật quan trọng nhất
-
-> **AI không được tự nói "xong".** Chỉ `verify.sh` thoát mã 0 mới là xong.
 
 ## Mở rộng Environment bằng MCP (tuỳ chọn)
 

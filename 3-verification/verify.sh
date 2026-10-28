@@ -1,18 +1,25 @@
 #!/usr/bin/env bash
-# ③ VERIFICATION — giám khảo chấm đậu/rớt. Chỉ khi script này thoát mã 0 thì tính năng mới là XONG.
-#   bash 3-verification/verify.sh F5
+# ③ VERIFICATION — giám khảo chấm đậu/rớt. Chế độ model_led:
+#   Model làm xong tính năng nào thì `claim` (🟡). Chạy verify MỘT lần ở cuối:
+#     bash 3-verification/verify.sh            → chấm mọi tính năng đang 🟡 claimed
+#     bash 3-verification/verify.sh F2 F3      → chấm đúng các tính năng này
+#   Xanh → CHÍNH verify.sh chuyển chúng sang ✅ passing. Model không tự làm được việc đó.
 # Chấm theo loại dự án trong harness.config (STACK=web | android).
 set -u
 cd "$(dirname "$0")/.."
 # shellcheck source=../harness.config
 source ./harness.config
-FID="${1:-}"
+if [ "$#" -gt 0 ]; then
+  TARGETS="$*"
+else
+  TARGETS=$(node -e 'for (const f of JSON.parse(require("fs").readFileSync("4-memory/features.json","utf8"))) if (f.state === "claimed") console.log(f.id)' | tr '\n' ' ')
+fi
 fail=0
 
-echo "┌─ VERIFICATION ${FID:+· $FID} · stack=$STACK"
+echo "┌─ VERIFICATION · stack=$STACK · chấm: ${TARGETS:-(không có tính năng claimed — chỉ chạy kiểm tra chung)}"
 
-# 0) Luật "viết test trước": tính năng phải có file test mang tên của nó.
-if [ -n "$FID" ]; then
+# 0) Luật "viết test trước": mỗi tính năng phải có file test mang tên của nó.
+for FID in $TARGETS; do
   if [ "$STACK" = android ]; then
     found=$(find "$APP_DIR" -path '*/src/test/*' -name "*${FID}*" 2>/dev/null | head -1)
   else
@@ -24,7 +31,7 @@ if [ -n "$FID" ]; then
     echo "│ ✗ Thiếu test cho $FID — luật: viết test trước rồi mới code"
     fail=1
   fi
-fi
+done
 
 if [ "$STACK" = android ]; then
   # ---------------------------------------------------------------- Android
@@ -72,5 +79,15 @@ else
 fi
 
 echo "│"
-if [ "$fail" = 0 ]; then echo "└─ 🟢 XANH — đạt"; else echo "└─ 🔴 ĐỎ — chưa đạt"; fi
+if [ "$fail" = 0 ]; then
+  for FID in $TARGETS; do
+    node 4-memory/features.mjs promote "$FID" --gate
+    title=$(node -e 'const f=JSON.parse(require("fs").readFileSync("4-memory/features.json","utf8")).find(x=>x.id===process.argv[1]);console.log(f?f.title:"")' "$FID")
+    echo "- $(date +%F) · build · $FID ✅ passing ($title)" >> 1-wiki/log.md
+    echo "│ ✅ $FID → passing"
+  done
+  echo "└─ 🟢 XANH — đạt"
+else
+  echo "└─ 🔴 ĐỎ — chưa đạt. Các tính năng vẫn 🟡 claimed: sửa lỗi ở trên rồi chạy lại verify."
+fi
 exit "$fail"
