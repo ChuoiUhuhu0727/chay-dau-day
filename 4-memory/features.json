@@ -55,7 +55,9 @@
       "Chạm vào chỗ không có xe thì không tính.",
       "Sang level mới thì về 0."
     ],
-    "state": "pending"
+    "state": "passing",
+    "attempts": 1,
+    "verified_at": "2026-10-28T10:45:13.970Z"
   },
   {
     "id": "F6",

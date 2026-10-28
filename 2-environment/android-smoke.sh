@@ -12,9 +12,16 @@ if ! command -v adb >/dev/null; then
   echo "⚠ Không có adb → BỎ QUA chạy thử trên máy. (Bỏ qua ≠ đạt: cài Android SDK để harness nhìn được app.)"
   exit 0
 fi
-if [ -z "$(adb devices | awk 'NR>1 && $2=="device"')" ]; then
+devices=$(adb devices | awk 'NR>1 && $2=="device" {print $1}')
+if [ -z "$devices" ]; then
   echo "⚠ Không có emulator/điện thoại nào đang chạy → BỎ QUA. (Bỏ qua ≠ đạt: mở emulator trong Android Studio.)"
   exit 0
+fi
+if [ -n "${ANDROID_SERIAL:-}" ]; then
+  export ANDROID_SERIAL
+elif [ "$(echo "$devices" | wc -l | tr -d ' ')" -gt 1 ]; then
+  echo "✗ Đang có nhiều thiết bị: $(echo $devices). Đặt ANDROID_SERIAL trong harness.config để chọn một (thường là emulator-5554)."
+  exit 1
 fi
 [ -n "$ANDROID_PACKAGE" ] || { echo "✗ Chưa đặt ANDROID_PACKAGE trong harness.config"; exit 1; }
 
