@@ -13,7 +13,8 @@ if [ "${1:-}" = "--apply" ]; then
     const draft = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
     const cur = fs.existsSync("memory/features.json") ? JSON.parse(fs.readFileSync("memory/features.json", "utf8")) : [];
     const old = Object.fromEntries(cur.map((f) => [f.id, f]));
-    const merged = draft.map((f) => ({ ...f, state: old[f.id]?.state ?? "pending" }));
+    // Chỉ giữ trạng thái khi cùng id VÀ cùng tên; tính năng đổi nghĩa thì làm lại từ đầu.
+    const merged = draft.map((f) => ({ ...f, state: old[f.id] && old[f.id].title === f.title ? old[f.id].state : "pending" }));
     fs.writeFileSync("memory/features.json", JSON.stringify(merged, null, 2) + "\n");
   ' "$DRAFT"
   echo "Đã gộp vào memory/features.json:"
