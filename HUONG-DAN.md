@@ -1,89 +1,58 @@
-# Hướng dẫn nhanh — để AI tự build game của bạn
+# Hướng dẫn nhanh — chat với Claude để build game của bạn
 
-Bạn **không cần biết code**. Bạn viết ý tưởng, AI tự lên kế hoạch, tự code, tự kiểm tra.
+Bạn **không cần biết code** và **không cần gõ lệnh**. Bạn nói ý tưởng, AI tự lên kế hoạch, tự code, tự kiểm tra.
 Harness chỉ cho AI báo "xong" khi máy chơi thử và chấm đạt.
 
-> Đã thử thật: game "Lật thẻ tìm cặp" (5 tính năng) build xong trong **khoảng 9 phút**, không gõ dòng code nào.
-
 ---
 
-## Bước 0 · Cài đặt (một lần, ~10 phút)
+## 1 · Cài đặt (một lần)
 
-| Cài | Kiểm tra trong Terminal |
-|---|---|
-| **Node.js 22** — https://nodejs.org (bản LTS) | `node -v` → ra `v22…` |
-| **Google Chrome** | — |
-| **Claude Code** — https://claude.com/claude-code | `claude --version` |
-| **Windows:** cài thêm **Git Bash** (https://git-scm.com) và chạy mọi lệnh trong Git Bash | — |
+1. **Node.js 22** — https://nodejs.org (tải bản LTS, cài như phần mềm bình thường)
+2. **Google Chrome**
+3. **Claude Code** — https://claude.com/claude-code
+4. *(Chỉ Windows)* **Git Bash** — https://git-scm.com
 
-Đăng nhập Claude Code một lần: gõ `claude`, làm theo hướng dẫn, rồi gõ `/exit`.
+## 2 · Mở dự án
 
-Giải nén `mini-harness.zip`, mở Terminal **trong thư mục `mini-harness`**.
+1. Giải nén `mini-harness.zip`.
+2. Mở Terminal **trong thư mục `mini-harness`** (macOS: chuột phải thư mục → *New Terminal at Folder*;
+   Windows: chuột phải → *Open Git Bash here*).
+3. Gõ `claude` rồi Enter.
+4. Khi hỏi *"Do you trust the files in this folder?"* → chọn **Yes**. (Bước này cho phép AI chạy harness.)
 
-Kiểm tra mọi thứ chạy được (khoảng 10 giây):
+Từ đây chỉ **chat**. Có 3 lệnh:
 
-```bash
-bash test.sh
+## 3 · `/game` — nói ý tưởng
+
+Gõ `/game` rồi mô tả game. Ví dụ đã chạy thật:
+
+```
+/game Đoán số: máy nghĩ một số từ 1 đến 100, người chơi nhập số và bấm Đoán,
+máy báo Cao quá hoặc Thấp quá, đoán đúng thì hiện Đúng rồi kèm số lần đoán, có nút Chơi lại
 ```
 
-Thấy `🟢 Automation test: ĐẠT` và trình duyệt mở báo cáo có ảnh là xong bước 0.
+Khoảng 3 phút sau, Claude đưa **kế hoạch** (mỗi tính năng một dòng) và **câu hỏi cho bạn**.
+Bạn là người làm sản phẩm (PO): muốn đổi gì cứ chat, ví dụ *"đoán quá 10 lần thì thua"*.
 
----
+**Mẹo:** nói rõ *người chơi làm gì* và *khi nào thắng/thua*; dùng số cụ thể ("12 thẻ", "3 mạng");
+game chơi bằng bấm/chạm, không cần online.
 
-## Bước 1 · Bắt đầu game mới
+## 4 · `/build` — để AI làm
 
-```bash
-bash new-game.sh
+Gõ `/build`. Claude làm lần lượt từng tính năng (2–4 phút mỗi cái) và báo:
+
+```
+F1 · Số bí mật từ 1 đến 100 — 🟢 xanh ở vòng 1
+F2 · Ô nhập số và nút Đoán — 🔴→🟢 xanh ở vòng 2
+…
 ```
 
-Game mẫu Parking Jam được cất vào `examples/` để bạn tham khảo.
+🔴 nghĩa là máy chấm chưa đạt → AI tự sửa. Chỉ 🟢 mới là xong.
 
-## Bước 2 · Viết ý tưởng (đây là "prompt" của bạn)
+## 5 · `/play` — chơi thử
 
-Mở file **`1-wiki/raw/idea.md`** và điền. Ví dụ thật đã chạy thành công:
-
-```markdown
-**Tên game:** Lật thẻ tìm cặp
-**Cho ai:** học sinh, người chơi casual, chơi 1–2 phút.
-**Chơi thế nào:** Trên màn hình có 12 thẻ úp (6 cặp hình con vật, dùng emoji). Bấm một thẻ thì lật lên.
-Lật 2 thẻ: nếu giống nhau thì 2 thẻ giữ ngửa; nếu khác thì sau một chút cả 2 úp lại. Ghép hết 6 cặp là thắng.
-**Các tính năng muốn có:**
-- Bàn 12 thẻ úp, xáo trộn mỗi lần chơi
-- Bấm lật thẻ, lật 2 thẻ thì so cặp
-- Đếm số lượt (mỗi lần lật 2 thẻ là 1 lượt)
-- Thắng thì hiện "Bạn thắng!" kèm số lượt
-- Nút "Chơi lại" xáo bài mới
-```
-
-**Mẹo viết ý tưởng tốt:**
-- Nói rõ **người chơi làm gì** và **khi nào thắng/thua**.
-- Mỗi tính năng **một dòng**, cái quan trọng nhất lên trước. 3–6 tính năng là vừa.
-- Con số cụ thể ("12 thẻ", "3 mạng") tốt hơn chữ mơ hồ ("nhiều thẻ").
-- Game nhỏ, chơi bằng bấm/chạm. Tránh game cần vật lý phức tạp hay nhiều người chơi online.
-
-## Bước 3 · Để AI lên kế hoạch (~2–3 phút)
-
-```bash
-bash plan.sh
-```
-
-AI đọc ý tưởng và viết mỗi tính năng thành một trang trong `1-wiki/features/`, có mục **Done when** (thế nào là xong).
-**Bạn là PO:** mở vài trang ra đọc. Chưa đúng ý thì sửa thẳng trong trang đó.
-
-## Bước 4 · Để AI build (~2 phút mỗi tính năng)
-
-```bash
-bash build.sh
-```
-
-Bạn sẽ thấy từng vòng: AI viết test → code → máy chấm 🟢 hoặc 🔴 → đỏ thì AI tự sửa → tới khi xanh.
-
-## Bước 5 · Chơi thử
-
-```bash
-node 2-environment/serve.mjs      # mở http://localhost:5173
-bash test.sh                      # xem bot tự chơi, có ảnh từng bước
-```
+Gõ `/play`. Trình duyệt mở game cho bạn chơi, và một báo cáo có ảnh bot tự chơi.
+Muốn thêm tính năng? Cứ chat ý tưởng mới, rồi `/build` lại.
 
 ---
 
@@ -91,14 +60,13 @@ bash test.sh                      # xem bot tự chơi, có ảnh từng bước
 
 | Thấy gì | Làm gì |
 |---|---|
-| `❓ AI có câu hỏi cho bạn` | Mở `4-memory/po-questions.md`. Trả lời bằng cách sửa trang Wiki tương ứng, chạy lại `bash plan.sh` rồi `bash build.sh`. |
-| `⛔ Dừng ở F3` | AI thử 3 lần chưa xanh. Đọc `4-memory/logs/F3-*`. Thường do ý tưởng chưa rõ: sửa trang `1-wiki/features/F3-….md` cho cụ thể hơn, rồi chạy `node 4-memory/features.mjs set F3 pending && bash build.sh`. |
-| Báo giới hạn / rate limit của Claude | Cả lớp dùng chung tài khoản. Đợi vài phút rồi chạy lại `bash build.sh` — nó làm tiếp từ chỗ dừng. |
-| `Không tìm thấy Chrome` | Cài Chrome, hoặc đặt đường dẫn: `export CHROME="/đường/dẫn/chrome"` |
-| Muốn thêm tính năng sau khi xong | Tạo file mới trong `1-wiki/raw/` (ví dụ `them-am-thanh.md`), rồi `bash plan.sh` và `bash build.sh`. |
+| Claude hỏi lại | Trả lời bằng lời bình thường. |
+| ⛔ dừng ở một tính năng | Claude sẽ giải thích lý do. Nói rõ hơn bạn muốn gì, rồi gõ `/build` tiếp. |
+| Báo giới hạn / rate limit | Cả lớp dùng chung tài khoản. Đợi vài phút rồi gõ `/build` — nó làm tiếp từ chỗ dừng. |
+| Claude hỏi xin quyền chạy lệnh | Bạn chưa chọn *Yes* ở bước Trust. Gõ `/exit`, mở lại `claude` và chọn **Yes**. |
 
 ## Luật duy nhất cần nhớ
 
 > **AI nói "xong" chưa phải là xong. Máy chấm 🟢 mới là xong.**
 
-Muốn hiểu bên trong harness có gì? Đọc `README.md` và `README.md` trong từng thư mục `1-wiki/`, `2-environment/`, `3-verification/`, `4-memory/`.
+*Muốn xem bên trong harness có gì: đọc `README.md`.*

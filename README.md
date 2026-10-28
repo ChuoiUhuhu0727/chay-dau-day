@@ -3,6 +3,9 @@
 Một harness nhỏ, đọc hết trong 10 phút, để thấy tận mắt: **AI tự build game, tự kiểm tra, và chỉ được tính là xong khi máy chứng minh được.**
 Build được game **web** (mặc định) hoặc game/app **Android**.
 
+> **Sinh viên: đọc [HUONG-DAN.md](HUONG-DAN.md)** — chỉ cần mở `claude` trong thư mục này rồi chat `/game`, `/build`, `/play`.
+> File README này dành cho ai muốn hiểu bên trong harness.
+
 ## Cần cài
 
 | Công cụ | Kiểm tra | Ghi chú |
