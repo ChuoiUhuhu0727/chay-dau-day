@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 // Quản lý 4-memory/features.json. Chỉ HARNESS gọi file này — AI không tự sửa danh sách tính năng.
-//   node 4-4-memory/features.mjs list
-//   node 4-4-memory/features.mjs next              → id tính năng "pending" đầu tiên
-//   node 4-4-memory/features.mjs show F5           → JSON của 1 tính năng
-//   node 4-4-memory/features.mjs set F5 passing    → đổi trạng thái (pending | passing | blocked)
-//   node 4-4-memory/features.mjs validate <file>   → kiểm tra file do Harness Plan sinh ra
+//   node 4-memory/features.mjs list
+//   node 4-memory/features.mjs next              → id tính năng "pending" đầu tiên
+//   node 4-memory/features.mjs show F5           → JSON của 1 tính năng
+//   node 4-memory/features.mjs set F5 passing    → đổi trạng thái (pending | passing | blocked)
+//   node 4-memory/features.mjs validate <file>   → kiểm tra file do Harness Plan sinh ra
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

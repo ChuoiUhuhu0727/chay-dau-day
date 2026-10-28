@@ -49,7 +49,7 @@ Mỗi thư mục có một `README.md` ngắn nói nó là gì.
 node 2-environment/serve.mjs            # mở http://localhost:5173
 
 # 1. Xem sổ tay: đang ở đâu?
-node 4-4-memory/features.mjs list
+node 4-memory/features.mjs list
 
 # 2. Automation test: bot tự chơi và chụp ảnh
 bash test.sh              # mở reports/latest/report.html

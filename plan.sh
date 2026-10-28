@@ -18,7 +18,7 @@ if [ "${1:-}" = "--apply" ]; then
     fs.writeFileSync("4-memory/features.json", JSON.stringify(merged, null, 2) + "\n");
   ' "$DRAFT"
   echo "Đã gộp vào 4-memory/features.json:"
-  node 4-4-memory/features.mjs list
+  node 4-memory/features.mjs list
   exit 0
 fi
 
@@ -38,6 +38,6 @@ echo "$RAW" | node -e '
   if (a < 0 || b < a) { console.error("Model không trả JSON:\n" + s); process.exit(1); }
   require("fs").writeFileSync(process.argv[1], JSON.stringify(JSON.parse(s.slice(a, b + 1)), null, 2) + "\n");
 ' "$DRAFT"
-node 4-4-memory/features.mjs validate "$DRAFT" | sed 's/^/│ /'
+node 4-memory/features.mjs validate "$DRAFT" | sed 's/^/│ /'
 node -e 'for (const f of JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))) console.log(`│  ${f.id.padEnd(4)} ${f.title}\n│       kiểm: ${f.check}`)' "$DRAFT"
 echo "└─ Bản nháp: $DRAFT. Đọc lại, sửa nếu cần, rồi chạy: bash plan.sh --apply"
