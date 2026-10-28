@@ -4,7 +4,6 @@ import { LEVELS, createState, tap, isComplete, isHorizontal } from './logic.js';
 const lot = document.getElementById('lot');
 const levelName = document.getElementById('level-name');
 const complete = document.getElementById('complete');
-const moves = document.getElementById('moves');
 
 let state = createState(0);
 
@@ -13,7 +12,6 @@ const EXIT_OFFSET = { right: [1, 0], left: [-1, 0], up: [0, -1], down: [0, 1] };
 
 function render() {
   levelName.textContent = LEVELS[state.levelIndex].name;
-  renderMoves();
   lot.replaceChildren(
     ...state.cars.map((car) => {
       const el = document.createElement('button');
@@ -35,22 +33,17 @@ function render() {
   complete.hidden = !isComplete(state);
 }
 
-function renderMoves() {
-  moves.textContent = `Lượt: ${state.moves}`;
-}
-
 function onTap(id, el) {
   const car = state.cars.find((c) => c.id === id);
   const next = tap(state, id);
-  if (next.result === 'missing') return;
-  state = next.state;
-  renderMoves();
   if (next.result === 'blocked') {
     el.classList.remove('blocked');
     void el.offsetWidth; // chạy lại animation
     el.classList.add('blocked');
     return;
   }
+  if (next.result !== 'exited') return;
+  state = next.state;
   const [dx, dy] = EXIT_OFFSET[car.dir];
   el.style.transform = `translate(${dx * 500}px, ${dy * 500}px)`;
   el.style.opacity = '0';
