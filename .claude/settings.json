@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash new-game.sh)",
+      "Bash(bash plan.sh)",
+      "Bash(bash build.sh)",
+      "Bash(bash execute.sh:*)",
+      "Bash(bash test.sh)",
+      "Bash(bash 3-verification/verify.sh:*)",
+      "Bash(node 4-memory/features.mjs:*)",
+      "Bash(node 2-environment/serve.mjs)",
+      "Bash(open http://localhost:5173)",
+      "Edit(1-wiki/**)",
+      "Write(1-wiki/**)"
+    ]
+  }
+}
