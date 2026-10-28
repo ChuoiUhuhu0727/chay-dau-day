@@ -7,20 +7,20 @@ Harness chỉ cho AI báo "xong" khi máy chơi thử và chấm đạt.
 
 ## 1 · Cài đặt (một lần)
 
-1. **Node.js 22** — https://nodejs.org (tải bản LTS, cài như phần mềm bình thường)
-2. **Google Chrome**
-3. **Claude Code** — https://claude.com/claude-code
-4. *(Chỉ Windows)* **Git Bash** — https://git-scm.com
+1. **Claude Desktop** — https://claude.ai/download (đăng nhập tài khoản lớp)
+2. **Node.js 22** — https://nodejs.org (bản LTS)
+3. **Google Chrome**
 
-## 2 · Mở dự án
+## 2 · Mở dự án trong Claude Desktop
 
-1. Giải nén `mini-harness.zip`.
-2. Mở Terminal **trong thư mục `mini-harness`** (macOS: chuột phải thư mục → *New Terminal at Folder*;
-   Windows: chuột phải → *Open Git Bash here*).
-3. Gõ `claude` rồi Enter.
-4. Khi hỏi *"Do you trust the files in this folder?"* → chọn **Yes**. (Bước này cho phép AI chạy harness.)
+1. Giải nén `mini-harness.zip` (ví dụ vào **Downloads**).
+2. Mở Claude Desktop → tab **Code** (biểu tượng `</>` góc trên).
+3. Dưới ô chat bấm **Choose…** → **Open folder…** → chọn thư mục `mini-harness` → **Open**.
+4. Khi hỏi *"Trust this workspace?"* → bấm **Trust workspace**. (Bước này cho phép AI chạy harness.)
 
-Từ đây chỉ **chat**. Có 3 lệnh:
+Thấy chữ **mini-harness** dưới ô chat là sẵn sàng. Gõ `/` để thấy các lệnh `game`, `build`, `play`.
+
+> Dùng Terminal thay Desktop? Mở Terminal trong thư mục, gõ `claude`, chọn **Yes, I trust this folder**. Các lệnh giống hệt.
 
 ## 3 · `/game` — nói ý tưởng
 
@@ -63,7 +63,7 @@ Muốn thêm tính năng? Cứ chat ý tưởng mới, rồi `/build` lại.
 | Claude hỏi lại | Trả lời bằng lời bình thường. |
 | ⛔ dừng ở một tính năng | Claude sẽ giải thích lý do. Nói rõ hơn bạn muốn gì, rồi gõ `/build` tiếp. |
 | Báo giới hạn / rate limit | Cả lớp dùng chung tài khoản. Đợi vài phút rồi gõ `/build` — nó làm tiếp từ chỗ dừng. |
-| Claude hỏi xin quyền chạy lệnh | Bạn chưa chọn *Yes* ở bước Trust. Gõ `/exit`, mở lại `claude` và chọn **Yes**. |
+| Claude hỏi xin quyền chạy lệnh | Bạn chưa bấm *Trust workspace*. Mở phiên mới, chọn lại thư mục và bấm **Trust**. |
 
 ## Luật duy nhất cần nhớ
 
