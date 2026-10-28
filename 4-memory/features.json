@@ -1,46 +1,9 @@
 [
-  {
-    "id": "F1",
-    "title": "Bãi xe 6×6 hiện đủ xe của level",
-    "check": "Mọi xe nằm trong bãi, không chồng nhau, dài 2–3 ô, có hướng.",
-    "state": "passing"
-  },
-  {
-    "id": "F2",
-    "title": "Chạm xe có đường trống thì xe rời bãi",
-    "check": "tap(xe đường trống) trả 'exited' và xe biến mất khỏi state.",
-    "state": "passing"
-  },
-  {
-    "id": "F3",
-    "title": "Chạm xe bị chặn thì xe đứng yên và rung",
-    "check": "tap(xe bị chặn) trả 'blocked', số xe không đổi.",
-    "state": "passing"
-  },
-  {
-    "id": "F4",
-    "title": "Hết xe thì hiện màn \"Hoàn thành!\"",
-    "check": "Giải hết xe thì isComplete = true; mọi level đều giải được; #complete hiện ra.",
-    "state": "passing"
-  },
-  {
-    "id": "F5",
-    "title": "Đếm lượt chạm \"Lượt: N\"",
-    "check": "Mỗi lần chạm xe (kể cả bị chặn) tăng 1; level mới về 0; HUD có phần tử #moves hiện \"Lượt: N\".",
-    "state": "passing",
-    "attempts": 1,
-    "verified_at": "2026-10-28T10:26:09.478Z"
-  },
-  {
-    "id": "F6",
-    "title": "Nút \"Chơi lại\"",
-    "check": "Nút #restart đưa level hiện tại về trạng thái ban đầu và lượt về 0.",
-    "state": "pending"
-  },
-  {
-    "id": "F7",
-    "title": "3 level, nút \"Level tiếp\", hết thì \"Bạn đã phá đảo!\"",
-    "check": "Ở màn Hoàn thành có nút #next sang level sau; sau level 3 hiện \"Bạn đã phá đảo!\".",
-    "state": "pending"
-  }
+  { "id": "F1", "title": "Bãi xe 6×6 hiện đủ xe của level", "check": "Mọi xe nằm trong bãi, không chồng nhau, dài 2–3 ô, có hướng.", "state": "passing" },
+  { "id": "F2", "title": "Chạm xe có đường trống thì xe rời bãi", "check": "tap(xe đường trống) trả 'exited' và xe biến mất khỏi state.", "state": "passing" },
+  { "id": "F3", "title": "Chạm xe bị chặn thì xe đứng yên và rung", "check": "tap(xe bị chặn) trả 'blocked', số xe không đổi.", "state": "passing" },
+  { "id": "F4", "title": "Hết xe thì hiện màn \"Hoàn thành!\"", "check": "Giải hết xe thì isComplete = true; mọi level đều giải được; #complete hiện ra.", "state": "passing" },
+  { "id": "F5", "title": "Đếm lượt chạm \"Lượt: N\"", "check": "Mỗi lần chạm xe (kể cả bị chặn) tăng 1; level mới về 0; HUD có phần tử #moves hiện \"Lượt: N\".", "state": "pending" },
+  { "id": "F6", "title": "Nút \"Chơi lại\"", "check": "Nút #restart đưa level hiện tại về trạng thái ban đầu và lượt về 0.", "state": "pending" },
+  { "id": "F7", "title": "3 level, nút \"Level tiếp\", hết thì \"Bạn đã phá đảo!\"", "check": "Ở màn Hoàn thành có nút #next sang level sau; sau level 3 hiện \"Bạn đã phá đảo!\".", "state": "pending" }
 ]
