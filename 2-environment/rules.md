@@ -20,7 +20,8 @@ Loại dự án (web hay Android) nằm trong `harness.config`.
    - android: file test trong `src/test/` có tên chứa `<FID>`, ví dụ `F5DemLuotTest.kt` (JUnit)
 4. **Không bao giờ tự nói "xong"**. Chạy `bash 3-verification/verify.sh <FID>`; nó thoát 0 mới là xong.
 5. **Không sửa test cho xanh**, không xoá test của tính năng khác.
-6. **Không đoán khi Wiki không nói rõ.** Dừng lại, ghi câu hỏi vào câu trả lời cuối để người làm sản phẩm (PO) quyết.
+6. **Không đoán khi Wiki không nói rõ.** Làm theo cách hợp lý nhất, và ghi một dòng bắt đầu bằng `Câu hỏi cho PO:` trong câu trả lời cuối để người làm sản phẩm (PO) quyết.
+8. **Luôn trả lời bằng tiếng Việt.**
 7. Không sửa `1-wiki/raw/` (ý tưởng gốc). Không thêm thư viện nếu `decisions/` không cho phép.
 
 ## Riêng game web (STACK=web)
@@ -29,4 +30,6 @@ Loại dự án (web hay Android) nằm trong `harness.config`.
 - `game/ui.js` luôn có `window.__game = { state: () => … }` để bot đọc được trạng thái.
 - Bot tự chơi theo kịch bản `game/e2e.mjs` (hàm `play`). **Tính năng nào có giao diện thì thêm bước vào `e2e.mjs`**
   để bot bấm thử và `check(...)` đúng như *Done when* — không chỉ unit test.
+- Trong `e2e.mjs`: gọi `shot('…')` sau mỗi bước quan trọng để báo cáo có ảnh cho người xem.
+- Tên của mỗi `check(...)` phải nói đúng điều nó kiểm. Không nới điều kiện cho xanh (ví dụ ghi "6 lượt" mà chấp nhận 7).
 - Mở game: `node 2-environment/serve.mjs` → http://localhost:5173

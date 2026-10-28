@@ -3,7 +3,7 @@
 #   features/ (mỗi tính năng một trang, có "Done when") · screens/ · decisions/ · index.md · log.md
 # Sau đó harness đồng bộ danh sách tính năng sang ④ Memory (4-memory/features.json).
 #   bash plan.sh
-#   (Bạn đọc lại bằng: git diff 1-wiki/   — người duyệt kế hoạch trước khi build.)
+#   Bạn là PO: đọc lại 1-wiki/features/ trước khi build.
 set -eu
 cd "$(dirname "$0")"
 command -v claude >/dev/null || { echo "Cần cài Claude Code: https://claude.com/claude-code"; exit 1; }
@@ -20,10 +20,10 @@ Cập nhật Wiki cho khớp raw/:
 2. 1-wiki/screens/ và 1-wiki/decisions/: thêm hoặc sửa nếu raw/ có màn hình hay quyết định mới.
 3. 1-wiki/index.md: liệt kê mọi trang. 1-wiki/log.md: thêm MỘT dòng mô tả lần plan này.
 Không đụng vào game/, 4-memory/, raw/. Cuối cùng in 2–3 dòng: đã thêm/sửa trang nào.'
-echo "$PROMPT" | claude -p --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Write,Edit" ${MODEL:+--model "$MODEL"} | sed 's/^/│   /'
+echo "$PROMPT" | claude -p --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Write,Edit,Bash(node 4-memory/features.mjs:*)" ${MODEL:+--model "$MODEL"} | sed 's/^/│   /'
 
 echo "│"
 echo "│ Harness đồng bộ ④ Memory từ 1-wiki/features/…"
 node 4-memory/features.mjs sync | sed 's/^/│ /'
 node 4-memory/features.mjs list | sed 's/^/│   /'
-echo "└─ Xong. Đọc lại thay đổi: git diff 1-wiki/   rồi chạy: bash execute.sh"
+echo "└─ Xong. Đọc lại các trang trong 1-wiki/features/ (bạn là PO: sửa nếu chưa đúng ý), rồi chạy: bash build.sh"

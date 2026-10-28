@@ -13,4 +13,8 @@ while FID=$(node 4-memory/features.mjs next); do
 done
 echo
 echo "🎉 Xong hết. Mở game: node 2-environment/serve.mjs  ·  Xem bot chơi: bash test.sh"
+if [ -s 4-memory/po-questions.md ]; then
+  echo
+  echo "❓ AI có câu hỏi cho bạn (PO) — xem 4-memory/po-questions.md, trả lời bằng cách sửa trang Wiki rồi chạy lại."
+fi
 node 4-memory/features.mjs list

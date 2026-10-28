@@ -40,7 +40,7 @@ printf '# Log — mỗi thay đổi một dòng\n\n- %s · new-game · bắt đ�
 # ④ Memory trống
 echo '[]' > 4-memory/features.json
 printf '# Progress — sổ tay của harness\n\n- %s · bắt đầu game mới\n' "$(date +%F)" > 4-memory/progress.md
-rm -rf 4-memory/logs reports
+rm -rf 4-memory/logs reports 4-memory/po-questions.md
 
 # Sản phẩm: khung trống tối thiểu
 mkdir -p game/tests

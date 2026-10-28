@@ -32,7 +32,7 @@ $FEATURE
 Trước khi code: đọc trang Wiki $PAGE, 1-wiki/learned.md và các trang screens/ decisions/ liên quan.
 Viết test cho từng dòng Done when trước, chạy cho đỏ, rồi sửa code cho xanh.
 Khi nghĩ đã xong, tự chạy: bash 3-verification/verify.sh $FID
-Trả lời cuối cùng bằng 2–3 dòng: đã sửa file nào, test nào. Nếu Wiki không rõ, ghi câu hỏi cho PO."
+Trả lời cuối cùng bằng tiếng Việt, 2–3 dòng: đã sửa file nào, test nào. Nếu Wiki không rõ, thêm một dòng bắt đầu bằng \"Câu hỏi cho PO:\"."
   if [ -n "$feedback" ]; then
     PROMPT="$PROMPT
 
@@ -51,6 +51,10 @@ $feedback"
     node 4-memory/features.mjs set "$FID" passing
     echo "- $today · $FID ✅ passing sau $attempt vòng." >> 4-memory/progress.md
     echo "- $today · build · $FID ✅ passing ($TITLE)" >> 1-wiki/log.md
+    # Gom câu hỏi cho PO vào một chỗ để người xem
+    if grep -q "Câu hỏi cho PO" "4-memory/logs/$FID-$attempt-model.txt"; then
+      { echo "## $FID · $TITLE"; grep -A3 "Câu hỏi cho PO" "4-memory/logs/$FID-$attempt-model.txt" | sed '/^--$/d'; echo; } >> 4-memory/po-questions.md
+    fi
     if git rev-parse --git-dir >/dev/null 2>&1; then
       git add -A >/dev/null && git commit -q -m "feat($FID): $TITLE" && echo "③ Đã lưu một commit cho $FID (lùi lại được nếu cần)."
     fi
