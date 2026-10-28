@@ -34,6 +34,8 @@ bấm trúng được 1 điểm, ván chơi 30 giây, hết giờ hiện Hết g
 Khoảng 3 phút sau, Claude đưa **kế hoạch** (mỗi tính năng một dòng) và **câu hỏi cho bạn**.
 Bạn là người làm sản phẩm (PO): muốn đổi gì cứ chat, ví dụ *"bấm trượt thì trừ 1 điểm"*.
 
+**Ý tưởng còn sơ sài cũng được**, ví dụ `/game làm game nuôi thú cưng`. Claude sẽ hỏi lại tối đa 5 câu trắc nghiệm có gợi ý; trả lời kiểu `1A 2C 3B` (thêm ý riêng nếu muốn) hoặc gõ `ok`.
+
 **Mẹo:** nói rõ *người chơi làm gì* và *khi nào thắng/thua*; dùng số cụ thể ("12 thẻ", "3 mạng");
 game chơi bằng bấm/chạm, không cần online.
 **Muốn đẹp?** Thêm vài chữ về cảm xúc và hình: *"phong cách vui nhộn, màu kẹo ngọt, nhân vật là con mèo"*. AI tự chọn màu, font, hình miễn phí (xem `1-wiki/design/`). Chơi thử thấy chưa đẹp thì chat: *"nút to hơn, thêm hiệu ứng khi thắng"*.
