@@ -1,28 +1,30 @@
-# CLAUDE.md — Luật làm việc của AI trong mini harness
+# Luật làm việc của AI trong mini harness
 
 Bạn là **Model** (bộ não). Bạn làm việc bên trong một harness gồm 4 phần:
 
 | Phần | Ở đâu | Bạn dùng thế nào |
 |---|---|---|
-| Wiki | `1-wiki/product.md`, `1-wiki/learned.md` | ĐỌC trước khi code. Wiki thắng nếu khác code. |
-| Environment | `2-environment/` — Tool Calling (`tools.txt`), MCP, bot | Tự chạy lệnh để kiểm tra, không đoán. |
-| Verification | `./3-verification/verify.sh <FID>` | Chỉ khi lệnh này thoát mã 0 thì tính năng mới là XONG. |
-| Memory | `4-memory/features.json`, `4-memory/progress.md` | Đọc để biết đang ở đâu. **Không tự sửa `features.json`.** |
+| ① Wiki | `1-wiki/` — `features/` (mỗi tính năng một trang, có *Done when*), `screens/`, `decisions/`, `learned.md` | ĐỌC trước khi code. Wiki là sự thật: code khác Wiki thì code sai. |
+| ② Environment | `2-environment/` — Tool Calling (`tools.txt`), MCP, bot | Tự chạy lệnh để kiểm tra, không đoán. |
+| ③ Verification | `bash 3-verification/verify.sh <FID>` | Chỉ khi lệnh này thoát mã 0 thì tính năng mới là XONG. |
+| ④ Memory | `4-memory/features.json`, `4-memory/progress.md`, `1-wiki/log.md` | Đọc để biết đang ở đâu. **Không tự sửa `features.json`.** |
+
+Loại dự án (web hay Android) nằm trong `harness.config`.
 
 ## Luật
 
 1. **Mỗi lần chỉ làm MỘT tính năng** (harness sẽ nói tính năng nào).
-2. **Viết test trước**: tạo `game/tests/<FID>.test.js` dùng `node:test`, chạy cho ĐỎ, rồi mới sửa code cho XANH.
-3. **Không bao giờ tự nói "xong"**. Chạy `./3-verification/verify.sh <FID>`; nó thoát 0 mới là xong.
-4. **Không sửa test cho xanh**, không xoá test của tính năng khác.
-5. Luật chơi để trong `game/logic.js` (hàm thuần). DOM để trong `game/ui.js`.
-6. Không thêm thư viện, không thêm bước build.
+2. **Đọc trang feature trước**: `1-wiki/features/F<số>-*.md`. Mỗi dòng *Done when* phải có ít nhất một test.
+3. **Viết test trước**, chạy cho ĐỎ, rồi mới sửa code cho XANH.
+   - web: `game/tests/<FID>.test.js` dùng `node:test`
+   - android: file test trong `src/test/` có tên chứa `<FID>`, ví dụ `F5DemLuotTest.kt` (JUnit)
+4. **Không bao giờ tự nói "xong"**. Chạy `bash 3-verification/verify.sh <FID>`; nó thoát 0 mới là xong.
+5. **Không sửa test cho xanh**, không xoá test của tính năng khác.
+6. **Không đoán khi Wiki không nói rõ.** Dừng lại, ghi câu hỏi vào câu trả lời cuối để người làm sản phẩm (PO) quyết.
+7. Không sửa `1-wiki/raw/` (ý tưởng gốc). Không thêm thư viện nếu `decisions/` không cho phép.
 
-## Hợp đồng với bot test (`window.__game`)
+## Riêng game web (STACK=web)
 
-`game/ui.js` phải giữ các hàm này để bot tự chơi được:
-
-- `window.__game.state()` → trạng thái hiện tại (object từ `logic.js`)
-- `window.__game.cars()` → mảng id các xe còn trong bãi
-- Mỗi xe là một phần tử có `data-car="<id>"`, bấm (click) được.
-- Khi hoàn thành level: phần tử `#complete` hiện ra (không có thuộc tính `hidden`).
+- Luật chơi trong `game/logic.js` (hàm thuần). DOM trong `game/ui.js`.
+- Giữ hợp đồng với bot test: `window.__game.state()`, `window.__game.cars()`, mỗi xe có `data-car="<id>"`,
+  `#complete` hiện ra khi hết xe. (Xem `1-wiki/decisions/bot-test-qua-window-game.md`.)

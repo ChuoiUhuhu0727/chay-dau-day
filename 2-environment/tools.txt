@@ -8,3 +8,6 @@ Grep
 Bash(node:*)
 Bash(bash 3-verification/verify.sh:*)
 Bash(./3-verification/verify.sh:*)
+# Cho dự án Android (STACK=android)
+Bash(./gradlew:*)
+Bash(adb:*)

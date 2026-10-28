@@ -1,7 +1,7 @@
-# Product Requirement — Parking Jam (bản web)
+# Ý tưởng game — Parking Jam (raw)
 
-> Đây là **nguồn sự thật**. AI đọc file này trước khi lên kế hoạch và trước khi code.
-> Verification cũng chấm theo file này. Nếu code khác file này thì **code sai**.
+> File gốc trong `raw/`: ghi chú ý tưởng của người làm sản phẩm. **Không bao giờ sửa file này.**
+> `plan.sh` đọc nó rồi viết các trang `features/`, `screens/`, `decisions/` trong wiki.
 
 ## Game là gì
 

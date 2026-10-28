@@ -11,6 +11,8 @@ FID="${1:-$(node 4-memory/features.mjs next)}" || true
 [ -n "$FID" ] || { echo "🎉 Không còn tính năng nào đang chờ."; node 4-memory/features.mjs list; exit 0; }
 FEATURE=$(node 4-memory/features.mjs show "$FID") || exit 1
 TITLE=$(node -e 'console.log(JSON.parse(process.argv[1]).title)' "$FEATURE")
+PAGE=$(node -e 'console.log(JSON.parse(process.argv[1]).page)' "$FEATURE")
+source ./harness.config
 # ② Environment: danh sách công cụ AI được phép gọi (Tool Calling)
 TOOLS=$(grep -v '^#' 2-environment/tools.txt | grep -v '^$' | paste -sd, -)
 mkdir -p 4-memory/logs
@@ -22,15 +24,15 @@ for attempt in $(seq 1 "$MAX"); do
   echo
   echo "════════ VÒNG LẶP $attempt/$MAX · $FID · $TITLE ════════"
   echo "① Model đọc Wiki + Memory, rồi code bằng Tool Calling…"
-  PROMPT="Làm tính năng $FID theo đúng luật trong CLAUDE.md.
+  PROMPT="Làm tính năng $FID theo đúng luật trong 2-environment/rules.md (loại dự án: $STACK, thư mục: $APP_DIR).
 
 Tính năng (từ 4-memory/features.json):
 $FEATURE
 
-Trước khi code: đọc 1-wiki/product.md và 1-wiki/learned.md.
-Viết test game/tests/$FID.test.js trước, chạy cho đỏ, rồi sửa game/ cho xanh.
+Trước khi code: đọc trang Wiki $PAGE, 1-wiki/learned.md và các trang screens/ decisions/ liên quan.
+Viết test cho từng dòng Done when trước, chạy cho đỏ, rồi sửa code cho xanh.
 Khi nghĩ đã xong, tự chạy: bash 3-verification/verify.sh $FID
-Trả lời cuối cùng bằng 2–3 dòng: đã sửa file nào, test nào."
+Trả lời cuối cùng bằng 2–3 dòng: đã sửa file nào, test nào. Nếu Wiki không rõ, ghi câu hỏi cho PO."
   if [ -n "$feedback" ]; then
     PROMPT="$PROMPT
 
@@ -48,6 +50,7 @@ $feedback"
     sed 's/^/   /' "4-memory/logs/$FID-$attempt-verify.txt"
     node 4-memory/features.mjs set "$FID" passing
     echo "- $today · $FID ✅ passing sau $attempt vòng." >> 4-memory/progress.md
+    echo "- $today · build · $FID ✅ passing ($TITLE)" >> 1-wiki/log.md
     if git rev-parse --git-dir >/dev/null 2>&1; then
       git add -A >/dev/null && git commit -q -m "feat($FID): $TITLE" && echo "③ Đã lưu một commit cho $FID (lùi lại được nếu cần)."
     fi

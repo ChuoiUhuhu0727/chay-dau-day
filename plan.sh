@@ -1,43 +1,29 @@
 #!/usr/bin/env bash
-# HARNESS PLAN — AI đọc Wiki (product.md) rồi chia thành danh sách tính năng nhỏ, mỗi cái có câu "kiểm thế nào".
-#   bash plan.sh            → ghi bản nháp 4-memory/features.plan.json để bạn đọc lại
-#   bash plan.sh --apply    → gộp bản nháp vào 4-memory/features.json (tính năng cũ giữ nguyên trạng thái)
+# HARNESS PLAN — AI đọc ý tưởng gốc trong 1-wiki/raw/ rồi viết Wiki theo kiến trúc:
+#   features/ (mỗi tính năng một trang, có "Done when") · screens/ · decisions/ · index.md · log.md
+# Sau đó harness đồng bộ danh sách tính năng sang ④ Memory (4-memory/features.json).
+#   bash plan.sh
+#   (Bạn đọc lại bằng: git diff 1-wiki/   — người duyệt kế hoạch trước khi build.)
 set -eu
 cd "$(dirname "$0")"
-DRAFT="4-memory/features.plan.json"
-
-if [ "${1:-}" = "--apply" ]; then
-  [ -f "$DRAFT" ] || { echo "Chưa có $DRAFT. Chạy: bash plan.sh"; exit 1; }
-  node -e '
-    const fs = require("fs");
-    const draft = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-    const cur = fs.existsSync("4-memory/features.json") ? JSON.parse(fs.readFileSync("4-memory/features.json", "utf8")) : [];
-    const old = Object.fromEntries(cur.map((f) => [f.id, f]));
-    // Chỉ giữ trạng thái khi cùng id VÀ cùng tên; tính năng đổi nghĩa thì làm lại từ đầu.
-    const merged = draft.map((f) => ({ ...f, state: old[f.id] && old[f.id].title === f.title ? old[f.id].state : "pending" }));
-    fs.writeFileSync("4-memory/features.json", JSON.stringify(merged, null, 2) + "\n");
-  ' "$DRAFT"
-  echo "Đã gộp vào 4-memory/features.json:"
-  node 4-memory/features.mjs list
-  exit 0
-fi
-
 command -v claude >/dev/null || { echo "Cần cài Claude Code: https://claude.com/claude-code"; exit 1; }
+
 echo "┌─ HARNESS PLAN"
-echo "│ Model đọc 1-wiki/product.md và chia việc…"
-PROMPT='Đọc 1-wiki/product.md. Chia sản phẩm thành danh sách tính năng NHỎ, mỗi tính năng làm xong trong một vòng (viết test + code).
-Mỗi tính năng có:
-- "id": F1, F2, … theo thứ tự nên làm (cái nền tảng trước)
-- "title": tên ngắn tiếng Việt
-- "check": MỘT câu nói rõ máy kiểm tra thế nào là đúng (đo được, không mơ hồ)
-Chỉ in ra một mảng JSON hợp lệ, không giải thích, không markdown.'
-RAW=$(echo "$PROMPT" | claude -p --allowedTools "Read" --output-format text)
-echo "$RAW" | node -e '
-  const s = require("fs").readFileSync(0, "utf8");
-  const a = s.indexOf("["), b = s.lastIndexOf("]");
-  if (a < 0 || b < a) { console.error("Model không trả JSON:\n" + s); process.exit(1); }
-  require("fs").writeFileSync(process.argv[1], JSON.stringify(JSON.parse(s.slice(a, b + 1)), null, 2) + "\n");
-' "$DRAFT"
-node 4-memory/features.mjs validate "$DRAFT" | sed 's/^/│ /'
-node -e 'for (const f of JSON.parse(require("fs").readFileSync(process.argv[1], "utf8"))) console.log(`│  ${f.id.padEnd(4)} ${f.title}\n│       kiểm: ${f.check}`)' "$DRAFT"
-echo "└─ Bản nháp: $DRAFT. Đọc lại, sửa nếu cần, rồi chạy: bash plan.sh --apply"
+echo "│ Model đọc 1-wiki/raw/ và viết lại Wiki…"
+PROMPT='Bạn là người viết Wiki cho dự án này. Đọc 2-environment/rules.md, rồi đọc mọi file trong 1-wiki/raw/ (ý tưởng gốc, KHÔNG sửa raw/).
+Đọc các trang wiki đang có (1-wiki/index.md, overview.md, features/, screens/, decisions/).
+
+Cập nhật Wiki cho khớp raw/:
+1. 1-wiki/features/: mỗi tính năng NHỎ (làm xong trong một vòng) là một file "F<số>-<ten-ngan>.md".
+   Dòng đầu đúng dạng "# F5 — Tên tính năng". Có mục "## Done when" gồm các dòng "- [ ] …",
+   mỗi dòng là một điều máy kiểm được (đo được, không mơ hồ). Giữ nguyên id và tên của tính năng đã có nếu ý không đổi.
+2. 1-wiki/screens/ và 1-wiki/decisions/: thêm hoặc sửa nếu raw/ có màn hình hay quyết định mới.
+3. 1-wiki/index.md: liệt kê mọi trang. 1-wiki/log.md: thêm MỘT dòng mô tả lần plan này.
+Không đụng vào game/, 4-memory/, raw/. Cuối cùng in 2–3 dòng: đã thêm/sửa trang nào.'
+echo "$PROMPT" | claude -p --permission-mode acceptEdits --allowedTools "Read,Glob,Grep,Write,Edit" ${MODEL:+--model "$MODEL"} | sed 's/^/│   /'
+
+echo "│"
+echo "│ Harness đồng bộ ④ Memory từ 1-wiki/features/…"
+node 4-memory/features.mjs sync | sed 's/^/│ /'
+node 4-memory/features.mjs list | sed 's/^/│   /'
+echo "└─ Xong. Đọc lại thay đổi: git diff 1-wiki/   rồi chạy: bash execute.sh"

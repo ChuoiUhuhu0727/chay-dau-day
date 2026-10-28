@@ -1,9 +1,82 @@
 [
-  { "id": "F1", "title": "Bãi xe 6×6 hiện đủ xe của level", "check": "Mọi xe nằm trong bãi, không chồng nhau, dài 2–3 ô, có hướng.", "state": "passing" },
-  { "id": "F2", "title": "Chạm xe có đường trống thì xe rời bãi", "check": "tap(xe đường trống) trả 'exited' và xe biến mất khỏi state.", "state": "passing" },
-  { "id": "F3", "title": "Chạm xe bị chặn thì xe đứng yên và rung", "check": "tap(xe bị chặn) trả 'blocked', số xe không đổi.", "state": "passing" },
-  { "id": "F4", "title": "Hết xe thì hiện màn \"Hoàn thành!\"", "check": "Giải hết xe thì isComplete = true; mọi level đều giải được; #complete hiện ra.", "state": "passing" },
-  { "id": "F5", "title": "Đếm lượt chạm \"Lượt: N\"", "check": "Mỗi lần chạm xe (kể cả bị chặn) tăng 1; level mới về 0; HUD có phần tử #moves hiện \"Lượt: N\".", "state": "pending" },
-  { "id": "F6", "title": "Nút \"Chơi lại\"", "check": "Nút #restart đưa level hiện tại về trạng thái ban đầu và lượt về 0.", "state": "pending" },
-  { "id": "F7", "title": "3 level, nút \"Level tiếp\", hết thì \"Bạn đã phá đảo!\"", "check": "Ở màn Hoàn thành có nút #next sang level sau; sau level 3 hiện \"Bạn đã phá đảo!\".", "state": "pending" }
+  {
+    "id": "F1",
+    "title": "Bãi xe 6×6",
+    "page": "1-wiki/features/F1-bai-xe.md",
+    "done": [
+      "Bãi là lưới 6×6.",
+      "Mọi xe của mọi level nằm trong bãi, không chồng nhau.",
+      "Mỗi xe dài 2 hoặc 3 ô và có hướng chạy (trái/phải/lên/xuống)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:18.160Z"
+  },
+  {
+    "id": "F2",
+    "title": "Chạm xe ra bãi",
+    "page": "1-wiki/features/F2-cham-xe-ra-bai.md",
+    "done": [
+      "`tap` xe có đường trống trả về `'exited'`.",
+      "Xe đó không còn trong state; state cũ không bị sửa."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:21.886Z"
+  },
+  {
+    "id": "F3",
+    "title": "Xe bị chặn",
+    "page": "1-wiki/features/F3-xe-bi-chan.md",
+    "done": [
+      "`tap` xe bị chặn trả về `'blocked'`, số xe không đổi.",
+      "Khi xe chắn đã đi, xe đó hết bị chặn."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:25.050Z"
+  },
+  {
+    "id": "F4",
+    "title": "Hoàn thành level",
+    "page": "1-wiki/features/F4-hoan-thanh.md",
+    "done": [
+      "Level mới chưa hoàn thành.",
+      "Mọi level giải được tới khi hết xe.",
+      "`#complete` hiện ra khi hết xe (bot kiểm)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:28.062Z"
+  },
+  {
+    "id": "F5",
+    "title": "Đếm lượt chạm",
+    "page": "1-wiki/features/F5-dem-luot.md",
+    "done": [
+      "Vào level: `state.moves` = 0 và HUD `#moves` hiện \"Lượt: 0\".",
+      "Mỗi lần chạm xe (kể cả bị chặn) tăng đúng 1.",
+      "Chạm vào chỗ không có xe thì không tính.",
+      "Sang level mới thì về 0."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F6",
+    "title": "Chơi lại",
+    "page": "1-wiki/features/F6-choi-lai.md",
+    "done": [
+      "Có nút `#restart` trên HUD.",
+      "Bấm thì xe về đúng vị trí ban đầu của level hiện tại.",
+      "Số lượt về 0."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F7",
+    "title": "Nhiều level",
+    "page": "1-wiki/features/F7-nhieu-level.md",
+    "done": [
+      "Ở màn \"Hoàn thành!\" có nút `#next` sang level kế tiếp (lượt về 0).",
+      "Sau level 3 hiện \"Bạn đã phá đảo!\" và không còn nút `#next`.",
+      "Bot chơi liền mạch cả 3 level."
+    ],
+    "state": "pending"
+  }
 ]
