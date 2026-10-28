@@ -13,7 +13,8 @@
       "Edit(game/**)",
       "Edit(4-memory/po-questions.md)",
       "Edit(4-memory/progress.md)",
-      "Bash(bash 2-environment/get-asset.sh:*)"
+      "Bash(bash 2-environment/get-asset.sh:*)",
+      "Bash(bash 3-verification/plan-check.sh)"
     ],
     "deny": [
       "Edit(4-memory/features.json)",

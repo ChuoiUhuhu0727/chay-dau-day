@@ -8,3 +8,10 @@ mũi tên của nó. Người chơi chạm xe để đưa xe ra khỏi bãi; xe 
 - **Nguồn:** [raw/game-idea.md](raw/game-idea.md)
 - **Màn hình:** [screens/man-choi.md](screens/man-choi.md)
 - **Tính năng:** xem [index.md](index.md)
+
+## Thắng / thua
+- **Thắng level:** đưa hết xe ra khỏi bãi → màn "Hoàn thành!". Qua đủ 3 level là phá đảo.
+- **Thua:** không có thua; người chơi có thể bấm "Chơi lại" bất cứ lúc nào.
+
+## Điều khiển
+Chạm (điện thoại) hoặc bấm chuột (máy tính) vào một xe.
