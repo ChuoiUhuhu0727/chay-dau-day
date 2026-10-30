@@ -31,3 +31,6 @@
 - 2026-10-30 · F7 ✅ passing (verify.sh xanh)
 - 2026-10-30 · F8 ✅ passing (verify.sh xanh)
 - 2026-10-30 · F9 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F8 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · Gộp F8 + F9 → F8 Trận đấu sống động (PO chọn); test và e2e chuyển nguyên vẹn
+- 2026-10-30 · F8 ✅ passing (verify.sh xanh)

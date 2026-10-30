@@ -37,7 +37,7 @@ Màu nghĩa thêm: sai = `#E5484D` (đỏ). Cỏ trong canvas: `#2E8B3E` / endzo
 | Qua bài | confetti 🐝🥏 rơi, khiên phóng to 0.8 → 1 |
 | Người kèm lao tới (F8) | viền đỏ chớp quanh `#field` (opacity), người kèm đỏ `#E5484D` giang tay |
 | La bàn endzone (F7) | mũi tên `#goal-arrow` xoay mượt (transform 200ms) |
-| Bạn đang chạy (F9) | camera nhún 4cm theo bước chạy, đĩa bay vòng cung; "Bắt được đĩa!" nảy vàng |
+| Bạn đang chạy (F8) | camera nhún 4cm theo bước chạy, đĩa bay vòng cung; "Bắt được đĩa!" nảy vàng |
 
 ## Asset
 - Logo CLB: `game/assets/logo.jpg` (ảnh người dùng gửi).

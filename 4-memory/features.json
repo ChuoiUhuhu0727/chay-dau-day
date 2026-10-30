@@ -95,32 +95,19 @@
   },
   {
     "id": "F8",
-    "title": "Người kèm bạn chuyển động (áp lực như thật)",
-    "page": "1-wiki/features/F8-nguoi-kem-chuyen-dong.md",
+    "title": "Trận đấu sống động: người kèm bám sát, bạn chạy, cả sân chạy",
+    "page": "1-wiki/features/F8-tran-dau-song-dong.md",
     "done": [
       "Mỗi tình huống có `myMarker` (chỉ số trong `opponents`); trừ tình huống `markedBehind`, người kèm bạn hiện trong khung (view 360×480, 0 ≤ sx ≤ 360), cách bạn 1.5–4m, và cách tâm vùng đúng > `zone.r + 1`.",
-      "`markerPose`: với t từ 0 tới 10 giây (bước 0.05), vị trí luôn cách `base` ≤ 0.9m, cách bạn ≥ 1.2m, nằm trong sân; `arms` và `lunge` trong khoảng [0, 1].",
-      "`markerPose` thật sự chuyển động: trong 10 giây, độ lệch ngang lớn nhất − nhỏ nhất ≥ 0.8m và `arms` thay đổi ≥ 0.5.",
-      "Bot: ở tình huống C1, `state().marker.sx` đọc 2 lần cách nhau 300ms khác nhau ≥ 2px, `state().animating` = `true`.",
+      "`markerPose`: với t từ 0 tới 10 giây (bước 0.05), vị trí luôn cách `base` ≤ 0.9m, cách bạn ≥ 1.2m, nằm trong sân; `arms` và `lunge` trong [0, 1]; lắc ngang lớn nhất − nhỏ nhất ≥ 0.8m và `arms` thay đổi ≥ 0.5.",
+      "`introPose(scn, t)`: lúc t = 0 camera cách `scn.me` ≥ 4m, mỗi cầu thủ cách chỗ cuối ≥ 2m và trong sân, đĩa cách người cầm ≥ 8m; t ≥ `INTRO` (2 giây) thì camera, 13 cầu thủ và đĩa trùng đúng vị trí tình huống (sai số ≤ 1e-9); khoảng cách camera → `scn.me` không tăng theo t.",
+      "`runPose(from, to, u)`: u = 0 → `from`, u = 1 → `to`, khoảng cách tới `to` không tăng theo u; `runDuration(d)` = d / 7 giây, kẹp trong [0.8, 2]; `discArc(u)` = 1.1m ở u = 0 và u = 1, ≥ 2.5m ở u = 0.5.",
+      "Bot: vừa chọn vai thì `state().phase` = `intro`; chạm vào `state().zoneScreen` lúc này thì `state().answered` vẫn `false`; `state().live.camera` đổi chỗ ≥ 0.3m sau 300ms.",
+      "Bot: trong ≤ 2.5 giây `phase` thành `decide`; khi đó `state().live.mates` vẫn đổi sau 300ms; ở C1 `state().marker.sx` đổi ≥ 2px sau 300ms và `state().animating` = `true`.",
+      "Bot: chạm đúng → `phase` = `run`, sau ≤ 2.5 giây `phase` = `done`, `state().live.camera` cách chỗ đã chạm ≤ 0.5m và `#feedback` có chữ `Bắt được`.",
       "Bot: sang màn kết quả thì `state().animating` = `false` (dừng vẽ cho đỡ tốn pin)."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T11:42:42.849Z"
-  },
-  {
-    "id": "F9",
-    "title": "Trận đấu chuyển động: bạn chạy, cả sân chạy",
-    "page": "1-wiki/features/F9-tran-dau-chuyen-dong.md",
-    "done": [
-      "`introPose(scn, t)`: lúc t = 0 camera cách `scn.me` ≥ 4m; t ≥ `INTRO` (2 giây) thì camera, 13 cầu thủ và đĩa trùng đúng vị trí của tình huống (sai số ≤ 1e-9); khoảng cách camera → `scn.me` không tăng theo t.",
-      "`introPose`: lúc t = 0 mỗi cầu thủ cách chỗ cuối ≥ 2m và nằm trong sân; đĩa lúc t = 0 cách người cầm đĩa ≥ 8m.",
-      "`runPose(from, to, u)`: u = 0 → `from`, u = 1 → `to`, khoảng cách tới `to` không tăng theo u; `runDuration(d)` = d / 7 giây, kẹp trong [0.8, 2].",
-      "`discArc(u)`: độ cao lúc u = 0 và u = 1 là 1.1m, giữa đường (u = 0.5) ≥ 2.5m.",
-      "Bot: vừa chọn vai thì `state().phase` = `intro`; chạm vào `state().zoneScreen` lúc này thì `state().answered` vẫn `false`; `state().live.camera` đổi chỗ ≥ 0.3m sau 300ms.",
-      "Bot: trong ≤ 2.5 giây `state().phase` thành `decide`; khi đó `state().live.mates` (vị trí đồng đội) vẫn đổi sau 300ms (cả sân vẫn chuyển động).",
-      "Bot: chạm đúng → `phase` = `run`, sau ≤ 2.5 giây `phase` = `done`, `state().live.camera` cách chỗ đã chạm ≤ 0.5m và `#feedback` có chữ `Bắt được`."
-    ],
-    "state": "passing",
-    "verified_at": "2026-10-30T11:42:43.054Z"
+    "verified_at": "2026-10-30T11:45:38.982Z"
   }
 ]

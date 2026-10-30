@@ -11,7 +11,7 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const fieldSize = () => evaluate(`(() => { const r = document.getElementById('field').getBoundingClientRect(); return { w: r.width, h: r.height }; })()`);
   const tapCorrect = async () => { const z = (await S()).zoneScreen; await tap(z.x, z.y); };
   const tapWrong = async () => { const f = await fieldSize(); await tap(8, f.h - 8); }; // mặt cỏ ngay dưới chân, xa vùng đúng
-  // F9: chờ tới khi state().phase = want (tối đa ms). Trả về số ms đã chờ, hoặc -1 nếu hết giờ.
+  // F8: chờ tới khi state().phase = want (tối đa ms). Trả về số ms đã chờ, hoặc -1 nếu hết giờ.
   const waitPhase = async (want, ms = 3000) => {
     const t0 = Date.now();
     while (Date.now() - t0 <= ms) {
@@ -45,23 +45,23 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F3: bấm #role-cutter thì hiện #screen-play', await visible('#screen-play'));
   check('F3: state().role = cutter', s.role === 'cutter', s.role);
 
-  // ---------------- F9 · vào pha bóng: bạn chạy vào, cả sân chạy
-  check('F9: vừa chọn vai thì state().phase = intro', s.phase === 'intro', s.phase);
+  // ---------------- F8 · vào pha bóng: bạn chạy vào, cả sân chạy
+  check('F8: vừa chọn vai thì state().phase = intro', s.phase === 'intro', s.phase);
   await shot('Vào pha bóng — bạn và cả sân đang chạy');
   const c1 = s.live.camera;
   await tapCorrect();
   await sleep(300);
   s = await S();
-  check('F9: chạm lúc đang vào pha thì không tính (answered vẫn false)', s.answered === false);
-  check('F9: camera đang chạy (đổi chỗ ≥ 0.3m sau 300ms)', gap(c1, s.live.camera) >= 0.3, `${gap(c1, s.live.camera).toFixed(2)}m`);
+  check('F8: chạm lúc đang vào pha thì không tính (answered vẫn false)', s.answered === false);
+  check('F8: camera đang chạy (đổi chỗ ≥ 0.3m sau 300ms)', gap(c1, s.live.camera) >= 0.3, `${gap(c1, s.live.camera).toFixed(2)}m`);
   await waitDecide();
   const introMs = Date.now() - tClick;
-  check('F9: trong ≤ 2.5 giây chuyển sang phase = decide', (await S()).phase === 'decide' && introMs <= 2500, `${introMs}ms`);
+  check('F8: trong ≤ 2.5 giây chuyển sang phase = decide', (await S()).phase === 'decide' && introMs <= 2500, `${introMs}ms`);
   const mA = (await S()).live.mates;
   await sleep(300);
   const mB = (await S()).live.mates;
   const moved = Math.max(...mA.map((p, i) => gap(p, mB[i])));
-  check('F9: lúc chờ chạm, đồng đội vẫn di chuyển (lệch > 0 sau 300ms)', moved > 0.01, `${moved.toFixed(2)}m`);
+  check('F8: lúc chờ chạm, đồng đội vẫn di chuyển (lệch > 0 sau 300ms)', moved > 0.01, `${moved.toFixed(2)}m`);
   s = await S();
 
   // ---------------- F1 · sân góc nhìn thứ nhất
@@ -107,13 +107,13 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(300);
   check('F4: chạm vào vùng đúng → #feedback có chữ "Đúng"', (await text('#feedback')).includes('Đúng'), await text('#feedback'));
   check('F4: chạm đúng → #score tăng 1', Number(await text('#score')) === before + 1, `${before} → ${await text('#score')}`);
-  check('F9: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
+  check('F8: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
   await shot('Chạm đúng — đang chạy tới, đĩa đang bay');
   const runMs = await waitPhase('done', 2500);
   s = await S();
-  check('F9: chạy xong trong ≤ 2.5 giây (phase = done)', runMs >= 0, runMs >= 0 ? `${runMs + 300}ms` : 'hết giờ');
-  check('F9: camera tới chỗ đã chạm (≤ 0.5m)', !!s.tap && gap(s.live.camera, s.tap) <= 0.5, s.tap ? `${gap(s.live.camera, s.tap).toFixed(2)}m` : 'không có tap');
-  check('F9: chạm đúng → #feedback có chữ "Bắt được"', (await text('#feedback')).includes('Bắt được'), await text('#feedback'));
+  check('F8: chạy xong trong ≤ 2.5 giây (phase = done)', runMs >= 0, runMs >= 0 ? `${runMs + 300}ms` : 'hết giờ');
+  check('F8: camera tới chỗ đã chạm (≤ 0.5m)', !!s.tap && gap(s.live.camera, s.tap) <= 0.5, s.tap ? `${gap(s.live.camera, s.tap).toFixed(2)}m` : 'không có tap');
+  check('F8: chạm đúng → #feedback có chữ "Bắt được"', (await text('#feedback')).includes('Bắt được'), await text('#feedback'));
   await shot('Bắt được đĩa — hiện đáp án');
 
   // ---------------- F5 · sau khi chạm

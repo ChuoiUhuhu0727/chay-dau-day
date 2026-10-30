@@ -22,3 +22,5 @@
 - 2026-10-30 · build · F7 ✅ passing (Endzone đích: biết mình đang tấn công về đâu)
 - 2026-10-30 · build · F8 ✅ passing (Người kèm bạn chuyển động (áp lực như thật))
 - 2026-10-30 · build · F9 ✅ passing (Trận đấu chuyển động: bạn chạy, cả sân chạy)
+- 2026-10-30 · /game · gộp F8 (người kèm động) + F9 (trận đấu chuyển động) → F8 Trận đấu sống động (PO chọn)
+- 2026-10-30 · build · F8 ✅ passing (Trận đấu sống động: người kèm bám sát, bạn chạy, cả sân chạy)
