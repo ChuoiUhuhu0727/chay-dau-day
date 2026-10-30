@@ -2,6 +2,7 @@
 import {
   FIELD, ZONE_R, startLesson, current, cameraOf, project, unproject, toCamera, focal, clipProject,
   answer, next, isFinished, passed, toMinimap, HORIZON, goalInfo, markerPose, GOAL,
+  INTRO, EYE, introPose, runPose, runDuration, discArc,
 } from './logic.js';
 
 const $ = (id) => document.getElementById(id);
@@ -17,10 +18,17 @@ let state = null;
 let screen = 'start';
 let view = { w: 360, h: 480 };
 let drawn = { players: 0, onScreen: 0, offScreen: 0, goal: false };
-let clock = 0; // giây, chạy liên tục khi đang ở màn chơi (F8)
+const now = () => performance.now() / 1000;
+let clock = 0; // giây, chạy liên tục khi đang ở màn chơi (F8, F9)
 let answeredAt = 0;
 let loopId = 0;
 let markerScreen = null;
+// F9 · pha bóng: 'intro' (vào pha) → 'decide' (chờ chạm) → 'run' (bạn chạy tới chỗ đã chạm) → 'done'
+let phase = 'intro';
+let phaseStart = 0;
+let run = null;
+let live = null; // vị trí đang vẽ ở khung hình gần nhất (cho bot đọc)
+const HINT_TAP = '👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới';
 const beeImg = new Image();
 beeImg.src = './assets/bee.svg';
 
@@ -37,8 +45,8 @@ function show(name) {
 // Vòng vẽ liên tục: người kèm chuyển động, vùng đúng nhấp nháy. Chỉ chạy ở màn chơi cho đỡ tốn pin.
 function startLoop() {
   if (loopId) return;
-  const tick = (t) => {
-    clock = t / 1000;
+  const tick = () => {
+    clock = now();
     drawField();
     loopId = requestAnimationFrame(tick);
   };
@@ -67,14 +75,24 @@ function renderScenario() {
   $('feedback').className = '';
   for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = true;
   $('hint').hidden = false;
-  $('hint').textContent = '👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới';
+  $('hint').textContent = '⏳ Đang vào pha bóng…';
   $('next').firstChild.textContent = state.index === state.total - 1 ? 'Xem kết quả ' : 'Tiếp ';
-  const g = goalInfo(cameraOf(scn));
-  const deg = Math.round((g.bearing * 180) / Math.PI);
-  $('goal-dist').textContent = g.distance;
-  $('goal-arrow').dataset.deg = deg;
-  $('goal-arrow').style.transform = `rotate(${deg}deg)`;
+  phase = 'intro';
+  phaseStart = clock = now();
+  run = null;
   drawField();
+}
+
+/** La bàn endzone (F7) theo camera đang vẽ — chỉ ghi DOM khi số đổi. */
+function updateGoal(cam) {
+  const g = goalInfo(cam);
+  const deg = Math.round((g.bearing * 180) / Math.PI);
+  const arrow = $('goal-arrow');
+  if (arrow.dataset.deg !== String(deg)) {
+    arrow.dataset.deg = deg;
+    arrow.style.transform = `rotate(${deg}deg)`;
+  }
+  if ($('goal-dist').textContent !== String(g.distance)) $('goal-dist').textContent = g.distance;
 }
 
 function showResult() {
@@ -97,8 +115,9 @@ function onTap(ev) {
   const rect = field.getBoundingClientRect();
   const sx = ((ev.clientX - rect.left) / rect.width) * view.w;
   const sy = ((ev.clientY - rect.top) / rect.height) * view.h;
-  const point = unproject(cameraOf(current(state)), sx, sy, view);
   ripple(ev.clientX - rect.left, ev.clientY - rect.top);
+  if (phase !== 'decide') return; // đang vào pha bóng: chưa tính
+  const point = unproject(cameraOf(current(state)), sx, sy, view);
   if (!point) {
     $('hint').textContent = '👇 Chạm thấp hơn — vào mặt cỏ nhé';
     return;
@@ -122,6 +141,81 @@ function onTap(ev) {
   for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
   answeredAt = clock;
   drawMinimap();
+  // F9: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
+  const scn = current(state);
+  const d = Math.hypot(point.x - scn.me.x, point.y - scn.me.y);
+  run = { to: point, start: clock, dur: runDuration(d), discTo: state.correct ? point : { x: scn.zone.x, y: scn.zone.y }, caught: false };
+  phase = 'run';
+}
+
+/** Góc ngắn nhất để quay từ a sang b (radian, trong (−π, π]). */
+function angleDiff(a, b) {
+  const d = b - a;
+  return Math.atan2(Math.sin(d), Math.cos(d));
+}
+
+/** Gọi khi đĩa tới nơi lúc chạy xong. */
+function finishRun() {
+  phase = 'done';
+  if (state.correct && !run.caught) {
+    run.caught = true;
+    const fb = $('feedback');
+    fb.textContent = 'Đúng! +1 · Bắt được đĩa!';
+    fb.classList.remove('ok'); void fb.offsetWidth; fb.classList.add('ok');
+  }
+}
+
+/**
+ * Vị trí mọi thứ ở khung hình hiện tại (F9). Chấm điểm KHÔNG dùng hàm này — chỉ để vẽ.
+ * Trả về camera đang vẽ, đồng đội, đối thủ, đĩa (kèm độ cao) và cờ "đang chạy" để nhún camera.
+ */
+function snapshot(scn) {
+  const base = cameraOf(scn);
+  let cam = base;
+  let mates = scn.teammates;
+  let opps = scn.opponents;
+  let disc = { ...scn.disc, h: 1.05, held: true };
+  let moving = false;
+  let shift = { x: 0, y: 0 }; // người kèm bạn đuổi theo khi bạn chạy
+
+  if (phase === 'intro') {
+    const p = introPose(scn, clock - phaseStart);
+    cam = { ...base, x: p.cam.x, y: p.cam.y };
+    mates = p.mates;
+    opps = p.opps;
+    disc = { ...p.disc, h: discArc(p.discU), held: p.u >= 1 };
+    moving = p.u < 1;
+    if (p.u >= 1) { phase = 'decide'; $('hint').textContent = HINT_TAP; }
+  } else {
+    // cả sân vẫn sống khi bạn đang nghĩ: đồng đội nhún, nhích; người cầm đĩa xoay người giả động tác
+    mates = scn.teammates.map((p, i) => i === 0
+      ? { x: p.x + 0.35 * Math.sin(clock * 3.1), y: p.y + 0.25 * Math.sin(clock * 1.7) }
+      : { x: p.x + 0.3 * Math.sin(clock * 1.9 + i * 1.3), y: p.y + 0.35 * Math.cos(clock * 1.4 + i * 2.1) });
+    disc = { ...mates[0], h: 1.05, held: true };
+  }
+
+  if (run && (phase === 'run' || phase === 'done')) {
+    const u = Math.min(1, (clock - run.start) / run.dur);
+    const at = runPose(scn.me, run.to, u);
+    // nửa đầu: ngoái nửa vòng theo hướng chạy; nửa sau: quay mặt về người cầm đĩa để bắt (như cutter thật)
+    const holder0 = scn.teammates[0];
+    const hRun = scn.me.heading + angleDiff(scn.me.heading, Math.atan2(run.to.y - scn.me.y, run.to.x - scn.me.x)) * 0.5;
+    const hEnd = Math.atan2(holder0.y - run.to.y, holder0.x - run.to.x);
+    const heading = u < 0.5
+      ? scn.me.heading + angleDiff(scn.me.heading, hRun) * (u / 0.5)
+      : hRun + angleDiff(hRun, hEnd) * ((u - 0.5) / 0.5);
+    cam = { ...base, x: at.x, y: at.y, heading };
+    moving = u < 1;
+    const lag = runPose(scn.me, run.to, Math.max(0, u - 0.12));
+    shift = { x: lag.x - scn.me.x, y: lag.y - scn.me.y };
+    // đĩa: rời tay người cầm đĩa ngay khi bạn bắt đầu chạy, tới nơi cùng lúc bạn tới
+    const holder = mates[0];
+    if (u < 1) disc = { ...runPose(holder, run.discTo, u), h: discArc(u), held: false };
+    else disc = state.correct ? { ...run.discTo, h: 1.05, held: false, mine: true } : { ...run.discTo, h: 0.04, held: false };
+    if (u >= 1 && phase === 'run') finishRun();
+  }
+  if (moving) cam = { ...cam, h: EYE + 0.045 * Math.sin(clock * 2 * Math.PI * 2.6) }; // nhún theo bước chạy
+  return { cam, mates, opps, disc, shift };
 }
 
 function onNext() {
@@ -178,7 +272,10 @@ function drawField() {
   view = { w, h: w };
   const ctx = setupCanvas(field, view.w, view.h);
   const scn = current(state);
-  const cam = cameraOf(scn);
+  const snap = snapshot(scn);
+  const cam = snap.cam;
+  live = { camera: { x: cam.x, y: cam.y, heading: cam.heading }, mates: snap.mates.map((p) => ({ x: p.x, y: p.y })), disc: snap.disc };
+  updateGoal(cam);
   const f = focal(cam, view);
   const hy = view.h * HORIZON;
 
@@ -191,7 +288,7 @@ function drawField() {
   ctx.fillStyle = '#0A2A6E';
   ctx.beginPath();
   ctx.moveTo(0, hy);
-  for (let x = 0; x <= view.w; x += 24) ctx.lineTo(x, hy - 6 - 5 * Math.abs(Math.sin(x * 0.05 + scn.me.heading)));
+  for (let x = 0; x <= view.w; x += 24) ctx.lineTo(x, hy - 6 - 5 * Math.abs(Math.sin(x * 0.05 + cam.heading * 6)));
   ctx.lineTo(view.w, hy);
   ctx.fill();
 
@@ -258,10 +355,10 @@ function drawField() {
   // cầu thủ: vẽ từ xa tới gần. Người kèm bạn chuyển động mạnh (F8), người kèm khác lắc nhẹ tại chỗ.
   let lunge = 0;
   const people = [
-    ...scn.teammates.map((p, i) => ({ p, kind: 'mate', holder: i === 0 })),
-    ...scn.opponents.map((p, i) => {
+    ...snap.mates.map((p, i) => ({ p, kind: 'mate', holder: i === 0 })),
+    ...snap.opps.map((p, i) => {
       if (i === scn.myMarker) {
-        const pose = markerPose(p, scn.me, clock);
+        const pose = markerPose({ x: p.x + snap.shift.x, y: p.y + snap.shift.y }, { x: cam.x, y: cam.y }, clock);
         lunge = pose.lunge;
         return { p: pose, kind: 'mine', arms: pose.arms };
       }
@@ -276,19 +373,25 @@ function drawField() {
     if (s && s.sx > -10 && s.sx < view.w + 10) onScreen.push({ ...o, s });
     else offScreen.push(o);
   }
+  // đĩa đang bay (F9) được xếp lớp theo khoảng cách như một vật trên sân
+  const d = snap.disc;
+  const ds = !d.held && !d.mine ? project(cam, d, view) : null;
+  if (ds && ds.sx > -10 && ds.sx < view.w + 10) onScreen.push({ kind: 'disc', p: d, s: ds });
   onScreen.sort((a, b) => b.s.z - a.s.z);
-  let discDrawn = false;
+  let discDrawn = !!ds || !!d.mine;
   for (const o of onScreen) {
+    if (o.kind === 'disc') { drawFlyingDisc(ctx, cam, o, f); continue; }
     drawPerson(ctx, cam, o, f);
-    if (o.holder) { drawDisc(ctx, cam, o, f); discDrawn = true; }
+    if (o.holder && d.held) { drawDisc(ctx, cam, o, f); discDrawn = true; }
   }
-  const holderOff = offScreen.find((o) => o.holder);
+  if (d.mine) drawCaughtDisc(ctx);
+  const holderOff = d.held ? offScreen.find((o) => o.holder) : null;
   drawOffscreen(ctx, offScreen, holderOff);
 
   // áp lực: người kèm lao sát (hoặc đứng sau lưng) → viền đỏ chớp
   const mine = onScreen.find((o) => o.kind === 'mine');
   markerScreen = mine ? { sx: mine.s.sx, sy: mine.s.sy } : null;
-  const behind = !mine && offScreen.some((o) => o.kind === 'mine');
+  const behind = scn.markedBehind && !mine && offScreen.some((o) => o.kind === 'mine');
   field.classList.toggle('pressure', mine ? lunge > 0.7 : behind && Math.sin(clock * 6) > 0.4);
   if (behind) warnBehind(ctx);
 
@@ -296,6 +399,35 @@ function drawField() {
     players: onScreen.length + offScreen.length + (discDrawn || holderOff ? 1 : 0),
     onScreen: onScreen.length, offScreen: offScreen.length, goal: goalSeen,
   };
+}
+
+/** Đĩa đang bay: bóng mờ trên cỏ + đĩa trắng ở độ cao h. */
+function drawFlyingDisc(ctx, cam, o, f) {
+  const k = f / o.s.z;
+  const up = project(cam, o.p, view, o.p.h);
+  const r = Math.max(4, 0.16 * k);
+  ctx.fillStyle = 'rgba(0,0,0,.25)';
+  ctx.beginPath(); ctx.ellipse(o.s.sx, o.s.sy, r * 1.2, r * 0.35, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,201,60,.6)';
+  ctx.beginPath(); ctx.ellipse(up.sx, up.sy, r * 2, r * 1.1, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = C.ink;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.ellipse(up.sx, up.sy, r * 1.3, r * 0.5, Math.sin(clock * 20) * 0.15, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+}
+
+/** Bắt được đĩa: đĩa nằm trong tay bạn ở mép dưới khung. */
+function drawCaughtDisc(ctx) {
+  const x = view.w * 0.62;
+  const y = view.h - 26;
+  ctx.fillStyle = 'rgba(255,201,60,.55)';
+  ctx.beginPath(); ctx.ellipse(x, y, 62, 26, -0.12, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.strokeStyle = C.ink;
+  ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.ellipse(x, y, 48, 18, -0.12, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.strokeStyle = C.mate;
+  ctx.beginPath(); ctx.ellipse(x, y, 32, 11, -0.12, 0, Math.PI * 2); ctx.stroke();
 }
 
 function warnBehind(ctx) {
@@ -663,9 +795,11 @@ window.__game = {
       scenario: { id: scn.id, prompt: scn.prompt, explain: scn.explain },
       zoneScreen: z ? { x: z.sx * k, y: z.sy * k } : null,
       horizonY: view.h * HORIZON * k,
-      goal: goalInfo(cam),
+      goal: goalInfo(live ? live.camera : cam), // theo camera đang vẽ, khớp với la bàn #goal
       marker: markerScreen ? { sx: markerScreen.sx * k, sy: markerScreen.sy * k } : null,
       animating: loopId !== 0,
+      phase,
+      live,
       drawn,
     };
   },
