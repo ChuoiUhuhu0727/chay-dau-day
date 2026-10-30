@@ -15,3 +15,8 @@
 - 2026-10-30 · F5 ✅ passing (verify.sh xanh)
 - 2026-10-30 · F6 ✅ passing (verify.sh xanh)
 - 2026-10-30 · F1–F6 ✅ passing (verify.sh xanh). Node 22 portable ở ~/.local/node22 cho bot.
+- 2026-10-30 · F7 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F8 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F7 endzone đích + F8 người kèm động xong code, bot xanh; chạy verify
+- 2026-10-30 · F7 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F8 ✅ passing (verify.sh xanh)

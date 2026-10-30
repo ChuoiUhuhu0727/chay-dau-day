@@ -35,6 +35,8 @@ Màu nghĩa thêm: sai = `#E5484D` (đỏ). Cỏ trong canvas: `#2E8B3E` / endzo
 | Sai | `#field` lắc ngang 3 lần, `#feedback` chớp đỏ |
 | Hiện đáp án | `#minimap` + `#explain` trượt lên từ dưới (translateY 16px → 0) |
 | Qua bài | confetti 🐝🥏 rơi, khiên phóng to 0.8 → 1 |
+| Người kèm lao tới (F8) | viền đỏ chớp quanh `#field` (opacity), người kèm đỏ `#E5484D` giang tay |
+| La bàn endzone (F7) | mũi tên `#goal-arrow` xoay mượt (transform 200ms) |
 
 ## Asset
 - Logo CLB: `game/assets/logo.jpg` (ảnh người dùng gửi).

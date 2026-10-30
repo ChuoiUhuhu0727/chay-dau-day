@@ -36,6 +36,8 @@ Bản đầu chưa có level khó dần; mỗi vai một bài 5 tình huống v�
 - F4 Chạm chọn chỗ đứng + chấm đúng/sai
 - F5 Đáp án: vùng đúng + sơ đồ nhìn từ trên + giải thích + nút Tiếp
 - F6 Kết thúc bài: điểm X/5, qua bài hay chưa, chơi lại
+- F7 Endzone đích: endzone đối thủ tô vàng + la bàn `#goal` chỉ hướng và khoảng cách (thêm theo raw/idea-2.md)
+- F8 Người kèm bạn chuyển động: bám sát trước mặt, lắc, lao tới, giang tay — tạo áp lực như trong trận
 
 **Để sau:** horizontal stack, phòng thủ (zone, cup), cầu thủ chuyển động/animation, góc nhìn 3D xoay được,
 nhiều bài khó dần, lưu điểm, âm thanh.

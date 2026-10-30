@@ -103,13 +103,15 @@ function markers(holder, others) {
  * Xoay nhẹ hướng nhìn (tối đa ±0.6 rad quanh hướng gợi ý) để vùng đúng vẫn nằm gọn trong khung
  * mà thấy được nhiều cầu thủ nhất — người mới cần thấy đủ bối cảnh.
  */
-function bestHeading(me, zone, people) {
+function bestHeading(me, zone, people, marker) {
   const view = { w: 360, h: 480 };
   let best = { heading: me.heading, seen: -1, turn: Infinity };
   for (let t = -0.6; t <= 0.6001; t += 0.02) {
     const cam = makeCamera(me.x, me.y, me.heading + t);
     const z = project(cam, zone, view);
     if (!z || z.sx < 50 || z.sx > 310) continue;
+    const m = marker && project(cam, marker, view);
+    if (marker && (!m || m.sx < 24 || m.sx > view.w - 24)) continue; // người kèm bạn phải luôn trong khung (F8)
     const seen = people.filter((p) => { const s = project(cam, p, view); return s && s.sx >= 16 && s.sx <= view.w - 16; }).length;
     if (seen > best.seen || (seen === best.seen && Math.abs(t) < best.turn)) best = { heading: me.heading + t, seen, turn: Math.abs(t) };
   }
@@ -117,20 +119,23 @@ function bestHeading(me, zone, people) {
 }
 
 /**
- * Người kèm bạn: mặc định đứng chếch sau vai phải 1.5m (không che tầm nhìn).
+ * Người kèm bạn (F8): đứng trước mặt 3m, lệch 1.5m về phía NGƯỢC vùng đúng — bám sát mà không che chỗ cần chạm
+ * (lệch nhiều để đứng gần mép khung, không che người cầm đĩa ở giữa).
  * `behind: true` → đứng ngay sau lưng 1.5m (phía đĩa, chặn đường cắt ngắn).
  */
-function myMarker(me, behind) {
+function myMarker(me, zone, behind) {
   const c = Math.cos(me.heading);
   const s = Math.sin(me.heading);
-  const [ahead, right] = behind ? [-1.5, 0.3] : [-0.6, 1.4];
+  const zoneSide = Math.sign(toCamera(makeCamera(me.x, me.y, me.heading), zone).u) || 1;
+  const [ahead, right] = behind ? [-1.5, 0.3] : [3, -zoneSide * 1.5];
   return pt(+(me.x + ahead * c - right * s).toFixed(2), +(me.y + ahead * s + right * c).toFixed(2));
 }
 
 function scenario(o) {
   const holder = o.teammates[0];
-  const opponents = [...markers(holder, o.teammates.slice(1)), myMarker(o.me, o.markedBehind)];
-  const heading = bestHeading(o.me, o.zone, [...o.teammates, ...opponents]);
+  const mine = myMarker(o.me, o.zone, o.markedBehind);
+  const opponents = [...markers(holder, o.teammates.slice(1)), mine];
+  const heading = bestHeading(o.me, o.zone, [...o.teammates, ...opponents], o.markedBehind ? null : mine);
   return {
     id: o.id,
     title: o.title,
@@ -140,6 +145,8 @@ function scenario(o) {
     disc: { x: holder.x, y: holder.y },
     teammates: o.teammates,
     opponents,
+    myMarker: opponents.length - 1,
+    markedBehind: !!o.markedBehind,
     zone: { ...o.zone, r: ZONE_R },
   };
 }
@@ -234,6 +241,40 @@ export const SCENARIOS = {
 
 export function cameraOf(scn) {
   return makeCamera(scn.me.x, scn.me.y, scn.me.heading);
+}
+
+// ---------------------------------------------------------------- F7 · endzone đích
+
+export const GOAL = { x: FIELD.length - FIELD.endzone / 2, y: FIELD.width / 2, line: FIELD.length - FIELD.endzone };
+
+/** Khoảng cách (m) tới vạch endzone đích và góc của tâm endzone so với hướng nhìn (dương = bên phải). */
+export function goalInfo(cam) {
+  const { z, u } = toCamera(cam, GOAL);
+  return { distance: Math.max(0, Math.round(GOAL.line - cam.x)), bearing: Math.atan2(u, z) };
+}
+
+// ---------------------------------------------------------------- F8 · người kèm chuyển động
+
+/**
+ * Tư thế người kèm bạn tại thời điểm t (giây): lắc ngang ±0.6m, lao về phía bạn tối đa 0.5m,
+ * tay giang lên/xuống. Hai nhịp lệch nhau nên chuyển động không đều — khó đoán như người thật.
+ */
+export function markerPose(base, me, t) {
+  const dx = base.x - me.x;
+  const dy = base.y - me.y;
+  const d = Math.hypot(dx, dy) || 1;
+  const ux = dx / d;
+  const uy = dy / d;
+  const sway = 0.6 * Math.sin(2 * Math.PI * (t / 1.3)) * (0.75 + 0.25 * Math.sin(2 * Math.PI * (t / 3.7)));
+  const lunge = (1 - Math.cos(2 * Math.PI * (t / 2.1))) / 2;
+  const toward = Math.min(0.5 * lunge, Math.max(0, d - 1.25));
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  return {
+    x: clamp(base.x - uy * sway - ux * toward, 0, FIELD.length),
+    y: clamp(base.y + ux * sway - uy * toward, 0, FIELD.width),
+    arms: (1 + Math.sin(2 * Math.PI * (t / 0.9) + 1)) / 2,
+    lunge,
+  };
 }
 
 // ---------------------------------------------------------------- F3 · bắt đầu bài

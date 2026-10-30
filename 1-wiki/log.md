@@ -9,3 +9,6 @@
 - 2026-10-30 · build · F4 ✅ passing (Chạm chọn chỗ đứng + chấm đúng/sai)
 - 2026-10-30 · build · F5 ✅ passing (Đáp án: vùng đúng + sơ đồ nhìn từ trên)
 - 2026-10-30 · build · F6 ✅ passing (Kết thúc bài: X/5, qua bài, chơi lại)
+- 2026-10-30 · /game · thêm F7 Endzone đích, F8 Người kèm chuyển động (raw/idea-2.md)
+- 2026-10-30 · build · F7 ✅ passing (Endzone đích: biết mình đang tấn công về đâu)
+- 2026-10-30 · build · F8 ✅ passing (Người kèm bạn chuyển động (áp lực như thật))

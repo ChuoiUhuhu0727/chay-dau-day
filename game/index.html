@@ -76,6 +76,16 @@
   #field { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; border: 4px solid var(--surface);
            outline: 3px solid var(--primary); cursor: crosshair; touch-action: manipulation; background: #0B1E4F; }
   #field.shake { animation: shake 360ms ease-out; }
+  /* F8: người kèm lao tới → viền đỏ chớp quanh khung (chỉ đổi opacity) */
+  .pressure-ring { position: absolute; inset: 0; border-radius: 16px; pointer-events: none; opacity: 0;
+                   box-shadow: inset 0 0 0 4px var(--wrong), inset 0 0 36px rgba(229,72,77,.55); transition: opacity 160ms ease-out; }
+  #field.pressure + .pressure-ring { opacity: 1; }
+  /* F7: la bàn chỉ endzone đích */
+  .goal { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px;
+          border-radius: 999px; background: rgba(17,17,17,.82); border: 2px solid var(--primary);
+          font: 600 13px var(--cond); letter-spacing: .05em; pointer-events: none; }
+  .goal b { color: var(--primary); font-weight: 600; }
+  #goal-arrow { color: var(--accent); transition: transform 200ms ease-out; }
   .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); padding: 4px 12px; border-radius: 999px;
           background: rgba(17,17,17,.75); font: 600 13px var(--cond); letter-spacing: .05em; white-space: nowrap; pointer-events: none; }
   .ripple { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 3px solid #fff; border-radius: 50%;
@@ -149,6 +159,11 @@
     </div>
     <div class="stage" id="stage">
       <canvas id="field" aria-label="Sân nhìn từ mắt bạn — chạm vào chỗ bạn sẽ chạy tới"></canvas>
+      <div class="pressure-ring" aria-hidden="true"></div>
+      <div id="goal" class="goal" title="Hướng tới endzone đối thủ — nơi ghi điểm">
+        <svg id="goal-arrow" data-deg="0" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 L20 20 L12 15 L4 20 Z" fill="currentColor" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        <span><b>ENDZONE</b> · <span id="goal-dist">0</span>m</span>
+      </div>
       <span class="hint" id="hint">👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới</span>
     </div>
     <p id="feedback"></p>

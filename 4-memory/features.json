@@ -78,5 +78,33 @@
     ],
     "state": "passing",
     "verified_at": "2026-10-30T10:55:51.076Z"
+  },
+  {
+    "id": "F7",
+    "title": "Endzone đích: biết mình đang tấn công về đâu",
+    "page": "1-wiki/features/F7-endzone-dich.md",
+    "done": [
+      "`goalInfo(makeCamera(40, 18.5, 0))` = `{ distance: 42, bearing: 0 }`; camera quay ngược (heading π) thì `|bearing|` = π (sai số ≤ 0.001).",
+      "Đứng trong endzone đích (x = 90) thì `distance` = 0; điểm tâm endzone ở bên phải hướng nhìn thì `bearing` > 0.",
+      "Bot: trên màn chơi `#goal` hiện, chữ có `ENDZONE` và `<distance>m` đúng bằng `state().goal.distance`.",
+      "Bot: `#goal-arrow` có `data-deg` = `Math.round(bearing × 180/π)` của `state().goal`.",
+      "Bot: ở tình huống H1 (Handler, nhìn về phía endzone đích) `state().drawn.goal` = `true` (đã vẽ cổng vòm endzone trên canvas)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-30T11:23:20.904Z"
+  },
+  {
+    "id": "F8",
+    "title": "Người kèm bạn chuyển động (áp lực như thật)",
+    "page": "1-wiki/features/F8-nguoi-kem-chuyen-dong.md",
+    "done": [
+      "Mỗi tình huống có `myMarker` (chỉ số trong `opponents`); trừ tình huống `markedBehind`, người kèm bạn hiện trong khung (view 360×480, 0 ≤ sx ≤ 360), cách bạn 1.5–4m, và cách tâm vùng đúng > `zone.r + 1`.",
+      "`markerPose`: với t từ 0 tới 10 giây (bước 0.05), vị trí luôn cách `base` ≤ 0.9m, cách bạn ≥ 1.2m, nằm trong sân; `arms` và `lunge` trong khoảng [0, 1].",
+      "`markerPose` thật sự chuyển động: trong 10 giây, độ lệch ngang lớn nhất − nhỏ nhất ≥ 0.8m và `arms` thay đổi ≥ 0.5.",
+      "Bot: ở tình huống C1, `state().marker.sx` đọc 2 lần cách nhau 300ms khác nhau ≥ 2px, `state().animating` = `true`.",
+      "Bot: sang màn kết quả thì `state().animating` = `false` (dừng vẽ cho đỡ tốn pin)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-30T11:23:21.154Z"
   }
 ]
