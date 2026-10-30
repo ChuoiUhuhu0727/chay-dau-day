@@ -3,36 +3,181 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parking Jam</title>
+<title>Fulbright Ultimate — Chạy Đâu Đây?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <style>
-  :root { --cell: min(13vw, 64px); --bg: #F6F1E7; --lot: #3B3A47; --line: #55536A; --ink: #1D1B26; }
+  :root {
+    --bg: #0A3FA8;
+    --surface: #111111;
+    --primary: #F5A300;
+    --ink: #FFFFFF;
+    --accent: #FFC93C;
+    --wrong: #E5484D;
+    --head: 'Montserrat', system-ui, sans-serif;
+    --cond: 'Oswald', 'Arial Narrow', sans-serif;
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink);
-         font: 16px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif;
-         display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px 12px; }
-  h1 { margin: 0; font-size: 26px; }
-  #hud { display: flex; gap: 16px; align-items: center; font-weight: 600; min-height: 40px; }
-  #lot { position: relative; width: calc(var(--cell) * 6 + 16px); height: calc(var(--cell) * 6 + 16px);
-         background: var(--lot); border-radius: 16px; padding: 8px;
-         background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
-         background-size: var(--cell) var(--cell); background-position: 8px 8px; }
-  .car { position: absolute; border: 0; border-radius: 10px; cursor: pointer; color: #fff; font-size: 22px; font-weight: 800;
-         display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -4px 0 rgba(0,0,0,.25);
-         transition: transform .35s ease-in, opacity .35s ease-in; }
-  .car.blocked { animation: shake .3s; }
-  @keyframes shake { 25% { translate: -4px 0 } 75% { translate: 4px 0 } }
-  #complete { position: fixed; inset: 0; background: rgba(29,27,38,.6); display: flex; align-items: center; justify-content: center; }
-  #complete[hidden] { display: none; }
-  #complete .box { background: #fff; border-radius: 20px; padding: 28px 36px; text-align: center; display: flex; flex-direction: column; gap: 12px; }
-  #complete h2 { margin: 0; font-size: 30px; }
-  button.btn { font: inherit; font-weight: 700; border: 0; border-radius: 12px; padding: 10px 18px; background: #4E3DC2; color: #fff; cursor: pointer; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; font: 500 16px/1.45 var(--head); color: var(--ink);
+    background-color: #050A1F;
+    background-image: radial-gradient(circle at 50% 38%, #1560E0 0%, var(--bg) 42%, #050A1F 100%);
+    background-attachment: fixed;
+    display: flex; justify-content: center; padding: 16px 12px 32px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  main { width: 100%; max-width: 380px; }
+  [hidden] { display: none !important; }
+
+  /* ---------- nút kiểu sticker ---------- */
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+    min-height: 52px; padding: 10px 16px; border: 3px solid var(--surface); border-radius: 12px;
+    background: var(--primary); color: var(--surface); font: 900 17px/1.15 var(--head); text-transform: uppercase;
+    box-shadow: 0 5px 0 var(--surface); cursor: pointer; transition: transform 120ms ease-out;
+  }
+  .btn small { display: block; font: 600 13px var(--cond); letter-spacing: .04em; text-transform: none; }
+  .btn:active, .btn.pressed { transform: translateY(3px) scale(.97); }
+  .btn img { width: 22px; height: 22px; }
+
+  /* ---------- màn mở đầu ---------- */
+  #screen-start { display: flex; flex-direction: column; align-items: center; gap: 16px; animation: rise 400ms ease-out; }
+  #logo { width: 132px; height: 132px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary);
+          box-shadow: 0 0 0 4px var(--surface), 0 12px 32px rgba(0,0,0,.5); }
+  .crest { position: relative; width: 100%; padding: 6px; background: var(--primary);
+           clip-path: polygon(0 0, 100% 0, 100% 74%, 50% 100%, 0 74%); }
+  .crest-inner { background: var(--surface); clip-path: polygon(0 0, 100% 0, 100% 74%, 50% 100%, 0 74%);
+                 padding: 22px 16px 64px; text-align: center; }
+  .w-fulbright { font: 900 30px/1 var(--head); letter-spacing: .01em; }
+  .w-ultimate { margin: 6px -22px 4px; padding: 6px 0; background: var(--surface);
+                font: 900 50px/1 var(--head); letter-spacing: -.01em; color: var(--ink);
+                text-shadow: 0 4px 0 var(--primary); transform: skewY(-4deg); }
+  .w-club { font: 600 34px/1 var(--cond); color: var(--primary); letter-spacing: .08em; }
+  .tagline { margin: 14px 0 0; font: 500 14px/1.4 var(--head); color: #D9E4FF; }
+  .tagline b { color: var(--accent); }
+  .roles { width: 100%; display: grid; gap: 14px; }
+  .pick { text-align: center; font: 600 15px var(--cond); letter-spacing: .06em; color: var(--accent); margin: 0; text-transform: uppercase; }
+
+  /* ---------- màn chơi ---------- */
+  #screen-play { display: flex; flex-direction: column; gap: 10px; animation: rise 300ms ease-out; }
+  .hud { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; background: var(--surface);
+         border: 3px solid var(--primary); border-radius: 14px; }
+  .hud img { width: 34px; height: 34px; }
+  #role-label { flex: 1; font: 600 17px var(--cond); letter-spacing: .05em; text-transform: uppercase; color: var(--primary); }
+  .pill { font: 600 15px var(--cond); padding: 2px 10px; border-radius: 999px; background: #1E2A4A; }
+  #score { display: inline-block; font: 900 22px var(--head); color: var(--accent); min-width: 22px; text-align: center; }
+  #score.bump { animation: bump 380ms ease-out; }
+  .card { background: rgba(17,17,17,.82); border-left: 5px solid var(--primary); border-radius: 12px; padding: 10px 12px; }
+  #scn-title { margin: 0 0 2px; font: 600 14px var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+  #prompt { margin: 0; font: 500 15px/1.4 var(--head); }
+  .stage { position: relative; width: 100%; max-width: 360px; margin: 0 auto; }
+  #field { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; border: 4px solid var(--surface);
+           outline: 3px solid var(--primary); cursor: crosshair; touch-action: manipulation; background: #0B1E4F; }
+  #field.shake { animation: shake 360ms ease-out; }
+  .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); padding: 4px 12px; border-radius: 999px;
+          background: rgba(17,17,17,.75); font: 600 13px var(--cond); letter-spacing: .05em; white-space: nowrap; pointer-events: none; }
+  .ripple { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 3px solid #fff; border-radius: 50%;
+            pointer-events: none; animation: ripple 350ms ease-out forwards; }
+  .float { position: absolute; font: 900 28px var(--head); color: var(--accent); text-shadow: 0 2px 0 var(--surface);
+           pointer-events: none; animation: floatUp 800ms ease-out forwards; }
+  #feedback { margin: 0; text-align: center; font: 900 22px var(--head); text-transform: uppercase; min-height: 0; }
+  #feedback.ok { color: var(--accent); animation: pop 300ms ease-out; }
+  #feedback.no { color: var(--wrong); animation: shake 360ms ease-out; }
+  .answer { display: flex; flex-direction: column; gap: 10px; }
+  #minimap { display: block; width: 100%; aspect-ratio: 100 / 37; border-radius: 10px; border: 3px solid var(--primary);
+             background: #0B1E4F; animation: rise 300ms ease-out; }
+  #explain { margin: 0; animation: rise 350ms ease-out; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 12px; font: 500 12px var(--cond); letter-spacing: .03em; color: #C9D6F5; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; border: 2px solid var(--surface); }
+
+  /* ---------- màn kết quả ---------- */
+  #screen-result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 12px; }
+  #screen-result .crest { animation: grow 450ms ease-out; }
+  .result-label { font: 600 18px var(--cond); letter-spacing: .1em; color: var(--primary); text-transform: uppercase; }
+  #final-score { font: 900 88px/1 var(--head); text-shadow: 0 6px 0 var(--primary); }
+  #verdict { margin: 12px 0 0; font: 900 24px/1.2 var(--head); text-transform: uppercase; }
+  #verdict.win { color: var(--accent); }
+  .sub { margin: 8px 0 0; font: 500 14px var(--head); color: #D9E4FF; }
+  .confetti { position: fixed; top: -40px; font-size: 26px; pointer-events: none; animation: fall linear forwards; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  @keyframes grow { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+  @keyframes pop { 0% { transform: scale(.6); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+  @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.3); } 100% { transform: scale(1); } }
+  @keyframes shake { 0%,100% { transform: translateX(0); } 20%,60% { transform: translateX(-8px); } 40%,80% { transform: translateX(8px); } }
+  @keyframes ripple { from { opacity: 1; transform: scale(.2); } to { opacity: 0; transform: scale(1.4); } }
+  @keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -56px); } }
+  @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .8; } }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration: 1ms !important; } }
 </style>
 </head>
 <body>
-  <h1>Parking Jam</h1>
-  <div id="hud"><span id="level-name"></span></div>
-  <div id="lot" aria-label="Bãi đỗ xe"></div>
-  <div id="complete" hidden><div class="box"><h2>Hoàn thành!</h2></div></div>
-  <script type="module" src="./ui.js"></script>
+<main>
+  <!-- F3 · Màn mở đầu -->
+  <section id="screen-start">
+    <img id="logo" src="./assets/logo.jpg" width="132" height="132" alt="Logo Fulbright Ultimate Club">
+    <div id="crest" class="crest">
+      <div class="crest-inner">
+        <h1 style="margin:0">
+          <div class="w-fulbright">FULBRIGHT</div>
+          <div class="w-ultimate">ULTIMATE</div>
+          <div class="w-club">CLUB</div>
+        </h1>
+        <p class="tagline"><b>Chạy đâu đây?</b><br>Luyện đọc sân cho người mới — nhìn bằng mắt mình, chạm vào chỗ nên chạy tới.</p>
+      </div>
+    </div>
+    <p class="pick">Chọn vai của bạn</p>
+    <div class="roles">
+      <button id="role-handler" class="btn" type="button"><span>Handler<small>người chuyền đĩa</small></span></button>
+      <button id="role-cutter" class="btn" type="button"><span>Cutter<small>người chạy bắt đĩa</small></span></button>
+    </div>
+  </section>
+
+  <!-- F1, F2, F4, F5 · Màn chơi -->
+  <section id="screen-play" hidden>
+    <div class="hud">
+      <img src="./assets/bee.svg" width="34" height="34" alt="">
+      <span id="role-label">Cutter</span>
+      <span class="pill">Tình huống <span id="progress">1/5</span></span>
+      <span class="pill">⭐ <span id="score">0</span></span>
+    </div>
+    <div class="card">
+      <p id="scn-title"></p>
+      <p id="prompt"></p>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="field" aria-label="Sân nhìn từ mắt bạn — chạm vào chỗ bạn sẽ chạy tới"></canvas>
+      <span class="hint" id="hint">👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới</span>
+    </div>
+    <p id="feedback"></p>
+    <div class="answer">
+      <canvas id="minimap" hidden aria-label="Sơ đồ sân nhìn từ trên xuống"></canvas>
+      <div class="legend" id="legend" hidden>
+        <span><i class="dot" style="background:var(--primary)"></i>Đồng đội</span>
+        <span><i class="dot" style="background:#fff"></i>Đối thủ</span>
+        <span><i class="dot" style="background:var(--accent);border-color:#fff"></i>Bạn</span>
+        <span>◯ vùng đúng · ✕ chỗ bạn chạm</span>
+      </div>
+      <p id="explain" class="card" hidden></p>
+      <button id="next" class="btn" type="button" hidden>Tiếp <img src="./assets/arrow-right.svg" width="22" height="22" alt=""></button>
+    </div>
+  </section>
+
+  <!-- F6 · Màn kết quả -->
+  <section id="screen-result" hidden>
+    <div class="crest">
+      <div class="crest-inner">
+        <div class="result-label" id="result-role">Kết quả</div>
+        <div id="final-score">0/5</div>
+        <p id="verdict"></p>
+        <p class="sub" id="verdict-sub"></p>
+      </div>
+    </div>
+    <button id="retry" class="btn" type="button"><img src="./assets/rotate-ccw.svg" width="22" height="22" alt=""> Chơi lại</button>
+  </section>
+</main>
+<script type="module" src="./ui.js"></script>
 </body>
 </html>
