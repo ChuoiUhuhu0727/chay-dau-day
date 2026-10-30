@@ -19,11 +19,11 @@ let screen = 'start';
 let view = { w: 360, h: 480 };
 let drawn = { players: 0, onScreen: 0, offScreen: 0, goal: false };
 const now = () => performance.now() / 1000;
-let clock = 0; // giây, chạy liên tục khi đang ở màn chơi (F8, F9)
+let clock = 0; // giây, chạy liên tục khi đang ở màn chơi (F8)
 let answeredAt = 0;
 let loopId = 0;
 let markerScreen = null;
-// F9 · pha bóng: 'intro' (vào pha) → 'decide' (chờ chạm) → 'run' (bạn chạy tới chỗ đã chạm) → 'done'
+// F8 · pha bóng: 'intro' (vào pha) → 'decide' (chờ chạm) → 'run' (bạn chạy tới chỗ đã chạm) → 'done'
 let phase = 'intro';
 let phaseStart = 0;
 let run = null;
@@ -141,7 +141,7 @@ function onTap(ev) {
   for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
   answeredAt = clock;
   drawMinimap();
-  // F9: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
+  // F8: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
   const scn = current(state);
   const d = Math.hypot(point.x - scn.me.x, point.y - scn.me.y);
   run = { to: point, start: clock, dur: runDuration(d), discTo: state.correct ? point : { x: scn.zone.x, y: scn.zone.y }, caught: false };
@@ -166,7 +166,7 @@ function finishRun() {
 }
 
 /**
- * Vị trí mọi thứ ở khung hình hiện tại (F9). Chấm điểm KHÔNG dùng hàm này — chỉ để vẽ.
+ * Vị trí mọi thứ ở khung hình hiện tại (F8). Chấm điểm KHÔNG dùng hàm này — chỉ để vẽ.
  * Trả về camera đang vẽ, đồng đội, đối thủ, đĩa (kèm độ cao) và cờ "đang chạy" để nhún camera.
  */
 function snapshot(scn) {
@@ -373,7 +373,7 @@ function drawField() {
     if (s && s.sx > -10 && s.sx < view.w + 10) onScreen.push({ ...o, s });
     else offScreen.push(o);
   }
-  // đĩa đang bay (F9) được xếp lớp theo khoảng cách như một vật trên sân
+  // đĩa đang bay (F8) được xếp lớp theo khoảng cách như một vật trên sân
   const d = snap.disc;
   const ds = !d.held && !d.mine ? project(cam, d, view) : null;
   if (ds && ds.sx > -10 && ds.sx < view.w + 10) onScreen.push({ kind: 'disc', p: d, s: ds });
@@ -401,7 +401,7 @@ function drawField() {
   };
 }
 
-/** Đĩa đang bay: bóng mờ trên cỏ + đĩa trắng ở độ cao h. */
+/** Đĩa đang bay (F8): bóng mờ trên cỏ + đĩa trắng ở độ cao h. */
 function drawFlyingDisc(ctx, cam, o, f) {
   const k = f / o.s.z;
   const up = project(cam, o.p, view, o.p.h);

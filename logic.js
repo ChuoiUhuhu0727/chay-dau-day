@@ -277,7 +277,7 @@ export function markerPose(base, me, t) {
   };
 }
 
-// ---------------------------------------------------------------- F9 · trận đấu chuyển động
+// ---------------------------------------------------------------- F8 · trận đấu chuyển động (pha bóng)
 
 export const INTRO = 2; // giây "vào pha bóng"
 export const RUN_SPEED = 7; // m/s — tốc độ chạy nước rút của người mới
