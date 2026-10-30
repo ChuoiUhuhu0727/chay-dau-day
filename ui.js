@@ -1,7 +1,7 @@
 // Giao diện: vẽ state ra DOM/canvas, nhận thao tác của người chơi. Không chứa luật chơi.
 import {
   FIELD, ZONE_R, startLesson, current, cameraOf, project, unproject, toCamera, focal, clipProject,
-  answer, next, isFinished, passed, toMinimap, HORIZON,
+  answer, next, isFinished, passed, toMinimap, HORIZON, goalInfo, markerPose, GOAL,
 } from './logic.js';
 
 const $ = (id) => document.getElementById(id);
@@ -16,8 +16,13 @@ const C = {
 let state = null;
 let screen = 'start';
 let view = { w: 360, h: 480 };
-let drawn = { players: 0, onScreen: 0, offScreen: 0 };
-let pulse = 0;
+let drawn = { players: 0, onScreen: 0, offScreen: 0, goal: false };
+let clock = 0; // giây, chạy liên tục khi đang ở màn chơi (F8)
+let answeredAt = 0;
+let loopId = 0;
+let markerScreen = null;
+const beeImg = new Image();
+beeImg.src = './assets/bee.svg';
 
 // ---------------------------------------------------------------- màn hình
 
@@ -25,6 +30,24 @@ function show(name) {
   screen = name;
   for (const s of ['start', 'play', 'result']) $(`screen-${s}`).hidden = s !== name;
   window.scrollTo(0, 0);
+  if (name === 'play') startLoop();
+  else stopLoop();
+}
+
+// Vòng vẽ liên tục: người kèm chuyển động, vùng đúng nhấp nháy. Chỉ chạy ở màn chơi cho đỡ tốn pin.
+function startLoop() {
+  if (loopId) return;
+  const tick = (t) => {
+    clock = t / 1000;
+    drawField();
+    loopId = requestAnimationFrame(tick);
+  };
+  loopId = requestAnimationFrame(tick);
+}
+
+function stopLoop() {
+  cancelAnimationFrame(loopId);
+  loopId = 0;
 }
 
 function begin(role) {
@@ -46,6 +69,11 @@ function renderScenario() {
   $('hint').hidden = false;
   $('hint').textContent = '👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới';
   $('next').firstChild.textContent = state.index === state.total - 1 ? 'Xem kết quả ' : 'Tiếp ';
+  const g = goalInfo(cameraOf(scn));
+  const deg = Math.round((g.bearing * 180) / Math.PI);
+  $('goal-dist').textContent = g.distance;
+  $('goal-arrow').dataset.deg = deg;
+  $('goal-arrow').style.transform = `rotate(${deg}deg)`;
   drawField();
 }
 
@@ -92,7 +120,7 @@ function onTap(ev) {
   $('hint').hidden = true;
   $('explain').textContent = current(state).explain;
   for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
-  startPulse();
+  answeredAt = clock;
   drawMinimap();
 }
 
@@ -187,6 +215,7 @@ function drawField() {
   for (const [a, b] of [[[0, 0], [L, 0]], [[0, W], [L, W]], [[0, 0], [0, W]], [[L, 0], [L, W]], [[E, 0], [E, W]], [[L - E, 0], [L - E, W]]]) {
     line(ctx, cam, { x: a[0], y: a[1] }, { x: b[0], y: b[1] }, C.line, 2);
   }
+  const goalSeen = drawGoal(ctx, cam, f);
 
   // vạch mốc khoảng cách tính từ chân bạn: giúp ước lượng "chạy bao xa"
   ctx.font = '600 11px Oswald, sans-serif';
@@ -208,7 +237,8 @@ function drawField() {
 
   // đáp án (sau khi chạm): vùng đúng + chỗ đã chạm
   if (state.answered) {
-    const glow = 0.35 + 0.25 * Math.sin(pulse * 10);
+    const since = clock - answeredAt;
+    const glow = since < 1.2 ? 0.35 + 0.25 * Math.sin(since * 10) : 0.4;
     poly(ctx, clipProject(cam, circle(scn.zone, ZONE_R), view), `rgba(245,163,0,${glow})`, C.accent, 3);
     const t = state.tap && project(cam, state.tap, view);
     if (t) { // dấu ✕ cỡ cố định tại chỗ đã chạm
@@ -225,10 +255,19 @@ function drawField() {
     }
   }
 
-  // cầu thủ: vẽ từ xa tới gần
+  // cầu thủ: vẽ từ xa tới gần. Người kèm bạn chuyển động mạnh (F8), người kèm khác lắc nhẹ tại chỗ.
+  let lunge = 0;
   const people = [
     ...scn.teammates.map((p, i) => ({ p, kind: 'mate', holder: i === 0 })),
-    ...scn.opponents.map((p) => ({ p, kind: 'opp' })),
+    ...scn.opponents.map((p, i) => {
+      if (i === scn.myMarker) {
+        const pose = markerPose(p, scn.me, clock);
+        lunge = pose.lunge;
+        return { p: pose, kind: 'mine', arms: pose.arms };
+      }
+      const sway = 0.15 * Math.sin(clock * 2.4 + i * 1.7);
+      return { p: { x: p.x, y: p.y + sway }, kind: 'opp', arms: 0.35 + 0.25 * Math.sin(clock * 3 + i) };
+    }),
   ].map((o) => ({ ...o, cam: toCamera(cam, o.p) }));
   const onScreen = [];
   const offScreen = [];
@@ -246,7 +285,33 @@ function drawField() {
   const holderOff = offScreen.find((o) => o.holder);
   drawOffscreen(ctx, offScreen, holderOff);
 
-  drawn = { players: onScreen.length + offScreen.length + (discDrawn || holderOff ? 1 : 0), onScreen: onScreen.length, offScreen: offScreen.length };
+  // áp lực: người kèm lao sát (hoặc đứng sau lưng) → viền đỏ chớp
+  const mine = onScreen.find((o) => o.kind === 'mine');
+  markerScreen = mine ? { sx: mine.s.sx, sy: mine.s.sy } : null;
+  const behind = !mine && offScreen.some((o) => o.kind === 'mine');
+  field.classList.toggle('pressure', mine ? lunge > 0.7 : behind && Math.sin(clock * 6) > 0.4);
+  if (behind) warnBehind(ctx);
+
+  drawn = {
+    players: onScreen.length + offScreen.length + (discDrawn || holderOff ? 1 : 0),
+    onScreen: onScreen.length, offScreen: offScreen.length, goal: goalSeen,
+  };
+}
+
+function warnBehind(ctx) {
+  const text = '⚠ Người kèm sau lưng!';
+  ctx.font = '600 13px Oswald, sans-serif';
+  const w = ctx.measureText(text).width + 20;
+  const x = view.w - w - 10;
+  ctx.globalAlpha = 0.7 + 0.3 * Math.sin(clock * 6);
+  ctx.fillStyle = C.wrong;
+  ctx.beginPath(); ctx.roundRect(x, 10, w, 26, 13); ctx.fill();
+  ctx.fillStyle = '#FFFFFF';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x + w / 2, 23);
+  ctx.textBaseline = 'alphabetic';
+  ctx.globalAlpha = 1;
 }
 
 function drawPerson(ctx, cam, o, f) {
@@ -261,10 +326,24 @@ function drawPerson(ctx, cam, o, f) {
   ctx.beginPath();
   ctx.ellipse(s.sx, s.sy, bw * 0.75, Math.max(1, bw * 0.18), 0, 0, Math.PI * 2);
   ctx.fill();
-  const fill = o.kind === 'mate' ? C.mate : C.opp;
-  const edge = o.kind === 'mate' ? C.ink : '#1B2A55';
+  const fill = { mate: C.mate, opp: C.opp, mine: C.wrong }[o.kind];
+  const edge = o.kind === 'opp' ? '#1B2A55' : C.ink;
   ctx.lineWidth = Math.max(1, Math.min(3, k * 0.05));
   ctx.strokeStyle = edge;
+  if (o.arms !== undefined) { // tay giang ra phòng thủ: 0 = buông chéo xuống, 1 = giang cao
+    const arm = 0.72 * k;
+    ctx.lineCap = 'round';
+    ctx.lineWidth = Math.max(2, 0.11 * k);
+    for (const side of [-1, 1]) {
+      const a = (0.25 + 1.45 * (side < 0 ? o.arms : 1 - o.arms * 0.6)) ; // hai tay lệch nhịp
+      ctx.beginPath();
+      ctx.moveTo(s.sx + side * bw * 0.45, shoulder.sy + 0.06 * k);
+      ctx.lineTo(s.sx + side * (bw * 0.45 + Math.sin(a) * arm), shoulder.sy + 0.06 * k + Math.cos(a) * arm);
+      ctx.stroke();
+    }
+    ctx.lineCap = 'butt';
+    ctx.lineWidth = Math.max(1, Math.min(3, k * 0.05));
+  }
   // chân
   ctx.fillStyle = edge;
   ctx.fillRect(s.sx - bw * 0.32, s.sy - 0.85 * k, bw * 0.22, 0.85 * k);
@@ -285,6 +364,18 @@ function drawPerson(ctx, cam, o, f) {
     ctx.fillStyle = C.ink;
     const top = shoulder.sy + (s.sy - 0.8 * k - shoulder.sy) * 0.45;
     ctx.fillRect(s.sx - bw / 2 + 1, top, bw - 2, Math.max(1, 0.08 * k));
+  }
+  if (o.kind === 'mine') { // nhãn trên đầu người kèm bạn
+    const y = Math.max(16, head.sy - hr - 14);
+    ctx.font = '600 12px Oswald, sans-serif';
+    const w = ctx.measureText('KÈM BẠN').width + 14;
+    ctx.fillStyle = C.wrong;
+    ctx.beginPath(); ctx.roundRect(s.sx - w / 2, y - 10, w, 20, 10); ctx.fill();
+    ctx.fillStyle = '#FFFFFF';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('KÈM BẠN', s.sx, y);
+    ctx.textBaseline = 'alphabetic';
   }
 }
 
@@ -328,8 +419,9 @@ function drawOffscreen(ctx, list, holderOff) {
       ctx.fillStyle = 'rgba(17,17,17,.75)';
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(x - dir * 2, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = o.kind === 'mate' ? C.mate : '#FFFFFF';
+      const blink = o.kind === 'mine' ? 1 + 0.5 * Math.max(0, Math.sin(clock * 6)) : 1;
+      ctx.arc(x - dir * 2, y, 5 * blink, 0, Math.PI * 2);
+      ctx.fillStyle = { mate: C.mate, mine: C.wrong }[o.kind] ?? '#FFFFFF';
       ctx.fill();
       ctx.lineWidth = o.kind === 'disc' ? 2.5 : 1.5;
       ctx.strokeStyle = o.kind === 'disc' ? C.accent : C.ink;
@@ -342,15 +434,80 @@ function drawOffscreen(ctx, list, holderOff) {
   }
 }
 
-function startPulse() {
-  const t0 = performance.now();
-  const tick = (t) => {
-    pulse = (t - t0) / 1000;
-    drawField();
-    if (pulse < 1.2 && state && state.answered) requestAnimationFrame(tick);
-    else { pulse = 0.08; drawField(); }
-  };
-  requestAnimationFrame(tick);
+// ---------------------------------------------------------------- endzone đích (F7)
+
+/** Tô endzone đích vàng, sơn chữ ENDZONE trên cỏ, cắm cờ 4 góc, dựng cổng "GHI ĐIỂM". Trả về true nếu thấy cổng. */
+function drawGoal(ctx, cam, f) {
+  const x0 = GOAL.line;
+  const x1 = FIELD.length;
+  const W = FIELD.width;
+  poly(ctx, clipProject(cam, rect(x0, 0, x1, W), view), 'rgba(245,163,0,.30)');
+
+  // chữ ENDZONE sơn trên cỏ: biến hình chữ nhật chữ thành tứ giác phối cảnh (xấp xỉ affine)
+  const tl = project(cam, { x: x0 + 7, y: 6 }, view);
+  const tr = project(cam, { x: x0 + 7, y: W - 6 }, view);
+  const bl = project(cam, { x: x0 + 2, y: 6 }, view);
+  if (tl && tr && bl && Math.abs(goalInfo(cam).bearing) < 1.2) {
+    const TW = 300;
+    const TH = 60;
+    ctx.save();
+    ctx.transform((tr.sx - tl.sx) / TW, (tr.sy - tl.sy) / TW, (bl.sx - tl.sx) / TH, (bl.sy - tl.sy) / TH, tl.sx, tl.sy);
+    ctx.font = '900 56px Montserrat, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = 'rgba(255,255,255,.75)';
+    ctx.fillText('ENDZONE', TW / 2, TH / 2, TW);
+    ctx.restore();
+  }
+
+  // cờ vàng ở 4 góc
+  for (const p of [{ x: x0, y: 0 }, { x: x0, y: W }, { x: x1, y: 0 }, { x: x1, y: W }]) {
+    const foot = project(cam, p, view);
+    if (!foot) continue;
+    const top = project(cam, p, view, 1.6);
+    const k = f / foot.z;
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = Math.max(1, 0.05 * k);
+    ctx.beginPath(); ctx.moveTo(foot.sx, foot.sy); ctx.lineTo(top.sx, top.sy); ctx.stroke();
+    ctx.fillStyle = C.mate;
+    ctx.beginPath();
+    ctx.moveTo(top.sx, top.sy);
+    ctx.lineTo(top.sx + Math.max(4, 0.6 * k), top.sy + Math.max(2, 0.2 * k));
+    ctx.lineTo(top.sx, top.sy + Math.max(4, 0.4 * k));
+    ctx.fill();
+  }
+
+  // cổng vòm "GHI ĐIỂM" ở vạch cuối sân
+  const L = project(cam, { x: x1, y: W / 2 - 7 }, view);
+  const R = project(cam, { x: x1, y: W / 2 + 7 }, view);
+  if (!L || !R) return false;
+  const k = f / ((L.z + R.z) / 2);
+  const H = 4.2;
+  const Lt = project(cam, { x: x1, y: W / 2 - 7 }, view, H);
+  const Rt = project(cam, { x: x1, y: W / 2 + 7 }, view, H);
+  ctx.strokeStyle = C.ink;
+  ctx.lineWidth = Math.max(2, 0.3 * k);
+  ctx.beginPath(); ctx.moveTo(L.sx, L.sy); ctx.lineTo(Lt.sx, Lt.sy); ctx.moveTo(R.sx, R.sy); ctx.lineTo(Rt.sx, Rt.sy); ctx.stroke();
+  const bh = Math.max(10, 1.4 * k);
+  const left = Math.min(Lt.sx, Rt.sx);
+  const bw = Math.abs(Rt.sx - Lt.sx);
+  const by = Math.min(Lt.sy, Rt.sy) - bh / 2;
+  if (bw < 6) return false;
+  ctx.fillStyle = C.ink;
+  ctx.strokeStyle = C.mate;
+  ctx.lineWidth = Math.max(1.5, bh * 0.12);
+  ctx.beginPath(); ctx.roundRect(left, by, bw, bh, bh * 0.25); ctx.fill(); ctx.stroke();
+  const fs = Math.min(bh * 0.62, bw / 7);
+  if (fs >= 5) {
+    ctx.font = `900 ${fs}px Montserrat, sans-serif`;
+    ctx.fillStyle = C.accent;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('GHI ĐIỂM', left + bw / 2 + fs * 0.6, by + bh / 2);
+    if (beeImg.complete && beeImg.naturalWidth) ctx.drawImage(beeImg, left + bw / 2 - fs * 3.6, by + bh / 2 - fs * 0.6, fs * 1.2, fs * 1.2);
+  }
+  ctx.textBaseline = 'alphabetic';
+  return L.sx < view.w && R.sx > 0;
 }
 
 // ---------------------------------------------------------------- sơ đồ nhìn từ trên (F5)
@@ -493,7 +650,7 @@ window.addEventListener('resize', () => { if (screen === 'play') { drawField(); 
 // Hợp đồng với bot test. Đừng xoá.
 window.__game = {
   state: () => {
-    if (!state) return { screen, role: null, index: 0, score: 0, answered: false };
+    if (!state) return { screen, role: null, index: 0, score: 0, answered: false, animating: loopId !== 0 };
     const scn = current(state);
     const cam = cameraOf(scn);
     const z = project(cam, scn.zone, view);
@@ -506,6 +663,9 @@ window.__game = {
       scenario: { id: scn.id, prompt: scn.prompt, explain: scn.explain },
       zoneScreen: z ? { x: z.sx * k, y: z.sy * k } : null,
       horizonY: view.h * HORIZON * k,
+      goal: goalInfo(cam),
+      marker: markerScreen ? { sx: markerScreen.sx * k, sy: markerScreen.sy * k } : null,
+      animating: loopId !== 0,
       drawn,
     };
   },

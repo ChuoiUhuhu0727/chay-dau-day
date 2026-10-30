@@ -43,7 +43,23 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   // ---------------- F2 · tình huống
   check('F2: #prompt hiện đúng prompt của tình huống', (await text('#prompt')) === s.scenario.prompt, s.scenario.id);
   check('F2: canvas vẽ 14 (13 cầu thủ + đĩa)', s.drawn.players === 14, `${s.drawn.onScreen} trong khung, ${s.drawn.offScreen} ở mép`);
-  await shot('Tình huống 1 — nhìn bằng mắt cutter');
+  // ---------------- F7 · la bàn endzone đích
+  check('F7: #goal hiện trên màn chơi', await visible('#goal'));
+  const goalText = await text('#goal');
+  check('F7: #goal có chữ ENDZONE và đúng khoảng cách', goalText.includes('ENDZONE') && goalText.includes(`${s.goal.distance}m`), `${goalText.trim()} / state ${s.goal.distance}m`);
+  const deg = await evaluate(`Number(document.getElementById('goal-arrow').dataset.deg)`);
+  const wantDeg = Math.round((s.goal.bearing * 180) / Math.PI);
+  check('F7: #goal-arrow data-deg = góc tới endzone', deg === wantDeg, `${deg}° (cần ${wantDeg}°)`);
+
+  // ---------------- F8 · người kèm bạn chuyển động
+  const m1 = (await S()).marker;
+  await sleep(300);
+  const s2 = await S();
+  const m2 = s2.marker;
+  check('F8: người kèm bạn hiện trong khung ở C1', !!m1 && !!m2);
+  check('F8: người kèm bạn chuyển động (lệch ≥ 2px sau 300ms)', !!m1 && !!m2 && Math.abs(m1.sx - m2.sx) >= 2, m1 && m2 ? `${m1.sx.toFixed(1)} → ${m2.sx.toFixed(1)}px` : 'không thấy');
+  check('F8: state().animating = true ở màn chơi', s2.animating === true);
+  await shot('Tình huống 1 — nhìn bằng mắt cutter, người kèm bám sát');
 
   // ---------------- F5 · trước khi chạm
   check('F5: trước khi chạm, #minimap và #explain bị ẩn', !(await visible('#minimap')) && !(await visible('#explain')));
@@ -93,6 +109,7 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F6: hết 5 tình huống → #screen-result hiện', await visible('#screen-result'));
   check('F6: 4 đúng 1 sai → #final-score = 4/5', (await text('#final-score')) === '4/5', await text('#final-score'));
   check('F6: 4/5 → #verdict có chữ "Qua bài"', (await text('#verdict')).includes('Qua bài'), await text('#verdict'));
+  check('F8: sang màn kết quả thì state().animating = false', (await S()).animating === false);
   await shot('Qua bài 4/5');
 
   // ---------------- F6 · chơi lại, sai cả 5 (vai Handler)
@@ -101,7 +118,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F6: bấm #retry → về #screen-start', await visible('#screen-start'));
   await click('#role-handler');
   await sleep(300);
-  await shot('Tình huống 1 — nhìn bằng mắt handler');
+  s = await S();
+  check('F7: tình huống H1 vẽ cổng endzone đích trên canvas', s.scenario.id === 'H1' && s.drawn.goal === true, `${s.scenario.id}, drawn.goal=${s.drawn.goal}`);
+  await shot('Tình huống 1 — nhìn bằng mắt handler, thấy endzone đích');
   for (let i = 0; i < 5; i++) {
     await tapWrong();
     await sleep(150);
