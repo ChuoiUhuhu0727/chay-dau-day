@@ -1,82 +1,82 @@
 [
   {
     "id": "F1",
-    "title": "Bãi xe 6×6",
-    "page": "1-wiki/features/F1-bai-xe.md",
+    "title": "Sân góc nhìn thứ nhất",
+    "page": "1-wiki/features/F1-san-goc-nhin.md",
     "done": [
-      "Bãi là lưới 6×6.",
-      "Mọi xe của mọi level nằm trong bãi, không chồng nhau.",
-      "Mỗi xe dài 2 hoặc 3 ô và có hướng chạy (trái/phải/lên/xuống)."
+      "`FIELD` trong `logic.js` = `{ length: 100, width: 37, endzone: 18 }`.",
+      "`project(cam, {x, y}, view)` trả về `{sx, sy}` pixel; điểm ngay trước mặt (cùng `y`, xa hơn 10m theo hướng nhìn) có `sx` = giữa màn (sai số ≤ 1px).",
+      "Điểm xa hơn nằm cao hơn trên màn (`sy` nhỏ hơn) và gần đường chân trời hơn; điểm ở sau lưng camera trả về `null`.",
+      "`unproject(cam, sx, sy, view)` là ngược của `project`: với 20 điểm trong sân trước mặt, sai số ≤ 0.05m; chạm trên đường chân trời trả về `null`.",
+      "Bot: `#field` là `<canvas>` hiện trên màn chơi, rộng ≤ 390px trên màn 390px, và `window.__game.state().camera` có `x, y, heading`."
     ],
     "state": "passing",
-    "verified_at": "2026-10-28T10:41:18.160Z"
+    "verified_at": "2026-10-30T10:55:49.908Z"
   },
   {
     "id": "F2",
-    "title": "Chạm xe ra bãi",
-    "page": "1-wiki/features/F2-cham-xe-ra-bai.md",
+    "title": "Bộ tình huống vertical stack",
+    "page": "1-wiki/features/F2-tinh-huong.md",
     "done": [
-      "`tap` xe có đường trống trả về `'exited'`.",
-      "Xe đó không còn trong state; state cũ không bị sửa."
+      "`SCENARIOS.handler` và `SCENARIOS.cutter` mỗi bên đúng 5 tình huống, `id` không trùng nhau.",
+      "Mỗi tình huống có đúng 6 `teammates`, 7 `opponents`, có `prompt` và `explain` không rỗng.",
+      "Mọi cầu thủ, đĩa và tâm `zone` nằm trong sân (0 ≤ x ≤ 100, 0 ≤ y ≤ 37); `zone.r` = 4.",
+      "Tâm `zone` của mọi tình huống nằm trước mặt và hiện trong khung nhìn của `me` (`project` khác `null`, 0 ≤ sx ≤ 360 với view 360×480).",
+      "Bot: khi vào màn chơi, `#prompt` hiện đúng `prompt` của tình huống hiện tại và canvas vẽ được 14 cầu thủ (`state().drawn.players` = 13 người khác + đĩa = 14)."
     ],
     "state": "passing",
-    "verified_at": "2026-10-28T10:41:21.886Z"
+    "verified_at": "2026-10-30T10:55:50.133Z"
   },
   {
     "id": "F3",
-    "title": "Xe bị chặn",
-    "page": "1-wiki/features/F3-xe-bi-chan.md",
+    "title": "Màn mở đầu kiểu CLB + chọn vai",
+    "page": "1-wiki/features/F3-man-mo-dau.md",
     "done": [
-      "`tap` xe bị chặn trả về `'blocked'`, số xe không đổi.",
-      "Khi xe chắn đã đi, xe đó hết bị chặn."
+      "`startLesson(role)` trong `logic.js` trả state có `role`, `index = 0`, `score = 0`, `total = 5`; role khác `handler`/`cutter` thì báo lỗi.",
+      "Bot: khi mở trang thấy `#screen-start` với `#crest` (khiên), `#logo` (ảnh logo tải được, naturalWidth > 0) và chữ `ULTIMATE`.",
+      "Bot: có nút `#role-handler` và `#role-cutter`, mỗi nút cao ≥ 44px; bấm `#role-cutter` thì `#screen-play` hiện, `state().role` = `cutter`.",
+      "Bot: màu nền `body` dùng gradient (`background-image` chứa `radial-gradient`), font tiêu đề không phải font mặc định."
     ],
     "state": "passing",
-    "verified_at": "2026-10-28T10:41:25.050Z"
+    "verified_at": "2026-10-30T10:55:50.366Z"
   },
   {
     "id": "F4",
-    "title": "Hoàn thành level",
-    "page": "1-wiki/features/F4-hoan-thanh.md",
+    "title": "Chạm chọn chỗ đứng + chấm đúng/sai",
+    "page": "1-wiki/features/F4-cham-cham-diem.md",
     "done": [
-      "Level mới chưa hoàn thành.",
-      "Mọi level giải được tới khi hết xe.",
-      "`#complete` hiện ra khi hết xe (bot kiểm)."
+      "`judge(zone, point)` trả `true` khi khoảng cách từ `point` tới tâm `zone` ≤ `zone.r`, `false` khi lớn hơn; `point` = `null` thì trả `null` (không tính).",
+      "`answer(state, point)` khi đúng tăng `score` thêm 1 và đặt `answered = true`; khi sai giữ nguyên `score`; gọi lần 2 trong cùng tình huống không đổi gì.",
+      "Bot: chạm vào `state().zoneScreen` (toạ độ màn của tâm vùng đúng) → `#feedback` hiện chữ `Đúng`, `#score` tăng 1.",
+      "Bot: ở tình huống sau, chạm vào điểm cách xa vùng đúng → `#feedback` hiện chữ `Chưa đúng`, `#score` giữ nguyên.",
+      "Bot: chạm lên phần trời (trên đường chân trời) → `state().answered` vẫn `false`."
     ],
     "state": "passing",
-    "verified_at": "2026-10-28T10:41:28.062Z"
+    "verified_at": "2026-10-30T10:55:50.594Z"
   },
   {
     "id": "F5",
-    "title": "Đếm lượt chạm",
-    "page": "1-wiki/features/F5-dem-luot.md",
+    "title": "Đáp án: vùng đúng + sơ đồ nhìn từ trên",
+    "page": "1-wiki/features/F5-dap-an.md",
     "done": [
-      "Vào level: `state.moves` = 0 và HUD `#moves` hiện \"Lượt: 0\".",
-      "Mỗi lần chạm xe (kể cả bị chặn) tăng đúng 1.",
-      "Chạm vào chỗ không có xe thì không tính.",
-      "Sang level mới thì về 0."
+      "`toMinimap({x, y}, w, h)` trong `logic.js` đổi toạ độ sân ra pixel sơ đồ: `(0,0)` → `(0,0)`, `(100,37)` → `(w,h)`.",
+      "Bot: trước khi chạm, `#minimap` và `#explain` bị ẩn; sau khi chạm, cả hai hiện và `#explain` chứa đúng chữ `explain` của tình huống.",
+      "Bot: sau khi chạm, nút `#next` hiện (cao ≥ 44px); bấm `#next` thì `state().index` tăng 1 và `#minimap` ẩn lại."
     ],
-    "state": "pending"
+    "state": "passing",
+    "verified_at": "2026-10-30T10:55:50.839Z"
   },
   {
     "id": "F6",
-    "title": "Chơi lại",
-    "page": "1-wiki/features/F6-choi-lai.md",
+    "title": "Kết thúc bài: X/5, qua bài, chơi lại",
+    "page": "1-wiki/features/F6-ket-thuc-bai.md",
     "done": [
-      "Có nút `#restart` trên HUD.",
-      "Bấm thì xe về đúng vị trí ban đầu của level hiện tại.",
-      "Số lượt về 0."
+      "`isFinished(state)` = `true` khi đã trả lời tình huống thứ 5; `passed(state)` = `true` khi `score ≥ 4`, `false` khi `score ≤ 3`.",
+      "Bot: trả lời đủ 5 tình huống (4 đúng, 1 sai) rồi bấm `#next` → `#screen-result` hiện, `#final-score` ghi `4/5`, `#verdict` có chữ `Qua bài`.",
+      "Bot: chơi lại sai cả 5 → `#final-score` ghi `0/5`, `#verdict` có chữ `Chưa qua`.",
+      "Bot: bấm `#retry` → về `#screen-start`; sau khi chọn vai thì `state().score` = 0 và `state().index` = 0."
     ],
-    "state": "pending"
-  },
-  {
-    "id": "F7",
-    "title": "Nhiều level",
-    "page": "1-wiki/features/F7-nhieu-level.md",
-    "done": [
-      "Ở màn \"Hoàn thành!\" có nút `#next` sang level kế tiếp (lượt về 0).",
-      "Sau level 3 hiện \"Bạn đã phá đảo!\" và không còn nút `#next`.",
-      "Bot chơi liền mạch cả 3 level."
-    ],
-    "state": "pending"
+    "state": "passing",
+    "verified_at": "2026-10-30T10:55:51.076Z"
   }
 ]

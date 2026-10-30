@@ -1,0 +1,82 @@
+[
+  {
+    "id": "F1",
+    "title": "Bãi xe 6×6",
+    "page": "1-wiki/features/F1-bai-xe.md",
+    "done": [
+      "Bãi là lưới 6×6.",
+      "Mọi xe của mọi level nằm trong bãi, không chồng nhau.",
+      "Mỗi xe dài 2 hoặc 3 ô và có hướng chạy (trái/phải/lên/xuống)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:18.160Z"
+  },
+  {
+    "id": "F2",
+    "title": "Chạm xe ra bãi",
+    "page": "1-wiki/features/F2-cham-xe-ra-bai.md",
+    "done": [
+      "`tap` xe có đường trống trả về `'exited'`.",
+      "Xe đó không còn trong state; state cũ không bị sửa."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:21.886Z"
+  },
+  {
+    "id": "F3",
+    "title": "Xe bị chặn",
+    "page": "1-wiki/features/F3-xe-bi-chan.md",
+    "done": [
+      "`tap` xe bị chặn trả về `'blocked'`, số xe không đổi.",
+      "Khi xe chắn đã đi, xe đó hết bị chặn."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:25.050Z"
+  },
+  {
+    "id": "F4",
+    "title": "Hoàn thành level",
+    "page": "1-wiki/features/F4-hoan-thanh.md",
+    "done": [
+      "Level mới chưa hoàn thành.",
+      "Mọi level giải được tới khi hết xe.",
+      "`#complete` hiện ra khi hết xe (bot kiểm)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-28T10:41:28.062Z"
+  },
+  {
+    "id": "F5",
+    "title": "Đếm lượt chạm",
+    "page": "1-wiki/features/F5-dem-luot.md",
+    "done": [
+      "Vào level: `state.moves` = 0 và HUD `#moves` hiện \"Lượt: 0\".",
+      "Mỗi lần chạm xe (kể cả bị chặn) tăng đúng 1.",
+      "Chạm vào chỗ không có xe thì không tính.",
+      "Sang level mới thì về 0."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F6",
+    "title": "Chơi lại",
+    "page": "1-wiki/features/F6-choi-lai.md",
+    "done": [
+      "Có nút `#restart` trên HUD.",
+      "Bấm thì xe về đúng vị trí ban đầu của level hiện tại.",
+      "Số lượt về 0."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F7",
+    "title": "Nhiều level",
+    "page": "1-wiki/features/F7-nhieu-level.md",
+    "done": [
+      "Ở màn \"Hoàn thành!\" có nút `#next` sang level kế tiếp (lượt về 0).",
+      "Sau level 3 hiện \"Bạn đã phá đảo!\" và không còn nút `#next`.",
+      "Bot chơi liền mạch cả 3 level."
+    ],
+    "state": "pending"
+  }
+]

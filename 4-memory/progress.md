@@ -1,6 +1,17 @@
 # Progress — sổ tay của harness
 
-> Harness tự ghi vào đây sau mỗi lần chạy. Phiên sau đọc lại là biết đang ở đâu.
-
-- 2026-10-28 · F1–F4 ✅ passing (verify.sh xanh: 8 unit test + automation test chơi hết Level 1).
-- Tiếp theo: F5 Đếm lượt chạm.
+- 2026-10-30 · bắt đầu game mới
+- 2026-10-30 · F1 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F2 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F3 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F4 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F5 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F6 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F1–F6 xong code + e2e, bot chơi thử xanh; chạy verify
+- 2026-10-30 · F1 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F2 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F3 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F4 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F5 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F6 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F1–F6 ✅ passing (verify.sh xanh). Node 22 portable ở ~/.local/node22 cho bot.

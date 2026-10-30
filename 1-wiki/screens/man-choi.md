@@ -1,10 +1,14 @@
-# Screen — Màn chơi
+# Screen — Màn chơi (`#screen-play`)
 
-Một màn duy nhất. Từ trên xuống:
+Từ trên xuống (màn 375px):
+1. HUD: vai (`#role-label`) · tình huống `#progress` ("2/5") · điểm `#score`.
+2. `#prompt` — mô tả tình huống (1–2 câu).
+3. `#field` — canvas góc nhìn thứ nhất, rộng 100% (tối đa 360px), khung vuông 1:1 (đường chân trời ở 40% chiều cao). Trời xanh đậm, cỏ xanh lá có vạch trắng,
+   endzone tô đậm hơn. Đồng đội = vòng vàng, đối thủ = vòng trắng, đĩa = đĩa trắng; người xa vẽ nhỏ hơn.
+4. `#feedback` — "Đúng! +1" (vàng) hoặc "Chưa đúng" (đỏ).
+5. `#minimap` — canvas sân nhìn từ trên (ẩn tới khi chấm) · `#explain` — vì sao · nút `#next` "Tiếp".
 
-1. Tiêu đề "Parking Jam".
-2. HUD: tên level (`#level-name`) · số lượt (`#moves`, từ F5) · nút "Chơi lại" (`#restart`, từ F6).
-3. Bãi xe 6×6 (`#lot`). Mỗi xe là một nút `data-car="<id>"`, có màu và mũi tên.
-4. Lớp phủ "Hoàn thành!" (`#complete`), có nút "Level tiếp" (`#next`, từ F7).
+Hợp đồng bot: `window.__game.state()` có `role, index, score, answered, camera, zoneScreen {x,y}` (pixel CSS trong `#field`),
+`drawn.players`. Bot click thẳng toạ độ trên `#field`.
 
-Tính năng dùng màn này: [F1](../features/F1-bai-xe.md) · [F2](../features/F2-cham-xe-ra-bai.md) · [F3](../features/F3-xe-bi-chan.md) · [F4](../features/F4-hoan-thanh.md) · [F5](../features/F5-dem-luot.md) · [F6](../features/F6-choi-lai.md) · [F7](../features/F7-nhieu-level.md)
+Tính năng: [F1](../features/F1-san-goc-nhin.md) · [F2](../features/F2-tinh-huong.md) · [F4](../features/F4-cham-cham-diem.md) · [F5](../features/F5-dap-an.md)

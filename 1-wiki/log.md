@@ -1,4 +1,11 @@
 # Log — mỗi thay đổi một dòng
 
-- 2026-10-28 · plan · tạo overview, 1 screen, 7 feature (F1–F7), 2 decision từ raw/game-idea.md
-- 2026-10-28 · build · F1–F4 ✅ passing
+- 2026-10-30 · new-game · bắt đầu game mới
+- 2026-10-30 · /game · Wiki Fulbright Ultimate: Chạy Đâu Đây? — F1–F6, 3 màn, style theo logo CLB
+- 2026-10-30 · build · màn chơi: khung #field đổi 3:4 → 1:1 cho đỡ trống phần cỏ sát chân
+- 2026-10-30 · build · F1 ✅ passing (Sân góc nhìn thứ nhất)
+- 2026-10-30 · build · F2 ✅ passing (Bộ tình huống vertical stack)
+- 2026-10-30 · build · F3 ✅ passing (Màn mở đầu kiểu CLB + chọn vai)
+- 2026-10-30 · build · F4 ✅ passing (Chạm chọn chỗ đứng + chấm đúng/sai)
+- 2026-10-30 · build · F5 ✅ passing (Đáp án: vùng đúng + sơ đồ nhìn từ trên)
+- 2026-10-30 · build · F6 ✅ passing (Kết thúc bài: X/5, qua bài, chơi lại)

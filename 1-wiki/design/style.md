@@ -1,19 +1,43 @@
-# Style — Parking Jam
+# Style — Fulbright Ultimate: Chạy Đâu Đây?
+
+Lấy cảm hứng trực tiếp từ logo Fulbright Ultimate Club.
 
 ## 3 tính từ cảm xúc
-**gọn gàng · thư giãn · đô thị**
+**sung sức · đồng đội · tự tin** — như huy hiệu đội thể thao.
 
 ## 5 màu
-| Biến | Mã |
-|---|---|
-| `--bg` | `#F6F1E7` |
-| `--surface` | `#3B3A47` |
-| `--primary` | `#4E3DC2` |
-| `--ink` | `#1D1B26` |
-| `--accent` | `#E4572E` |
+| Biến | Mã | Dùng cho |
+|---|---|---|
+| `--bg` | `#0A3FA8` | nền xanh dương; `body` = `radial-gradient(circle at 50% 40%, #1560E0, #0A3FA8 45%, #050A1F)` |
+| `--surface` | `#111111` | khiên, thẻ, HUD (đen) |
+| `--primary` | `#F5A300` | nút chính, viền khiên, đồng đội, vùng đúng (vàng cam) |
+| `--ink` | `#FFFFFF` | chữ trên nền tối, đối thủ, đĩa |
+| `--accent` | `#FFC93C` | điểm, "+1", confetti (vàng sáng) |
 
-## Font (Google Fonts)
-Be Vietnam Pro (chữ) — `https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;700`
+Màu nghĩa thêm: sai = `#E5484D` (đỏ). Cỏ trong canvas: `#2E8B3E` / endzone `#25733A`, vạch trắng.
+
+## Font (Google Fonts, có dấu tiếng Việt)
+- Tiêu đề: **Montserrat** 900 (FULBRIGHT, ULTIMATE, điểm) — chữ in hoa đậm kiểu logo.
+- Chữ "CLUB", nhãn HUD: **Oswald** 600 (chữ hẹp, giống chữ CLUB).
+- `https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&family=Oswald:wght@500;600&display=swap`
+
+## Hình khối
+- Khiên: `clip-path` hình khiên (trên phẳng, đáy nhọn), nền `--surface`, viền `--primary` 6px.
+- `ULTIMATE`: trắng, bóng vàng lệch 3px phía dưới, `transform: skewY(-4deg)`.
+- Nút: vàng `--primary`, chữ đen, bo 12px, bóng đen lệch 4px (kiểu sticker), cao ≥ 48px.
 
 ## Juice
-Xe bị chặn: lắc ngang. Xe ra bãi: trượt theo hướng rồi mờ dần.
+| Khi | Hiệu ứng |
+|---|---|
+| Bấm nút | scale 0.95 → 1 (120ms) |
+| Chạm sân | vòng tròn trắng loang ra tại điểm chạm (scale 0→1, opacity 1→0, 300ms) |
+| Đúng | "+1" vàng bay lên mờ dần, `#score` nảy 1.3×, vùng đúng nhấp nháy vàng |
+| Sai | `#field` lắc ngang 3 lần, `#feedback` chớp đỏ |
+| Hiện đáp án | `#minimap` + `#explain` trượt lên từ dưới (translateY 16px → 0) |
+| Qua bài | confetti 🐝🥏 rơi, khiên phóng to 0.8 → 1 |
+
+## Asset
+- Logo CLB: `game/assets/logo.jpg` (ảnh người dùng gửi).
+- 🐝 Twemoji: `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f41d.svg` → `bee.svg`
+- 🥏 Twemoji: `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f94f.svg` → `disc.svg`
+- Lucide: `https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/icons/rotate-ccw.svg` (chơi lại), `arrow-right.svg` (tiếp), `trophy.svg` (kết quả)
