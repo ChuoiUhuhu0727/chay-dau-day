@@ -6,3 +6,5 @@
 - Câu hỏi cho PO: Tên app tạm "Chạy Đâu Đây?" — có muốn đặt tên khác?
 - Câu hỏi cho PO: "endgoal" mình hiểu là endzone đối thủ (nơi ghi điểm) → tô vàng + la bàn chỉ hướng. Nếu ý vịt là "chỗ cần chạy tới" thì vùng đó vẫn phải ẩn tới khi chạm (không thì lộ đáp án) — đúng không?
 - Câu hỏi cho PO: Muốn áp lực hơn nữa thì thêm đồng hồ đếm stall (10 giây phải chạm) không? Bản này chưa có để người mới không bị quá tải.
+- Câu hỏi cho PO: Pha "vào trận" dài 2 giây và không cho chạm lúc đó — muốn ngắn hơn, hay cho chạm luôn (khó hơn, áp lực hơn)?
+- Câu hỏi cho PO: Wiki giờ có 9 tính năng, plan-check muốn 3–8 (luật cho bản đầu). Có muốn gộp F8 + F9 thành một tính năng "Trận đấu sống động" cho gọn không?

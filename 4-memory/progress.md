@@ -20,3 +20,14 @@
 - 2026-10-30 · F7 endzone đích + F8 người kèm động xong code, bot xanh; chạy verify
 - 2026-10-30 · F7 ✅ passing (verify.sh xanh)
 - 2026-10-30 · F8 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F9 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-10-30 · F9 trận đấu chuyển động xong code, bot xanh; verify toàn bộ
+- 2026-10-30 · F1 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F2 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F3 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F4 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F5 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F6 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F7 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F8 ✅ passing (verify.sh xanh)
+- 2026-10-30 · F9 ✅ passing (verify.sh xanh)

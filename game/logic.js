@@ -277,6 +277,58 @@ export function markerPose(base, me, t) {
   };
 }
 
+// ---------------------------------------------------------------- F9 · trận đấu chuyển động
+
+export const INTRO = 2; // giây "vào pha bóng"
+export const RUN_SPEED = 7; // m/s — tốc độ chạy nước rút của người mới
+
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const lerp = (a, b, u) => ({ x: a.x + (b.x - a.x) * u, y: a.y + (b.y - a.y) * u });
+const easeOut = (u) => 1 - (1 - u) ** 3;
+const inField = (p) => p.x >= 0 && p.x <= FIELD.length && p.y >= 0 && p.y <= FIELD.width;
+
+/** Chỗ xuất phát của một cầu thủ khi vào pha: cách chỗ cuối 4.5m theo một hướng cố định (lật lại nếu ra ngoài sân). */
+function startOf(p, i) {
+  const a = i * 2.399 + 0.6; // góc vàng → mỗi người chạy vào từ một hướng khác nhau
+  const off = { x: 4.5 * Math.cos(a), y: 4.5 * Math.sin(a) };
+  const q = { x: p.x + off.x, y: p.y + off.y };
+  return inField(q) ? q : { x: p.x - off.x, y: p.y - off.y };
+}
+
+/** Vị trí mọi thứ lúc t giây kể từ khi vào pha. t ≥ INTRO → đúng vị trí của tình huống. */
+export function introPose(scn, t) {
+  const u = clamp(t / INTRO, 0, 1);
+  const e = easeOut(u);
+  const back = { x: scn.me.x - 6 * Math.cos(scn.me.heading), y: scn.me.y - 6 * Math.sin(scn.me.heading) };
+  const camStart = { x: clamp(back.x, 0, FIELD.length), y: clamp(back.y, 0, FIELD.width) };
+  const holder = scn.teammates[0];
+  const discStart = { x: holder.x - 10, y: holder.y + (holder.y < FIELD.width / 2 ? 6 : -6) };
+  const at = (a, b) => (u === 1 ? { x: b.x, y: b.y } : lerp(a, b, e));
+  return {
+    cam: { ...at(camStart, scn.me), heading: scn.me.heading },
+    mates: scn.teammates.map((p, i) => at(startOf(p, i), p)),
+    opps: scn.opponents.map((p, i) => at(startOf(p, i + 7), p)),
+    disc: u === 1 ? { x: scn.disc.x, y: scn.disc.y } : lerp(discStart, scn.disc, u), // đĩa bay đều, không chậm dần
+    discU: u,
+    u,
+  };
+}
+
+/** Chạy từ from tới to, u ∈ [0, 1] (tăng tốc rồi giảm tốc). */
+export function runPose(from, to, u) {
+  const k = clamp(u, 0, 1);
+  return k === 1 ? { x: to.x, y: to.y } : lerp(from, to, k * k * (3 - 2 * k));
+}
+
+export function runDuration(d) {
+  return clamp(d / RUN_SPEED, 0.8, 2);
+}
+
+/** Độ cao (m) của đĩa đang bay, u ∈ [0, 1]: rời tay 1.1m, vòng lên 2.7m, bắt ở 1.1m. */
+export function discArc(u) {
+  return 1.1 + 6.4 * u * (1 - u);
+}
+
 // ---------------------------------------------------------------- F3 · bắt đầu bài
 
 export function startLesson(role) {

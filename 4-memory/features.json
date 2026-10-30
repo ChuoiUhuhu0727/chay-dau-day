@@ -11,7 +11,7 @@
       "Bot: `#field` là `<canvas>` hiện trên màn chơi, rộng ≤ 390px trên màn 390px, và `window.__game.state().camera` có `x, y, heading`."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:49.908Z"
+    "verified_at": "2026-10-30T11:42:41.294Z"
   },
   {
     "id": "F2",
@@ -25,7 +25,7 @@
       "Bot: khi vào màn chơi, `#prompt` hiện đúng `prompt` của tình huống hiện tại và canvas vẽ được 14 cầu thủ (`state().drawn.players` = 13 người khác + đĩa = 14)."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:50.133Z"
+    "verified_at": "2026-10-30T11:42:41.534Z"
   },
   {
     "id": "F3",
@@ -38,7 +38,7 @@
       "Bot: màu nền `body` dùng gradient (`background-image` chứa `radial-gradient`), font tiêu đề không phải font mặc định."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:50.366Z"
+    "verified_at": "2026-10-30T11:42:41.768Z"
   },
   {
     "id": "F4",
@@ -52,7 +52,7 @@
       "Bot: chạm lên phần trời (trên đường chân trời) → `state().answered` vẫn `false`."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:50.594Z"
+    "verified_at": "2026-10-30T11:42:42.010Z"
   },
   {
     "id": "F5",
@@ -64,7 +64,7 @@
       "Bot: sau khi chạm, nút `#next` hiện (cao ≥ 44px); bấm `#next` thì `state().index` tăng 1 và `#minimap` ẩn lại."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:50.839Z"
+    "verified_at": "2026-10-30T11:42:42.254Z"
   },
   {
     "id": "F6",
@@ -77,7 +77,7 @@
       "Bot: bấm `#retry` → về `#screen-start`; sau khi chọn vai thì `state().score` = 0 và `state().index` = 0."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T10:55:51.076Z"
+    "verified_at": "2026-10-30T11:42:42.453Z"
   },
   {
     "id": "F7",
@@ -91,7 +91,7 @@
       "Bot: ở tình huống H1 (Handler, nhìn về phía endzone đích) `state().drawn.goal` = `true` (đã vẽ cổng vòm endzone trên canvas)."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T11:23:20.904Z"
+    "verified_at": "2026-10-30T11:42:42.655Z"
   },
   {
     "id": "F8",
@@ -105,6 +105,22 @@
       "Bot: sang màn kết quả thì `state().animating` = `false` (dừng vẽ cho đỡ tốn pin)."
     ],
     "state": "passing",
-    "verified_at": "2026-10-30T11:23:21.154Z"
+    "verified_at": "2026-10-30T11:42:42.849Z"
+  },
+  {
+    "id": "F9",
+    "title": "Trận đấu chuyển động: bạn chạy, cả sân chạy",
+    "page": "1-wiki/features/F9-tran-dau-chuyen-dong.md",
+    "done": [
+      "`introPose(scn, t)`: lúc t = 0 camera cách `scn.me` ≥ 4m; t ≥ `INTRO` (2 giây) thì camera, 13 cầu thủ và đĩa trùng đúng vị trí của tình huống (sai số ≤ 1e-9); khoảng cách camera → `scn.me` không tăng theo t.",
+      "`introPose`: lúc t = 0 mỗi cầu thủ cách chỗ cuối ≥ 2m và nằm trong sân; đĩa lúc t = 0 cách người cầm đĩa ≥ 8m.",
+      "`runPose(from, to, u)`: u = 0 → `from`, u = 1 → `to`, khoảng cách tới `to` không tăng theo u; `runDuration(d)` = d / 7 giây, kẹp trong [0.8, 2].",
+      "`discArc(u)`: độ cao lúc u = 0 và u = 1 là 1.1m, giữa đường (u = 0.5) ≥ 2.5m.",
+      "Bot: vừa chọn vai thì `state().phase` = `intro`; chạm vào `state().zoneScreen` lúc này thì `state().answered` vẫn `false`; `state().live.camera` đổi chỗ ≥ 0.3m sau 300ms.",
+      "Bot: trong ≤ 2.5 giây `state().phase` thành `decide`; khi đó `state().live.mates` (vị trí đồng đội) vẫn đổi sau 300ms (cả sân vẫn chuyển động).",
+      "Bot: chạm đúng → `phase` = `run`, sau ≤ 2.5 giây `phase` = `done`, `state().live.camera` cách chỗ đã chạm ≤ 0.5m và `#feedback` có chữ `Bắt được`."
+    ],
+    "state": "passing",
+    "verified_at": "2026-10-30T11:42:43.054Z"
   }
 ]

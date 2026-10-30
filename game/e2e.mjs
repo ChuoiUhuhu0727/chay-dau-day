@@ -11,6 +11,17 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const fieldSize = () => evaluate(`(() => { const r = document.getElementById('field').getBoundingClientRect(); return { w: r.width, h: r.height }; })()`);
   const tapCorrect = async () => { const z = (await S()).zoneScreen; await tap(z.x, z.y); };
   const tapWrong = async () => { const f = await fieldSize(); await tap(8, f.h - 8); }; // mặt cỏ ngay dưới chân, xa vùng đúng
+  // F9: chờ tới khi state().phase = want (tối đa ms). Trả về số ms đã chờ, hoặc -1 nếu hết giờ.
+  const waitPhase = async (want, ms = 3000) => {
+    const t0 = Date.now();
+    while (Date.now() - t0 <= ms) {
+      if ((await S()).phase === want) return Date.now() - t0;
+      await sleep(50);
+    }
+    return -1;
+  };
+  const waitDecide = () => waitPhase('decide');
+  const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
   // ---------------- F3 · màn mở đầu
   check('F3: mở trang thấy #screen-start', await visible('#screen-start'));
@@ -27,11 +38,31 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F3: font tiêu đề không phải font mặc định (Montserrat)', /montserrat/i.test(titleFont), titleFont);
   await shot('Màn mở đầu kiểu logo CLB');
 
+  const tClick = Date.now();
   await click('#role-cutter');
   await sleep(350);
   let s = await S();
   check('F3: bấm #role-cutter thì hiện #screen-play', await visible('#screen-play'));
   check('F3: state().role = cutter', s.role === 'cutter', s.role);
+
+  // ---------------- F9 · vào pha bóng: bạn chạy vào, cả sân chạy
+  check('F9: vừa chọn vai thì state().phase = intro', s.phase === 'intro', s.phase);
+  await shot('Vào pha bóng — bạn và cả sân đang chạy');
+  const c1 = s.live.camera;
+  await tapCorrect();
+  await sleep(300);
+  s = await S();
+  check('F9: chạm lúc đang vào pha thì không tính (answered vẫn false)', s.answered === false);
+  check('F9: camera đang chạy (đổi chỗ ≥ 0.3m sau 300ms)', gap(c1, s.live.camera) >= 0.3, `${gap(c1, s.live.camera).toFixed(2)}m`);
+  await waitDecide();
+  const introMs = Date.now() - tClick;
+  check('F9: trong ≤ 2.5 giây chuyển sang phase = decide', (await S()).phase === 'decide' && introMs <= 2500, `${introMs}ms`);
+  const mA = (await S()).live.mates;
+  await sleep(300);
+  const mB = (await S()).live.mates;
+  const moved = Math.max(...mA.map((p, i) => gap(p, mB[i])));
+  check('F9: lúc chờ chạm, đồng đội vẫn di chuyển (lệch > 0 sau 300ms)', moved > 0.01, `${moved.toFixed(2)}m`);
+  s = await S();
 
   // ---------------- F1 · sân góc nhìn thứ nhất
   const isCanvas = await evaluate(`document.getElementById('field')?.tagName === 'CANVAS'`);
@@ -72,10 +103,18 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   // ---------------- F4 · chạm đúng
   const before = Number(await text('#score'));
   await tapCorrect();
+  const phaseAfterTap = (await S()).phase;
   await sleep(300);
   check('F4: chạm vào vùng đúng → #feedback có chữ "Đúng"', (await text('#feedback')).includes('Đúng'), await text('#feedback'));
   check('F4: chạm đúng → #score tăng 1', Number(await text('#score')) === before + 1, `${before} → ${await text('#score')}`);
-  await shot('Chạm đúng — hiện đáp án');
+  check('F9: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
+  await shot('Chạm đúng — đang chạy tới, đĩa đang bay');
+  const runMs = await waitPhase('done', 2500);
+  s = await S();
+  check('F9: chạy xong trong ≤ 2.5 giây (phase = done)', runMs >= 0, runMs >= 0 ? `${runMs + 300}ms` : 'hết giờ');
+  check('F9: camera tới chỗ đã chạm (≤ 0.5m)', !!s.tap && gap(s.live.camera, s.tap) <= 0.5, s.tap ? `${gap(s.live.camera, s.tap).toFixed(2)}m` : 'không có tap');
+  check('F9: chạm đúng → #feedback có chữ "Bắt được"', (await text('#feedback')).includes('Bắt được'), await text('#feedback'));
+  await shot('Bắt được đĩa — hiện đáp án');
 
   // ---------------- F5 · sau khi chạm
   s = await S();
@@ -90,6 +129,7 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F5: bấm #next → #minimap ẩn lại', !(await visible('#minimap')));
 
   // ---------------- F4 · chạm sai
+  await waitDecide();
   const before2 = Number(await text('#score'));
   await tapWrong();
   await sleep(300);
@@ -100,7 +140,7 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   // ---------------- F6 · chơi hết bài: 4 đúng 1 sai
   for (let i = 2; i < 5; i++) {
     await click('#next');
-    await sleep(200);
+    await waitDecide();
     await tapCorrect();
     await sleep(150);
   }
@@ -117,11 +157,12 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(300);
   check('F6: bấm #retry → về #screen-start', await visible('#screen-start'));
   await click('#role-handler');
-  await sleep(300);
+  await waitDecide();
   s = await S();
   check('F7: tình huống H1 vẽ cổng endzone đích trên canvas', s.scenario.id === 'H1' && s.drawn.goal === true, `${s.scenario.id}, drawn.goal=${s.drawn.goal}`);
   await shot('Tình huống 1 — nhìn bằng mắt handler, thấy endzone đích');
   for (let i = 0; i < 5; i++) {
+    await waitDecide();
     await tapWrong();
     await sleep(150);
     await click('#next');

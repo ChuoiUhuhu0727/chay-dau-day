@@ -38,6 +38,7 @@ Bản đầu chưa có level khó dần; mỗi vai một bài 5 tình huống v�
 - F6 Kết thúc bài: điểm X/5, qua bài hay chưa, chơi lại
 - F7 Endzone đích: endzone đối thủ tô vàng + la bàn `#goal` chỉ hướng và khoảng cách (thêm theo raw/idea-2.md)
 - F8 Người kèm bạn chuyển động: bám sát trước mặt, lắc, lao tới, giang tay — tạo áp lực như trong trận
+- F9 Trận đấu chuyển động: mỗi tình huống là pha bóng đang diễn ra — vào pha 2 giây, cả sân vẫn chạy khi bạn nghĩ, chạm xong bạn chạy tới đó và đĩa bay tới (raw/idea-3.md)
 
 **Để sau:** horizontal stack, phòng thủ (zone, cup), cầu thủ chuyển động/animation, góc nhìn 3D xoay được,
 nhiều bài khó dần, lưu điểm, âm thanh.
