@@ -144,5 +144,22 @@
     ],
     "state": "passing",
     "verified_at": "2026-11-15T02:13:04.310Z"
+  },
+  {
+    "id": "F11",
+    "title": "Event tracking: đo người chơi làm gì",
+    "page": "1-wiki/features/F11-event-tracking.md",
+    "done": [
+      "`makeEvent(name, params)` trả `{ name, params }` với `params.t` (ms từ lúc mở trang, số ≥ 0); tên sự kiện không có trong `EVENTS` → ném lỗi; thiếu tham số bắt buộc → ném lỗi.",
+      "`EVENTS` có đúng 8 sự kiện: `game_open`, `role_select`, `point_start`, `phase_answer`, `explanation_read`, `point_end`, `retry_click`, `fullscreen_toggle`.",
+      "`makeEvent` từ chối tham số tên `name`, `email`, `phone`, `user`, `ip` (ném lỗi) — không thu dữ liệu cá nhân.",
+      "`GA_ID` mặc định để trống → trang không tải script nào từ `googletagmanager.com`.",
+      "Bot: mở trang → `window.__events` có `game_open`; chọn Cutter → có `role_select` (`role` = `cutter`) rồi `point_start` (`attempt` = 1).",
+      "Bot: chạm đúng → `phase_answer` với `outcome` = `correct`, `scenario_id` = `C1`, `phase` = 1, `decide_ms` > 0; chạm sai → `outcome` = `wrong`; hết stall → `outcome` = `stall`.",
+      "Bot: bấm Tiếp sau đáp án → `explanation_read` có `read_ms` > 0.",
+      "Bot: hết point → `point_end` với `result` = `score` (4/5) hoặc `turnover`, `correct` khớp `#final-score`; bấm Chơi lại → `retry_click`, rồi `point_start` lần sau có `attempt` = 2."
+    ],
+    "state": "passing",
+    "verified_at": "2026-11-15T02:24:43.036Z"
   }
 ]

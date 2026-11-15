@@ -5,6 +5,7 @@ import {
   INTRO, EYE, introPose, runPose, runDuration, discArc,
   LIVES, STALL, stallCount, stallOut,
 } from './logic.js';
+import { track, initTracking } from './track.js';
 
 const $ = (id) => document.getElementById(id);
 const field = $('field');
@@ -31,6 +32,10 @@ let run = null;
 let live = null; // vị trí đang vẽ ở khung hình gần nhất (cho bot đọc)
 let decideAt = 0; // F10: lúc bắt đầu đếm stall
 let stallNow = 0;
+// F11 · tracking
+let attempt = 0; // số point đã bắt đầu trong phiên này
+let pointStartAt = 0;
+let lastResult = null;
 const HINT_TAP = '👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới';
 const beeImg = new Image();
 beeImg.src = './assets/bee.svg';
@@ -64,6 +69,10 @@ function stopLoop() {
 
 function begin(role) {
   state = startLesson(role);
+  attempt += 1;
+  pointStartAt = now();
+  track('role_select', { role });
+  track('point_start', { role, attempt });
   $('role-label').textContent = ROLE_NAME[role];
   show('play');
   renderScenario();
@@ -118,6 +127,11 @@ function showResult() {
   $('final-points').textContent = `${state.points.toLocaleString('vi-VN')} điểm`;
   const best = saveBest(state.role, state.points);
   const isNew = best.isNew && state.points > 0;
+  lastResult = ok ? 'score' : 'turnover';
+  track('point_end', {
+    role: state.role, result: lastResult, correct: state.score, points: state.points, phases_played: state.index + 1,
+    duration_ms: Math.round((now() - pointStartAt) * 1000), new_best: isNew, attempt,
+  });
   $('best').textContent = isNew ? '🏆 Kỷ lục mới!' : `Kỷ lục: ${best.value.toLocaleString('vi-VN')}`;
   $('best').className = isNew ? 'best new' : 'best';
   $('verdict').textContent = ok ? 'Ghi điểm! Qua bài 🐝' : 'Turnover — Chưa qua';
@@ -145,6 +159,7 @@ function onTap(ev) {
   }
   const before = state.points;
   state = answer(state, point, stallNow);
+  trackAnswer(state.correct ? 'correct' : 'wrong', state.points - before);
   const fb = $('feedback');
   const x = ev.clientX - rect.left;
   const y = ev.clientY - rect.top;
@@ -290,6 +305,7 @@ function tickStall() {
 function onStallOut() {
   state = stallOut(state);
   stallNow = STALL;
+  trackAnswer('stall', 0);
   const fb = $('feedback');
   fb.textContent = 'Stall 10 — mất đĩa!';
   fb.className = 'no';
@@ -299,8 +315,20 @@ function onStallOut() {
   reveal();
 }
 
+/** F11 · một pha vừa được chấm. */
+function trackAnswer(outcome, gain) {
+  track('phase_answer', {
+    role: state.role, scenario_id: current(state).id, phase: state.index + 1, outcome,
+    stall: stallNow, combo: state.combo, gain, decide_ms: Math.round((clock - decideAt) * 1000),
+  });
+}
+
 function onNext() {
   if (!state || !state.answered) return;
+  track('explanation_read', {
+    scenario_id: current(state).id, outcome: state.stalled ? 'stall' : state.correct ? 'correct' : 'wrong',
+    read_ms: Math.max(1, Math.round((now() - answeredAt) * 1000)),
+  });
   if (isFinished(state)) return showResult();
   const results = [...(state.results || []), state.correct];
   state = { ...next(state), results };
@@ -860,7 +888,12 @@ function press(btn) {
 $('role-handler').addEventListener('click', (e) => { press(e.currentTarget); begin('handler'); });
 $('role-cutter').addEventListener('click', (e) => { press(e.currentTarget); begin('cutter'); });
 $('next').addEventListener('click', (e) => { press(e.currentTarget); onNext(); });
-$('retry').addEventListener('click', (e) => { press(e.currentTarget); state = null; show('start'); });
+$('retry').addEventListener('click', (e) => {
+  press(e.currentTarget);
+  track('retry_click', { role: state?.role ?? 'none', last_result: lastResult ?? 'none', attempt });
+  state = null;
+  show('start');
+});
 field.addEventListener('click', onTap);
 window.addEventListener('resize', () => { if (screen === 'play') { drawField(); if (state?.answered) drawMinimap(); } });
 
@@ -877,6 +910,7 @@ fsBtn.addEventListener('click', async () => {
 });
 const syncFs = () => {
   const on = fsOn();
+  track('fullscreen_toggle', { on });
   fsBtn.setAttribute('aria-label', on ? 'Thoát toàn màn hình' : 'Toàn màn hình');
   fsBtn.title = fsBtn.getAttribute('aria-label');
   $('fs-icon').setAttribute('d', on ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5');
@@ -885,6 +919,10 @@ document.addEventListener('fullscreenchange', syncFs);
 document.addEventListener('webkitfullscreenchange', syncFs);
 
 // Hợp đồng với bot test. Đừng xoá.
+// F11 · bật tracking và ghi lượt mở trang
+initTracking();
+track('game_open', { screen_w: window.innerWidth, screen_h: window.innerHeight, fullscreen_supported: !fsBtn.hidden });
+
 window.__game = {
   state: () => {
     if (!state) return { screen, role: null, index: 0, score: 0, answered: false, animating: loopId !== 0 };

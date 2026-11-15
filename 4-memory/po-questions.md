@@ -10,3 +10,5 @@
 - Câu hỏi cho PO (F10, 2026-11-15): Mình chọn **2 mạng** (sai 2 lần = turnover) để ngưỡng qua bài vẫn là ≥ 4/5 như cũ. Muốn 3 mạng cho dễ thở hơn với người mới không?
 - Câu hỏi cho PO (F10): Đã thêm đếm stall 10 giây (trả lời câu hỏi stall ở trên) — người mới có bị áp lực quá không? Có thể đổi `STALL` thành 15.
 - Câu hỏi cho PO (F10): Công thức điểm `100 × combo (tối đa ×3) + 10 × (10 − stall)` — có muốn thưởng thêm khi Ghi điểm (ví dụ +500)?
+- Câu hỏi cho PO (F11): Tạo property Google Analytics 4 rồi dán Measurement ID (G-…) vào game/track-config.js? Chưa có ID thì sự kiện chỉ ghi trong máy, chưa có dữ liệu thật cho Round 2.
+- Câu hỏi cho PO (F11): Bật GA4 thì cần trang chính sách quyền riêng tư ngắn (game không thu dữ liệu cá nhân, chỉ hành động trong game) — thêm vào README hay một trang riêng?

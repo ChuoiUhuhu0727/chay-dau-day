@@ -22,6 +22,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   };
   const waitDecide = () => waitPhase('decide');
   const gap = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  // F11: sự kiện tracking ghi trong window.__events
+  const events = () => evaluate('(window.__events || []).map((e) => ({ name: e.name, params: e.params }))');
+  const lastEv = async (name) => (await events()).filter((e) => e.name === name).pop() ?? null;
 
   // ---------------- F3 · màn mở đầu
   check('F3: mở trang thấy #screen-start', await visible('#screen-start'));
@@ -42,6 +45,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   let fb0 = await fsBtn();
   check('F9: màn mở đầu có nút #fullscreen ≥ 40×40px, có aria-label', !!fb0 && (await visible('#fullscreen')) && fb0.w >= 40 && fb0.h >= 40 && fb0.label.length > 0,
     fb0 ? `${Math.round(fb0.w)}×${Math.round(fb0.h)}px "${fb0.label}"` : 'không có nút');
+  check('F11: mở trang → window.__events có game_open', !!(await lastEv('game_open')));
+  const gaScripts = await evaluate(`[...document.scripts].filter((x) => (x.src || '').includes('googletagmanager.com')).length`);
+  check('F11: GA_ID trống → không tải script googletagmanager.com', gaScripts === 0, `${gaScripts} script`);
   await shot('Màn mở đầu kiểu logo CLB');
 
   const tClick = Date.now();
@@ -50,6 +56,10 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   let s = await S();
   check('F3: bấm #role-cutter thì hiện #screen-play', await visible('#screen-play'));
   check('F3: state().role = cutter', s.role === 'cutter', s.role);
+  const rs = await lastEv('role_select');
+  check('F11: chọn Cutter → role_select với role = cutter', rs?.params.role === 'cutter', JSON.stringify(rs?.params));
+  const ps1 = await lastEv('point_start');
+  check('F11: rồi point_start với attempt = 1', ps1?.params.attempt === 1, JSON.stringify(ps1?.params));
 
   // ---------------- F8 · vào pha bóng: bạn chạy vào, cả sân chạy
   check('F8: vừa chọn vai thì state().phase = intro', s.phase === 'intro', s.phase);
@@ -138,6 +148,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F4: chạm vào vùng đúng → #feedback có chữ "Đúng"', (await text('#feedback')).includes('Đúng'), await text('#feedback'));
   check('F4: chạm đúng → #score tăng 1', Number(await text('#score')) === before + 1, `${before} → ${await text('#score')}`);
   check('F9: sân phủ cả cửa sổ mà chạm vào zoneScreen vẫn chấm "Đúng"', (await S()).correct === true);
+  const pa1 = await lastEv('phase_answer');
+  check('F11: chạm đúng → phase_answer outcome = correct, scenario_id = C1, phase = 1, decide_ms > 0',
+    pa1?.params.outcome === 'correct' && pa1.params.scenario_id === 'C1' && pa1.params.phase === 1 && pa1.params.decide_ms > 0, JSON.stringify(pa1?.params));
   check('F8: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
   await shot('Chạm đúng — đang chạy tới, đĩa đang bay');
   const runMs = await waitPhase('done', 2500);
@@ -160,6 +173,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(250);
   s = await S();
   check('F5: bấm #next → state().index tăng lên 1', s.index === 1, `index=${s.index}`);
+  const er = await lastEv('explanation_read');
+  check('F11: bấm Tiếp sau đáp án → explanation_read có read_ms > 0', er?.params.read_ms > 0, JSON.stringify(er?.params));
   check('F5: bấm #next → #minimap ẩn lại', !(await visible('#minimap')));
 
   // ---------------- F4 · chạm sai
@@ -171,6 +186,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F4: chạm sai → #score giữ nguyên', Number(await text('#score')) === before2);
   check('F10: chạm sai → #lives còn 1 ❤️', (await hearts()) === 1, await text('#lives'));
   check('F10: chạm sai → state().combo = 0', (await S()).combo === 0, `combo=${(await S()).combo}`);
+  const pa2 = await lastEv('phase_answer');
+  check('F11: chạm sai → phase_answer outcome = wrong', pa2?.params.outcome === 'wrong', JSON.stringify(pa2?.params));
   await shot('Chạm sai — mất 1 mạng, xem mũi tên chỉ chỗ đúng');
 
   // ---------------- F6 · chơi hết bài: 4 đúng 1 sai · F10 · combo ở 2 lần đúng liền (C3, C4)
@@ -193,6 +210,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F6: hết 5 tình huống → #screen-result hiện', await visible('#screen-result'));
   check('F6: 4 đúng 1 sai → #final-score = 4/5', (await text('#final-score')) === '4/5', await text('#final-score'));
   check('F6: 4/5 → #verdict có chữ "Qua bài"', (await text('#verdict')).includes('Qua bài'), await text('#verdict'));
+  const pe1 = await lastEv('point_end');
+  check('F11: hết point 4/5 → point_end result = score, correct = 4', pe1?.params.result === 'score' && pe1.params.correct === 4, JSON.stringify(pe1?.params));
   check('F10: màn kết quả có #final-points và #best', (await visible('#final-points')) && (await visible('#best')), `${await text('#final-points')} · ${await text('#best')}`);
   check('F8: sang màn kết quả thì state().animating = false', (await S()).animating === false);
   await shot('Ghi điểm! Qua bài 4/5');
@@ -204,6 +223,10 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await click('#role-handler');
   await waitDecide();
   s = await S();
+  const rc = await lastEv('retry_click');
+  check('F11: bấm Chơi lại → retry_click', !!rc, JSON.stringify(rc?.params));
+  const ps2 = await lastEv('point_start');
+  check('F11: point_start lần sau có attempt = 2', ps2?.params.attempt === 2, JSON.stringify(ps2?.params));
   check('F7: tình huống H1 vẽ cổng endzone đích trên canvas', s.scenario.id === 'H1' && s.drawn.goal === true, `${s.scenario.id}, drawn.goal=${s.drawn.goal}`);
   await shot('Tình huống 1 — nhìn bằng mắt handler, thấy endzone đích');
   const lives0 = (await S()).lives;
@@ -212,6 +235,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F10: không chạm tới hết đếm stall (≤ 11 giây) → #feedback có chữ "Stall"', (await text('#feedback')).includes('Stall'), `${await text('#feedback')} · ${Date.now() - t0}ms`);
   check('F10: hết stall → state().lives giảm 1', (await S()).lives === lives0 - 1, `${lives0} → ${(await S()).lives}`);
   check('F10: hết stall → nút #next hiện', await visible('#next'));
+  const pa3 = await lastEv('phase_answer');
+  check('F11: hết stall → phase_answer outcome = stall', pa3?.params.outcome === 'stall', JSON.stringify(pa3?.params));
   await shot('Stall 10 — mất đĩa');
   await click('#next');
   await waitDecide();
@@ -222,6 +247,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F6: sai 2 lần → turnover, #screen-result hiện', await visible('#screen-result'));
   check('F6: turnover → #final-score = 0/5', (await text('#final-score')) === '0/5', await text('#final-score'));
   check('F6: turnover → #verdict có chữ "Chưa qua"', (await text('#verdict')).includes('Chưa qua'), await text('#verdict'));
+  const pe2 = await lastEv('point_end');
+  check('F11: turnover → point_end result = turnover, correct = 0', pe2?.params.result === 'turnover' && pe2.params.correct === 0, JSON.stringify(pe2?.params));
   await shot('Turnover — chưa qua 0/5');
 
   await click('#retry');

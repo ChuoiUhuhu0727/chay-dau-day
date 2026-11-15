@@ -30,3 +30,5 @@
 - 2026-11-15 · build · F6 ✅ passing (Kết thúc bài: X/5, qua bài, chơi lại)
 - 2026-11-15 · build · F10 ✅ passing (Một point liên tục: mạng, đếm stall, combo)
 - 2026-11-15 · build · F10 ✅ Point liên tục (2 mạng, đếm stall 10, combo, kỷ lục) · F6 đổi luật kết thúc theo F10 (ngưỡng qua bài vẫn ≥ 4/5) — verify xanh lần 2 (lần 1: chữ "chưa qua" viết thường)
+- 2026-11-15 · build · F11 ✅ passing (Event tracking: đo người chơi làm gì)
+- 2026-11-15 · build · F11 ✅ Event tracking (8 sự kiện qua track(), GA4 sẵn sàng nhưng tắt khi GA_ID trống) — verify xanh lần 2 (lần 1: check F8 chập chờn, xem learned.md)
