@@ -48,6 +48,30 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F11: mở trang → window.__events có game_open', !!(await lastEv('game_open')));
   const gaScripts = await evaluate(`[...document.scripts].filter((x) => (x.src || '').includes('googletagmanager.com')).length`);
   check('F11: GA_ID trống → không tải script googletagmanager.com', gaScripts === 0, `${gaScripts} script`);
+  // ---------------- F12 · màn mở đầu dễ hiểu
+  const hp = await height('#play');
+  check('F12: lần đầu mở trang có nút #play cao ≥ 48px, chữ "Chơi ngay"', (await visible('#play')) && hp >= 48 && (await text('#play')).includes('Chơi ngay'),
+    `${Math.round(hp)}px "${(await text('#play')).trim()}"`);
+  check('F12: #role-cutter có chữ "Người chạy", #role-handler có chữ "Người ném"',
+    (await text('#role-cutter')).includes('Người chạy') && (await text('#role-handler')).includes('Người ném'),
+    `${(await text('#role-cutter')).trim()} / ${(await text('#role-handler')).trim()}`);
+  // ---------------- F13 · nút âm thanh
+  const snd = await evaluate(`(() => { const b = document.getElementById('sound'); if (!b) return null; const r = b.getBoundingClientRect();
+    return { w: r.width, h: r.height, pressed: b.getAttribute('aria-pressed') }; })()`);
+  check('F13: có nút #sound ≥ 40px với aria-pressed', !!snd && snd.w >= 40 && snd.h >= 40 && ['true', 'false'].includes(snd.pressed),
+    snd ? `${Math.round(snd.w)}×${Math.round(snd.h)} aria-pressed=${snd.pressed}` : 'không có nút');
+  const sound0 = (await S()).sound;
+  await click('#sound');
+  await sleep(100);
+  const sound1 = (await S()).sound;
+  const stored1 = await evaluate(`localStorage.getItem('cdd-sound')`);
+  await click('#sound');
+  await sleep(100);
+  const sound2 = (await S()).sound;
+  const stored2 = await evaluate(`localStorage.getItem('cdd-sound')`);
+  check('F13: bấm #sound → state().sound đổi, localStorage cdd-sound đổi theo; bấm lại → như cũ',
+    typeof sound0 === 'boolean' && sound1 === !sound0 && sound2 === sound0 && stored1 === (sound1 ? '1' : '0') && stored2 === (sound2 ? '1' : '0'),
+    `${sound0} → ${sound1} (${stored1}) → ${sound2} (${stored2})`);
   await shot('Màn mở đầu kiểu logo CLB');
 
   const tClick = Date.now();
@@ -61,6 +85,11 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const ps1 = await lastEv('point_start');
   check('F11: rồi point_start với attempt = 1', ps1?.params.attempt === 1, JSON.stringify(ps1?.params));
 
+  // ---------------- F13 · đếm ngược lúc vào pha · F14 · dáng chạy
+  const cd = await evaluate(`(() => { const el = document.getElementById('countdown'); return { shown: !!el && !el.hidden && el.getBoundingClientRect().width > 0, text: el ? el.textContent : '' }; })()`);
+  check('F13: lúc vào pha #countdown hiện chữ số đếm ngược', cd.shown && /^[123]$/.test(cd.text), JSON.stringify(cd));
+  check('F14: lúc vào pha có ≥ 1 người được vẽ dáng chạy (drawn.running ≥ 1)', (s.drawn?.running ?? 0) >= 1, `running=${s.drawn?.running}`);
+
   // ---------------- F8 · vào pha bóng: bạn chạy vào, cả sân chạy
   check('F8: vừa chọn vai thì state().phase = intro', s.phase === 'intro', s.phase);
   await shot('Vào pha bóng — bạn và cả sân đang chạy');
@@ -73,6 +102,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await waitDecide();
   const introMs = Date.now() - tClick;
   check('F8: trong ≤ 2.5 giây chuyển sang phase = decide', (await S()).phase === 'decide' && introMs <= 2500, `${introMs}ms`);
+  check('F13: sang decide thì #countdown ẩn', !(await visible('#countdown')));
+  const scen = (await S()).drawn?.scenery;
+  check('F14: cảnh có ≥ 2 đám mây, 2 lớp cây, ≥ 1 cột đèn', scen?.clouds >= 2 && scen?.trees >= 2 && scen?.lights >= 1, JSON.stringify(scen));
   const mA = (await S()).live.mates;
   await sleep(300);
   const mB = (await S()).live.mates;
@@ -144,7 +176,11 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const before = Number(await text('#score'));
   await tapCorrect();
   const phaseAfterTap = (await S()).phase;
+  const fx1 = await evaluate(`({ p: window.__game.state().fx.particles, c: [...document.querySelectorAll('.callout')].map((e) => e.textContent), sfx: (window.__sfx || []).slice() })`);
   await sleep(300);
+  check('F13: chạm đúng → window.__sfx có "correct"', fx1.sfx.includes('correct'), fx1.sfx.slice(-4).join(', '));
+  check('F13: chạm đúng → có hạt bắn (fx.particles > 0) ngay sau khi chạm', fx1.p > 0, `${fx1.p} hạt`);
+  check('F13: chạm đúng lần đầu → chữ khen .callout "Hay!"', fx1.c.includes('Hay!'), JSON.stringify(fx1.c));
   check('F4: chạm vào vùng đúng → #feedback có chữ "Đúng"', (await text('#feedback')).includes('Đúng'), await text('#feedback'));
   check('F4: chạm đúng → #score tăng 1', Number(await text('#score')) === before + 1, `${before} → ${await text('#score')}`);
   check('F9: sân phủ cả cửa sổ mà chạm vào zoneScreen vẫn chấm "Đúng"', (await S()).correct === true);
@@ -182,6 +218,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const before2 = Number(await text('#score'));
   await tapWrong();
   await sleep(300);
+  const fx2 = await evaluate(`({ hb: document.querySelectorAll('.heart-break').length, sfx: (window.__sfx || []).slice(-6) })`);
+  check('F13: chạm sai → window.__sfx có "wrong" và có tim vỡ .heart-break', fx2.sfx.includes('wrong') && fx2.hb > 0, `${fx2.hb} tim vỡ · ${fx2.sfx.join(', ')}`);
   check('F4: chạm xa vùng đúng → #feedback có chữ "Chưa đúng"', (await text('#feedback')).includes('Chưa đúng'), await text('#feedback'));
   check('F4: chạm sai → #score giữ nguyên', Number(await text('#score')) === before2);
   check('F10: chạm sai → #lives còn 1 ❤️', (await hearts()) === 1, await text('#lives'));
@@ -202,6 +240,8 @@ export async function play({ evaluate, click, shot, check, sleep }) {
     if (i === 3) {
       check('F10: đúng 2 lần liền → state().combo = 2', (await S()).combo === 2, `combo=${(await S()).combo}`);
       check('F10: lần đúng thứ 2 liền được nhiều điểm hơn lần thứ nhất (combo)', gains[0] > 0 && gains[1] > gains[0], `+${gains[0]} rồi +${gains[1]}`);
+      const co = await evaluate(`[...document.querySelectorAll('.callout')].map((e) => e.textContent)`);
+      check('F13: đúng lần 2 liền → chữ khen .callout "Tuyệt!"', co.includes('Tuyệt!'), JSON.stringify(co));
       await shot('COMBO ×2 — điểm trận tăng nhanh hơn');
     }
   }
@@ -215,6 +255,12 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F10: màn kết quả có #final-points và #best', (await visible('#final-points')) && (await visible('#best')), `${await text('#final-points')} · ${await text('#best')}`);
   check('F8: sang màn kết quả thì state().animating = false', (await S()).animating === false);
   await shot('Ghi điểm! Qua bài 4/5');
+  await sleep(1800);
+  const res = await evaluate(`({ on: document.querySelectorAll('#stars .star.on').length, fp: document.getElementById('final-points').textContent,
+    want: window.__game.state().points.toLocaleString('vi-VN') + ' điểm' })`);
+  check('F13: 4/5 → #stars có đúng 2 sao sáng', res.on === 2, `${res.on} sao`);
+  check('F13: sau 2 giây #final-points chạy số xong = điểm trận cuối', res.fp === res.want, `${res.fp} / cần ${res.want}`);
+  await shot('F13 · 2 sao, điểm chạy số xong');
 
   // ---------------- F6 + F10 · chơi lại vai Handler: hết stall rồi sai → turnover
   await click('#retry');
@@ -231,7 +277,15 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await shot('Tình huống 1 — nhìn bằng mắt handler, thấy endzone đích');
   const lives0 = (await S()).lives;
   const t0 = Date.now();
-  while (!(await S()).answered && Date.now() - t0 <= 11000) await sleep(200);
+  let hurry = null;
+  while (!(await S()).answered && Date.now() - t0 <= 11000) {
+    if (!hurry && (await S()).stall >= 8) {
+      hurry = await evaluate(`({ cls: document.getElementById('stage').classList.contains('hurry'), tick: (window.__sfx || []).includes('tick') })`);
+      await shot('F13 · 3 giây cuối stall — viền đỏ thở');
+    }
+    await sleep(200);
+  }
+  check('F13: stall ≥ 8 → #stage có class hurry và window.__sfx có "tick"', !!hurry && hurry.cls && hurry.tick, JSON.stringify(hurry));
   check('F10: không chạm tới hết đếm stall (≤ 11 giây) → #feedback có chữ "Stall"', (await text('#feedback')).includes('Stall'), `${await text('#feedback')} · ${Date.now() - t0}ms`);
   check('F10: hết stall → state().lives giảm 1', (await S()).lives === lives0 - 1, `${lives0} → ${(await S()).lives}`);
   check('F10: hết stall → nút #next hiện', await visible('#next'));
@@ -257,4 +311,59 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(300);
   s = await S();
   check('F6: chơi lại → score = 0 và index = 0', s.score === 0 && s.index === 0, `score=${s.score}, index=${s.index}`);
+
+  // ---------------- F12 · về màn chính, rồi tập chơi 3 bước
+  const hh = await evaluate(`(() => { const b = document.getElementById('home'); if (!b) return null; const r = b.getBoundingClientRect(); return { w: r.width, h: r.height }; })()`);
+  check('F12: màn chơi có nút #home ≥ 40px', !!hh && hh.w >= 40 && hh.h >= 40, hh ? `${Math.round(hh.w)}×${Math.round(hh.h)}` : 'không có nút');
+  await click('#home');
+  await sleep(300);
+  check('F12: bấm #home → về #screen-start', await visible('#screen-start'));
+  await click('#play');
+  await sleep(350);
+  s = await S();
+  check('F12: bấm #play lần đầu → state().role = tutorial, index = 0', s.role === 'tutorial' && s.index === 0, `${s.role} ${s.index}`);
+  const pr = await text('#prompt');
+  check('F12: câu hỏi lúc tập ≤ 80 ký tự', pr.length > 0 && pr.length <= 80, `${pr.length}: ${pr}`);
+  await waitDecide();
+  await shot('F12 · Tập 1 — vòng sáng + bàn tay chỉ chỗ');
+  await tapCorrect();
+  await waitPhase('done', 2500);
+  check('F12: tập 1 chạm vòng sáng → #feedback có "Bắt được"', (await text('#feedback')).includes('Bắt được'), await text('#feedback'));
+  await click('#next');
+  await sleep(250);
+  await waitDecide();
+  const lv = (await S()).lives;
+  const decoy = ((await S()).ringsScreen || []).find((r) => r && !r.correct);
+  if (decoy) await tap(decoy.x, decoy.y);
+  await sleep(200);
+  s = await S();
+  check('F12: tập 2 chạm vòng có áo trắng → #feedback có "Thử lại", chưa trả lời, không mất mạng',
+    !!decoy && (await text('#feedback')).includes('Thử lại') && s.answered === false && s.lives === lv,
+    `${await text('#feedback')} · answered=${s.answered} · lives ${lv} → ${s.lives}`);
+  await shot('F12 · Tập 2 — chạm chỗ có áo trắng: thử lại');
+  await tapCorrect();
+  await sleep(150);
+  check('F12: tập 2 chạm vòng trống → đúng', (await S()).correct === true);
+  await waitPhase('done', 2500);
+  await click('#next');
+  await sleep(250);
+  await waitDecide();
+  await shot('F12 · Tập 3 — tự tìm chỗ trống, có đồng hồ');
+  await tapCorrect();
+  await waitPhase('done', 2500);
+  check('F12: tập 3 xong → nút #next có chữ "Vào trận"', (await text('#next')).includes('Vào trận'), (await text('#next')).trim());
+  await shot('F12 · Xong phần tập');
+  await click('#next');
+  await sleep(350);
+  s = await S();
+  check('F12: bấm "Vào trận" → state().role = cutter, index = 0', s.role === 'cutter' && s.index === 0, `${s.role} ${s.index}`);
+  check('F12: localStorage cdd-tutorial-done = 1', (await evaluate(`localStorage.getItem('cdd-tutorial-done')`)) === '1');
+  const tsteps = (await events()).filter((e) => e.name === 'tutorial_step');
+  check('F12: có 3 sự kiện tutorial_step, bước 2 có tries = 1', tsteps.length === 3 && tsteps[1].params.tries === 1, JSON.stringify(tsteps.map((e) => e.params)));
+  check('F12: có sự kiện tutorial_done', !!(await lastEv('tutorial_done')));
+  await click('#home');
+  await sleep(300);
+  check('F12: đã tập xong → #play không còn chữ "Chơi ngay", nút #how hiện', !(await text('#play')).includes('Chơi ngay') && (await visible('#how')),
+    `"${(await text('#play')).trim()}"`);
+  await shot('F12 · Màn mở đầu sau khi đã tập: Chơi + Cách chơi');
 }

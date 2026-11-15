@@ -44,3 +44,15 @@ Màu nghĩa thêm: sai = `#E5484D` (đỏ). Cỏ trong canvas: `#2E8B3E` / endzo
 - 🐝 Twemoji: `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f41d.svg` → `bee.svg`
 - 🥏 Twemoji: `https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/svg/1f94f.svg` → `disc.svg`
 - Lucide: `https://cdn.jsdelivr.net/npm/lucide-static@0.460.0/icons/rotate-ccw.svg` (chơi lại), `arrow-right.svg` (tiếp), `trophy.svg` (kết quả)
+
+## Giọng văn (F12, 2026-11-15)
+Viết cho người **chưa từng chơi frisbee**. Một luật xuyên suốt: *chạy vào chỗ trống*.
+- Câu hỏi ≤ 80 ký tự: thấy gì → hỏi gì. Tên tình huống ≤ 32 ký tự, là mẹo dễ nhớ. Giải thích ≤ 110 ký tự.
+- Gọi người theo màu áo: đồng đội **áo vàng**, đối thủ **áo trắng**, người kèm bạn **áo đỏ**.
+- Thuật ngữ chỉ nằm ở nhãn `term` sau khi trả lời: "Dân Ultimate gọi là: cắt ngắn (under)".
+
+## Âm thanh (F13)
+Tổng hợp bằng Web Audio, không file: nốt ngắn, sáng (sóng triangle/square nhẹ), thắng đi lên, thua đi xuống. Có nút tắt tiếng.
+
+## Người và cảnh (F14)
+Cartoon thể thao: khối tròn, viền đậm `#111`, áo màu rực có đổ bóng; mây mờ, hàng cây 2 lớp xanh đen, cột đèn quầng vàng.

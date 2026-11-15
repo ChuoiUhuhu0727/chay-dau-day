@@ -8,3 +8,6 @@ Tính năng: [F6](../features/F6-ket-thuc-bai.md)
 F10: thêm `#final-points` (điểm trận, chữ vừa, vàng) và `#best` ("Kỷ lục: 1 240" — hoặc "🏆 Kỷ lục mới!" khi phá).
 Thắng = "Ghi điểm! Qua bài 🐝"; thua = "Turnover — Chưa qua".
 Tính năng: [F10](../features/F10-point-lien-tuc.md)
+
+F13: `#stars` 3 ngôi sao bật lần lượt (`.star.on` = số sao theo `starsFor`), `#final-points` chạy số từ 0, nút `#retry` nhấp nháy.
+Tính năng: [F13](../features/F13-cam-giac-da.md)

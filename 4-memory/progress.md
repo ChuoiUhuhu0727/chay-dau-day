@@ -44,3 +44,13 @@
 - 2026-11-15 · F10 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F11 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
 - 2026-11-15 · F11 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F11 ⏳ mở lại
+- 2026-11-15 · F11 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F12 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F13 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F14 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F12 dễ hiểu + tập 3 bước, F13 âm thanh/hiệu ứng/sao, F14 người cartoon + cảnh — xong code, chạy verify
+- 2026-11-15 · F11 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F12 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F13 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F14 ✅ passing (verify.sh xanh)

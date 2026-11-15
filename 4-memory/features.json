@@ -151,7 +151,7 @@
     "page": "1-wiki/features/F11-event-tracking.md",
     "done": [
       "`makeEvent(name, params)` trả `{ name, params }` với `params.t` (ms từ lúc mở trang, số ≥ 0); tên sự kiện không có trong `EVENTS` → ném lỗi; thiếu tham số bắt buộc → ném lỗi.",
-      "`EVENTS` có đúng 8 sự kiện: `game_open`, `role_select`, `point_start`, `phase_answer`, `explanation_read`, `point_end`, `retry_click`, `fullscreen_toggle`.",
+      "`EVENTS` có đúng 11 sự kiện: `game_open`, `role_select`, `point_start`, `phase_answer`, `explanation_read`, `point_end`, `retry_click`, `fullscreen_toggle`, `tutorial_step`, `tutorial_done`, `sound_toggle`.",
       "`makeEvent` từ chối tham số tên `name`, `email`, `phone`, `user`, `ip` (ném lỗi) — không thu dữ liệu cá nhân.",
       "`GA_ID` mặc định để trống → trang không tải script nào từ `googletagmanager.com`.",
       "Bot: mở trang → `window.__events` có `game_open`; chọn Cutter → có `role_select` (`role` = `cutter`) rồi `point_start` (`attempt` = 1).",
@@ -160,6 +160,57 @@
       "Bot: hết point → `point_end` với `result` = `score` (4/5) hoặc `turnover`, `correct` khớp `#final-score`; bấm Chơi lại → `retry_click`, rồi `point_start` lần sau có `attempt` = 2."
     ],
     "state": "passing",
-    "verified_at": "2026-11-15T02:24:43.036Z"
+    "verified_at": "2026-11-15T04:46:20.459Z"
+  },
+  {
+    "id": "F12",
+    "title": "Dễ hiểu cho người chưa từng chơi: chữ ngắn + tập chơi 3 bước",
+    "page": "1-wiki/features/F12-de-hieu-cho-nguoi-moi.md",
+    "done": [
+      "Mọi tình huống trong `SCENARIOS`: `title` ≤ 32 ký tự, `prompt` ≤ 80 ký tự, `explain` ≤ 110 ký tự, có `term` không rỗng; `title`, `prompt`, `explain` không chứa từ nào trong `JARGON` (không phân biệt hoa thường, so nguyên từ).",
+      "`TUTORIAL` có đúng 3 bước: bước 1 có 1 đồng đội, 0 đối thủ, `rings` = [vùng đúng]; bước 2 có 2 `rings`, một vòng có đối thủ đứng trong (≤ 1m tới tâm) và vòng đó **không** phải vùng đúng; bước 3 không có `rings`, `stall` = true, mọi đối thủ cách tâm vùng đúng ≥ 6m.",
+      "`startTutorial()` → `role` = `tutorial`, `index` = 0, `total` = 3, `current()` trả về `TUTORIAL[index]`; tâm vùng đúng mỗi bước nằm trước mặt và trong khung 360×480.",
+      "Trong lúc tập: `answer` chạm sai → `answered` = false, `lives` giữ nguyên, `misses` +1, `tap` = chỗ chạm; chạm đúng → `answered` = true, `correct` = true. `stallOut` → `answered` = false, `misses` +1. `isFinished` = true khi đã trả lời đúng bước 3.",
+      "Bot: lần đầu mở trang, nút `#play` hiện, cao ≥ 48px, có chữ \"Chơi ngay\"; `#role-cutter` có chữ \"Người chạy\", `#role-handler` có chữ \"Người ném\".",
+      "Bot: bấm `#play` → `state().role` = `tutorial`, `#prompt` ≤ 80 ký tự; bước 1 chạm vùng đúng → `#feedback` có \"Bắt được\"; bấm `#next` sang bước 2.",
+      "Bot: bước 2 chạm vào vòng có đối thủ → `#feedback` có \"Thử lại\", `state().answered` = false, `lives` không đổi; chạm vùng đúng → đúng.",
+      "Bot: bước 3 chạm đúng → `#next` có chữ \"Vào trận\"; bấm → `state().role` = `cutter`, `index` = 0; `localStorage['cdd-tutorial-done']` = `1`; `window.__events` có `tutorial_step` (3 lần, bước 2 có `tries` = 1) và `tutorial_done`.",
+      "Bot: ở màn chơi có nút `#home` ≥ 40px; bấm → về `#screen-start`; lúc này `#play` không còn chữ \"Chơi ngay\" và nút `#how` hiện."
+    ],
+    "state": "passing",
+    "verified_at": "2026-11-15T04:46:20.673Z"
+  },
+  {
+    "id": "F13",
+    "title": "Cảm giác \"đã\": âm thanh, hiệu ứng, combo, sao",
+    "page": "1-wiki/features/F13-cam-giac-da.md",
+    "done": [
+      "`comboWord(1)` = \"Hay!\", `comboWord(2)` = \"Tuyệt!\", `comboWord(3)` = \"Quá đỉnh!\", `comboWord(7)` chứa \"Không thể cản\"; `comboWord(0)` = \"\".",
+      "`starsFor(5)` = 3, `starsFor(4)` = 2, `starsFor(3)` = 1, `starsFor(2)` = 1, `starsFor(1)` = 0, `starsFor(0)` = 0.",
+      "`toneFor('correct', combo)` trả về danh sách nốt (Hz) mà nốt cao nhất **tăng** khi combo tăng từ 1 → 2 → 3; `SOUNDS` có đủ 9 tên ở trên; gọi `sfx('…')` khi không có `AudioContext` không ném lỗi.",
+      "Bot: có nút `#sound` ≥ 40px với `aria-pressed`; bấm → `state().sound` đổi và `localStorage['cdd-sound']` đổi theo; bấm lại → trở về như cũ.",
+      "Bot: chạm đúng → `window.__sfx` có `correct`; trong 150ms có hạt bắn (`state().fx.particles` > 0) và chữ khen `.callout` có chữ \"Hay!\".",
+      "Bot: đúng lần 2 liền → `.callout` có chữ \"Tuyệt!\".",
+      "Bot: chạm sai → `window.__sfx` có `wrong`, có phần tử `.heart-break`.",
+      "Bot: để stall chạy tới ≥ 8 → `#stage` có class `hurry` và `window.__sfx` có `tick`.",
+      "Bot: hết point 4/5 → `#stars` có đúng 2 sao sáng (`.star.on`); sau 2 giây `#final-points` hiện đúng điểm trận cuối (chạy số xong).",
+      "Bot: trong lúc vào pha có `#countdown` hiện chữ số đếm ngược; sang `decide` thì `#countdown` ẩn."
+    ],
+    "state": "passing",
+    "verified_at": "2026-11-15T04:46:20.863Z"
+  },
+  {
+    "id": "F14",
+    "title": "Đồ hoạ: người đẹp hơn, sân có không khí",
+    "page": "1-wiki/features/F14-do-hoa-nguoi-va-san.md",
+    "done": [
+      "`bodyPose(t, speed)`: `speed` ≥ 3 (m/s) → biên độ góc chân (max |leg| qua một chu kỳ) ≥ 0.5 rad; `speed` = 0 → ≤ 0.1 rad; tay luôn ngược pha chân (`armL` cùng dấu với `legR`).",
+      "`lookOf(i)` cố định (gọi 2 lần ra như nhau), trả `skin`, `hair`, `number`; 13 cầu thủ (i = 0…12) có ít nhất 4 màu da khác nhau và `number` khác nhau trong cùng một đội.",
+      "Bot: lúc vào pha (`intro`) có ít nhất 1 người được vẽ với dáng chạy (`state().drawn.running` ≥ 1); ở `decide` vẫn vẽ 14 (13 người + đĩa) như F2.",
+      "Bot: cảnh vẽ đủ lớp: `state().drawn.scenery` có `clouds` ≥ 2, `trees` ≥ 2 lớp, `lights` ≥ 1.",
+      "Bot: chụp ảnh màn chơi để PO duyệt bằng mắt (đẹp hay chưa là PO quyết, không phải bot)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-11-15T04:46:21.028Z"
   }
 ]

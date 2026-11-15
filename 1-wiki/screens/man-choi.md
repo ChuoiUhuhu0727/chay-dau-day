@@ -20,3 +20,10 @@ Hợp đồng bot: `window.__game.state()` có `role, index, score, answered, ca
 `drawn.players`. Bot click thẳng toạ độ trên `#field`.
 
 Tính năng: [F1](../features/F1-san-goc-nhin.md) · [F2](../features/F2-tinh-huong.md) · [F4](../features/F4-cham-cham-diem.md) · [F5](../features/F5-dap-an.md) · [F7](../features/F7-endzone-dich.md) · [F8](../features/F8-tran-dau-song-dong.md) · [F9](../features/F9-full-man-hinh.md) · [F10](../features/F10-point-lien-tuc.md)
+
+**F12:** HUD có nút `#home` (về màn mở đầu) thay icon ong; tên vai dễ hiểu ("Người chạy"). Người cầm đĩa có nhãn "ĐĨA".
+Phần tập chơi dùng chính màn này: `state().role` = `tutorial`, HUD "TẬP 1/3", vòng sáng + bàn tay 👆 chỉ chỗ, ẩn mạng/điểm/stall (trừ bước 3).
+Sau khi trả lời: `#explain` ngắn + nhãn `#term` "Dân Ultimate gọi là: …".
+**F13:** `#countdown` "3… 2… 1… Chạm!" lúc vào pha · hạt bắn, chớp sáng `#flash`, chữ khen `.callout` · tim vỡ `.heart-break` · `#stage.hurry` 3 giây cuối stall · nút `#sound`.
+**F14:** người cartoon có dáng chạy, mây, hàng cây 2 lớp, cột đèn, sương chân trời, viền tối.
+Tính năng: [F12](../features/F12-de-hieu-cho-nguoi-moi.md) · [F13](../features/F13-cam-giac-da.md) · [F14](../features/F14-do-hoa-nguoi-va-san.md)

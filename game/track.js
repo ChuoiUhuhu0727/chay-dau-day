@@ -12,6 +12,9 @@ export const EVENTS = {
   point_end: ['role', 'result', 'correct', 'points', 'phases_played', 'duration_ms', 'new_best', 'attempt'],
   retry_click: ['role', 'last_result', 'attempt'],
   fullscreen_toggle: ['on'],
+  tutorial_step: ['step', 'tries'], // F12
+  tutorial_done: ['ms'], // F12
+  sound_toggle: ['on'], // F13
 };
 
 const PERSONAL = ['name', 'email', 'phone', 'user', 'ip'];

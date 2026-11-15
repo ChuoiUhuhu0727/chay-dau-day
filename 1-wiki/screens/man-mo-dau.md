@@ -7,3 +7,8 @@ Nền xanh dương gradient tròn (sáng giữa, tối ra viền). Giữa màn l
 4. Hai nút: `#role-handler` "Handler — người chuyền" · `#role-cutter` "Cutter — người chạy bắt" (vàng, chữ đen).
 
 Tính năng: [F3](../features/F3-man-mo-dau.md)
+
+F12 (2026-11-15): nút chính to `#play` dưới khiên — chưa tập: "▶ Chơi ngay · 30 giây tập chơi" (vào phần tập 3 bước);
+đã tập: "▶ Chơi" + nút `#how` "Cách chơi". Dưới đó "Hoặc chọn vai": `#role-cutter` **Người chạy** (Cutter) · `#role-handler` **Người ném** (Handler).
+Tagline: "Đọc sân như dân Ultimate — chạm vào chỗ trống!". F13: nút `#sound` 🔊/🔇 dưới nút ⛶; nút `#play` thở sáng.
+Tính năng: [F12](../features/F12-de-hieu-cho-nguoi-moi.md) · [F13](../features/F13-cam-giac-da.md)

@@ -8,8 +8,8 @@
 <p>
   <img src="docs/screens/1-start.png" width="190" alt="Start screen in Fulbright Ultimate Club style, choose Handler or Cutter">
   <img src="docs/screens/2-read-the-field.png" width="190" alt="First-person view of the field with a defender marking you and a 10-second stall count">
-  <img src="docs/screens/3-answer.png" width="190" alt="Correct tap: +170 points, explanation and top-down diagram of the right spot">
-  <img src="docs/screens/4-result.png" width="190" alt="Result screen: 4/5, 1,040 points, new best, Play again">
+  <img src="docs/screens/3-answer.png" width="190" alt="Correct tap: HAY! callout, particles, +170 flying to the score, plain-language explanation and top-down diagram">
+  <img src="docs/screens/4-result.png" width="190" alt="Result screen: 2 of 3 stars, 4/5, 1,040 points, new best, Play again">
 </p>
 
 ## Pitch
@@ -53,9 +53,12 @@ All features are specified in [`1-wiki/features/`](1-wiki/features/). Each page 
 | F8 | Live play | A defender marks you up close and everyone keeps moving while you think. After you tap, you run and the disc flies. |
 | F9 | Fullscreen | The field fills the whole screen. The HUD sits on top of it. Fullscreen button; works in portrait and landscape. |
 | F10 | One continuous point | **2 lives**, a 10-second **stall count** like real Ultimate, **combo** scoring, a best score saved on the device |
-| F11 | Event tracking | 8 events through one `track()` function, GA4-ready (see the tracking plan below) |
+| F11 | Event tracking | 11 events through one `track()` function, GA4-ready (see the tracking plan below) |
+| F12 | Made for people who have never played | One rule taught everywhere: *run into the open space*. Short questions with no jargon; people are named by shirt colour (yellow = team, white = opponent, red = your marker). The Ultimate term appears only after you answer. A **3-step hands-on tutorial**: glowing ring + pointing hand → avoid the white shirt → find space alone before 10 s. |
+| F13 | Game feel ("juice") | Synthesized sound effects (no files) whose pitch rises with your combo, a mute button, particles, flashes, escalating praise ("Hay!" → "Tuyệt!" → "Quá đỉnh!"), the score flying into the HUD, a breaking heart, a 3-2-1 countdown, a ticking last 3 seconds of stall, 1–3 stars and a count-up on the result |
+| F14 | Graphics | Cartoon sports players (shoes, shorts, shaded jerseys with numbers, hair, varied skin tones) with a running gait; clouds, two layers of tree line, floodlights, horizon haze and a vignette |
 
-The core loop runs end to end: open → pick a role → play 5 phases → result → play again. It works on a 375 px phone and on desktop.
+The core loop runs end to end: open → 30-second tutorial (first time) → play 5 phases → stars and result → play again. It works on a 375 px phone and on desktop.
 
 ## Launch channel and growth
 
@@ -99,9 +102,9 @@ node 2-environment/serve.mjs        # → http://localhost:5173
 **Test:**
 
 ```bash
-node --test game/tests/             # 50 unit tests for the game rules (logic.js, track.js)
+node --test game/tests/             # 66 unit tests for the game rules (logic.js, track.js, sfx.js)
 bash test.sh                        # a bot plays the game in Chrome and writes a report with screenshots
-bash 3-verification/verify.sh       # the full gate: unit tests + bot run (89 checks); marks features ✅ only when green
+bash 3-verification/verify.sh       # the full gate: unit tests + bot run (118 checks); marks features ✅ only when green
 ```
 
 **Deploy:** the site is the `game/` folder. The `gh-pages` branch is a subtree of it:
@@ -138,6 +141,9 @@ Each event exists to answer a product question. We don't count things for fun.
 | `point_end` | A point ends | `role`, `result` (`score` / `turnover`), `correct`, `points`, `phases_played`, `duration_ms`, `new_best`, `attempt` | Pass rate (overall difficulty) and session length. A `point_start` with no `point_end` is a **drop-off**, and we can see at which phase. |
 | `retry_click` | Tap Play again | `role`, `last_result`, `attempt` | **The main retention signal:** do people want "one more point"? This was the goal of F10. |
 | `fullscreen_toggle` | Tap ⛶ | `on` | Does anyone use fullscreen (F9)? Keep it or drop it. |
+| `tutorial_step` | A tutorial step is completed | `step` (1–3), `tries` (wrong taps before the right one) | A step with many `tries` is confusing → fix that step's picture or words. |
+| `tutorial_done` | All 3 tutorial steps completed | `ms` | Funnel `tutorial_step 1 → tutorial_done → point_start`: does onboarding keep newcomers? |
+| `sound_toggle` | Tap 🔊/🔇 | `on` | How many people mute → are the sounds annoying? |
 
 **Round 2 metrics:**
 - `game_open → point_start` conversion
@@ -147,7 +153,7 @@ Each event exists to answer a product question. We don't count things for fun.
 - `stall` rate
 - median `read_ms`
 
-Tests check the plan itself: [`game/tests/F11.test.js`](game/tests/F11.test.js) (exactly 8 events, required parameters, PII rejected).
+Tests check the plan itself: [`game/tests/F11.test.js`](game/tests/F11.test.js) (exactly 11 events, required parameters, PII rejected).
 The bot also plays the game and asserts that each event fires with the right values.
 
 ## Privacy and policy compliance
@@ -182,14 +188,14 @@ How we used Claude at each stage:
 | **Specs** | Claude wrote one wiki page per feature with a *Done when* list. New ideas went into new raw files (`idea-2.md`: target endzone + a defender marking you; `idea-3.md`: "make it move like a real match") and became F7–F8. |
 | **Code** | `/build`: for each feature Claude wrote the tests first, ran them red, wrote the code until green, then "claimed" the feature 🟡. |
 | **Testing** | Unit tests (`node:test`) for the rules. A Chrome bot plays the game at phone size (390 × 844) through [`game/e2e.mjs`](game/e2e.mjs), checks every *Done when* line, and takes screenshots. It also checks design: no default fonts, no horizontal overflow, tap targets ≥ 40 px. |
-| **Iteration** | We play-tested and wrote feedback in plain language ("it feels like a quiz, not a game", "I want fullscreen"). Claude proposed changes and updated the wiki first, then tests, then code: F9 fullscreen, F10 lives / stall / combo, F11 tracking. |
+| **Iteration** | We play-tested and wrote feedback in plain language ("it feels like a quiz, not a game", "I want fullscreen"). Claude proposed changes and updated the wiki first, then tests, then code: F9 fullscreen, F10 lives / stall / combo, F11 tracking. After launch we played the live link and wrote: *"the players look ugly, I want dopamine like a normal game, the advice is too long and technical — even I didn't understand it"* ([`raw/idea-4.md`](1-wiki/raw/idea-4.md)). That became F12 (plain language + tutorial), F13 (game feel) and F14 (graphics), with tests that enforce the copy rules, e.g. no jargon word and ≤ 80 characters per question. |
 | **Decisions left to us** | When the wiki was unclear, Claude did not guess silently. It picked the most reasonable option and logged a question in [`4-memory/po-questions.md`](4-memory/po-questions.md), e.g. "2 or 3 lives?", "10 or 15 s stall?". |
 | **Ship** | Claude deployed to GitHub Pages and opened the live URL at phone size to check that it loads, that events fire, and that the console has no errors. |
 
 Timeline (from git):
 - **Oct 28:** harness from Apero.
 - **Oct 30:** first playable game, F1–F8 in one day.
-- **Nov 15:** fullscreen, the new game loop, tracking, and the public launch.
+- **Nov 15:** fullscreen, the new game loop, tracking, the public launch, then (after playing the live link) plain-language copy + tutorial, game feel and new graphics.
 
 ### What worked
 
@@ -219,6 +225,10 @@ Timeline (from git):
   instead of a half-done feature.
 - **AI-written content still needs an expert.** The 10 scenarios were written by Claude from general knowledge of the
   vertical stack. The club captains still need to review them (open PO question).
+- **Accessibility settings can silently kill game feel.** The dev laptop has Windows "reduce animations" on, so the browser
+  reported `prefers-reduced-motion`. An old CSS rule set every animation to 1 ms, so flying text and confetti (which end
+  at opacity 0) vanished instantly and the game looked flat on that machine. The bot caught it because it runs with the same
+  setting. Reduced motion should remove big movement, not feedback.
 - _TODO (team): add 1–2 things from your own experience, e.g. prompts that worked or didn't, time spent, surprises._
 
 ## Team
@@ -235,10 +245,11 @@ Timeline (from git):
 ```
 game/                 the product (this folder is the website)
   index.html  ui.js   screens, drawing, input
-  logic.js            pure game rules + the 10 scenarios
+  logic.js            pure game rules, the 10 scenarios, the 3 tutorial steps
   track.js            event tracking (track-config.js holds the GA4 ID)
+  sfx.js              synthesized sound effects (Web Audio)
   e2e.mjs  tests/     bot script + unit tests
-1-wiki/               specs: overview, features F1–F11, screens, decisions, lessons learned
+1-wiki/               specs: overview, features F1–F14, screens, decisions, lessons learned
 2-environment/        dev server, Chrome bot, AI working rules
 3-verification/       verify.sh — the gate
 4-memory/             feature status, progress, PO questions

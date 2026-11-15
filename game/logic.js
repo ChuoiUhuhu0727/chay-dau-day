@@ -142,6 +142,7 @@ function scenario(o) {
     title: o.title,
     prompt: o.prompt,
     explain: o.explain,
+    term: o.term,
     me: { x: o.me.x, y: o.me.y, heading },
     disc: { x: holder.x, y: holder.y },
     teammates: o.teammates,
@@ -155,42 +156,42 @@ function scenario(o) {
 export const SCENARIOS = {
   cutter: [
     scenario({
-      id: 'C1', title: 'Cắt ngắn ra phía trống',
-      prompt: 'Đĩa ở handler giữa sân. Người kèm đĩa chặn bên phải bạn, nên bên trái đang trống. Bạn đứng đầu stack — cắt tới đâu?',
-      explain: 'Cắt ngắn (under) chéo về phía trống, cách người cầm đĩa 8–10m. Đường chuyền ngắn, dễ, người kèm đĩa không chặn được.',
+      id: 'C1', title: 'Chạy ra chỗ trống', term: 'cắt ngắn (under cut)',
+      prompt: 'Đĩa ở áo vàng phía trước. Bên phải bị chặn, bên trái trống — chạy đâu?',
+      explain: 'Chạy chéo sang bên trống, lại gần người cầm đĩa. Đường ném ngắn, không ai chặn được.',
       me: look(40, 18.5, 31, 23),
       teammates: [pt(30, 18.5), pt(25, 24), pt(44, 18.5), pt(48, 18.5), pt(52, 18.5), pt(56, 18.5)],
       zone: pt(32, 27),
     }),
     scenario({
-      id: 'C2', title: 'Cắt hụt thì dọn đường',
-      prompt: 'Bạn vừa cắt ngắn ra phía trống nhưng không nhận được đĩa. Đồng đội tiếp theo sắp cắt vào đúng chỗ bạn đứng. Bạn chạy đi đâu?',
-      explain: 'Dọn đường (clear): chạy chéo lên phía trên, ra sát biên rồi về lại stack. Đứng lại sẽ chắn đường cắt của đồng đội.',
+      id: 'C2', title: 'Đừng đứng chắn đường', term: 'dọn đường (clear)',
+      prompt: 'Bạn không nhận được đĩa. Đồng đội sắp chạy vào chỗ bạn — tránh đi đâu?',
+      explain: 'Chạy ra xa, về phía biên. Đứng yên là bạn chắn đường chạy của đồng đội.',
       me: look(33, 27, 44, 31),
       teammates: [pt(30, 18.5), pt(25, 24), pt(44, 18.5), pt(48, 18.5), pt(52, 18.5), pt(56, 18.5)],
       zone: pt(44, 32),
     }),
     scenario({
-      id: 'C3', title: 'Cắt sâu khi bị chặn đường ngắn',
-      prompt: 'Người kèm bạn đứng ngay sau lưng bạn (phía đĩa), chặn đường cắt ngắn. Bạn đứng đầu stack, đang nhìn lên phía endzone đối thủ. Chỗ trống ở đâu?',
-      explain: 'Người kèm chặn phía dưới thì phía sau lưng họ trống: cắt sâu (deep) chéo về phía trống, ra xa stack để đĩa bay qua đầu mọi người.',
+      id: 'C3', title: 'Bị chặn gần? Chạy xa!', term: 'cắt sâu (deep cut)',
+      prompt: 'Áo đỏ đứng sát sau lưng, chặn đường về phía đĩa. Chỗ trống ở đâu?',
+      explain: 'Họ chặn phía gần thì phía xa đang trống. Chạy xa lên trên, đĩa bay qua đầu tới bạn.',
       me: look(38, 18.5, 52, 26),
       markedBehind: true,
       teammates: [pt(28, 18.5), pt(23, 24), pt(43, 18.5), pt(47, 18.5), pt(51, 18.5), pt(55, 18.5)],
       zone: pt(50, 28),
     }),
     scenario({
-      id: 'C4', title: 'Gần endzone: đứng góc trống',
-      prompt: 'Đĩa đã tới gần endzone đối thủ, người cầm đĩa ở phía bên trái bạn. Stack đứng trong endzone. Bạn chạy tới đâu để ghi điểm?',
-      explain: 'Gần endzone, chạy vào góc endzone phía trống (xa người kèm đĩa). Chỗ đó rộng, đĩa ném vào dễ và bắt được là có điểm.',
+      id: 'C4', title: 'Ghi điểm ở góc trống', term: 'endzone — vùng ghi điểm',
+      prompt: 'Đĩa ở bên trái, sắp tới vùng ghi điểm màu vàng. Chạy vào góc nào?',
+      explain: 'Chạy vào góc vàng phía trống, xa người cầm đĩa. Bắt đĩa trong vùng vàng là ghi điểm!',
       me: look(76, 22, 88, 29),
       teammates: [pt(72, 12), pt(68, 17), pt(86, 18.5), pt(90, 18.5), pt(94, 18.5), pt(83, 12)],
       zone: pt(87, 29),
     }),
     scenario({
-      id: 'C5', title: 'Vào chỗ đồng đội vừa bỏ trống',
-      prompt: 'Người đầu stack vừa cắt sâu lên trên. Bạn là người thứ hai trong stack. Chỗ nào vừa trống ra cho bạn?',
-      explain: 'Đồng đội cắt sâu kéo người kèm đi, chỗ cắt ngắn phía trống bỏ ngỏ. Cắt ngắn vào đó ngay sau họ: hai đường cắt nối nhau, không chạy chung làn.',
+      id: 'C5', title: 'Lấp chỗ vừa trống', term: 'nối đường cắt (continuation)',
+      prompt: 'Đồng đội vừa chạy xa, kéo theo áo trắng. Chỗ nào vừa trống ra?',
+      explain: 'Chạy vào chỗ đồng đội vừa bỏ lại. Áo trắng đã đuổi theo họ, chỗ đó không ai canh.',
       me: look(44, 18.5, 33, 22),
       teammates: [pt(30, 18.5), pt(25, 24), pt(58, 26), pt(48, 18.5), pt(52, 18.5), pt(56, 18.5)],
       zone: pt(35, 26),
@@ -198,41 +199,41 @@ export const SCENARIOS = {
   ],
   handler: [
     scenario({
-      id: 'H1', title: 'Đứng reset sau người cầm đĩa',
-      prompt: 'Đồng đội vừa bắt đĩa giữa sân. Bạn là handler thứ hai, đang ở phía sau. Đứng đâu để làm điểm chuyền an toàn (reset)?',
-      explain: 'Reset đứng chéo phía sau người cầm đĩa khoảng 5m, về phía trống. Gần đủ để chuyền ngắn khi người cầm đĩa bị kẹp, mà không chắn đường cắt của stack.',
+      id: 'H1', title: 'Đứng sau làm chỗ dựa', term: 'reset / dump',
+      prompt: 'Đồng đội vừa bắt đĩa. Đứng đâu để họ chuyền về bạn an toàn?',
+      explain: 'Đứng chéo sau người cầm đĩa, cách 5 bước, về phía trống. Bí thì họ chuyền về bạn.',
       me: look(28, 14, 38, 20),
       teammates: [pt(40, 18.5), pt(50, 18.5), pt(54, 18.5), pt(58, 18.5), pt(62, 18.5), pt(66, 18.5)],
       zone: pt(36, 23),
     }),
     scenario({
-      id: 'H2', title: 'Cứu người bị kẹp biên',
-      prompt: 'Người cầm đĩa bị ép sát biên, người kèm chặn đường lên. Stall đang đếm. Bạn đứng đâu để nhận đĩa cứu nguy?',
-      explain: 'Khi đồng đội bị kẹp biên, chạy về phía giữa sân, chéo sau lưng họ. Chuyền về giữa sân mở lại cả hai phía để tấn công tiếp.',
+      id: 'H2', title: 'Cứu bạn bị kẹt biên', term: 'dump (cứu đĩa)',
+      prompt: 'Đồng đội bị ép sát biên, sắp hết giờ cầm đĩa. Chạy đâu để đỡ?',
+      explain: 'Chạy vào giữa sân, chéo sau lưng họ. Đĩa về giữa sân là mở lại được cả hai phía.',
       me: look(34, 10, 42, 9),
       teammates: [pt(46, 3), pt(56, 18.5), pt(60, 18.5), pt(64, 18.5), pt(68, 18.5), pt(72, 18.5)],
       zone: pt(41, 11),
     }),
     scenario({
-      id: 'H3', title: 'Chuyền xong thì chạy lên',
-      prompt: 'Bạn vừa chuyền đĩa cho đồng đội ở phía trước bên phải. Người kèm bạn đang đứng xem đĩa bay. Chạy đi đâu?',
-      explain: 'Chuyền xong chạy lên ngay (give-and-go) vào khoảng trống phía trước, vượt qua người kèm đang đứng nhìn. Đồng đội chuyền trả lại là bạn tiến thêm 10m.',
+      id: 'H3', title: 'Ném xong thì chạy!', term: 'ném rồi chạy (give-and-go)',
+      prompt: 'Bạn vừa ném đĩa đi. Áo trắng của bạn đứng nhìn theo. Giờ chạy đâu?',
+      explain: 'Chạy lên phía trước ngay, vượt qua người đang đứng nhìn. Được ném trả là tiến thêm 10m.',
       me: look(40, 18.5, 50, 20),
       teammates: [pt(46, 26), pt(36, 12), pt(60, 18.5), pt(64, 18.5), pt(68, 18.5), pt(72, 18.5)],
       zone: pt(51, 17),
     }),
     scenario({
-      id: 'H4', title: 'Stall cao: chuyền ngang về giữa',
-      prompt: 'Người cầm đĩa ở sát biên bên phải bạn, stall đã đếm tới 7. Stack không ai mở. Bạn đứng đâu để nhận đường chuyền ngang (swing)?',
-      explain: 'Stall cao thì cần một đường chuyền ngang dễ: đứng ngang hoặc hơi sau người cầm đĩa, ở giữa sân. Đĩa về giữa thì cả sân mở lại.',
+      id: 'H4', title: 'Sắp hết giờ: chuyền ngang', term: 'swing (chuyền ngang)',
+      prompt: 'Đồng đội sát biên, đã đếm tới 7. Phía trước không ai trống. Đứng đâu?',
+      explain: 'Đứng ngang hàng người cầm đĩa, ở giữa sân. Một đường chuyền ngang dễ, đưa đĩa về giữa.',
       me: look(42, 26, 49, 21),
       teammates: [pt(50, 33), pt(60, 18.5), pt(64, 18.5), pt(68, 18.5), pt(72, 18.5), pt(76, 18.5)],
       zone: pt(49, 22),
     }),
     scenario({
-      id: 'H5', title: 'Gần endzone: giữ chỗ reset',
-      prompt: 'Đĩa cách endzone đối thủ vài bước, ở phía bên trái bạn. Cutter đang chạy trong endzone. Bạn là handler — đứng đâu?',
-      explain: 'Gần endzone, handler đứng trước vạch endzone ở giữa sân, sau người cầm đĩa một chút. Nếu không ai trống trong endzone, đĩa về bạn rồi chuyền sang phía kia.',
+      id: 'H5', title: 'Chờ ngay trước vạch', term: 'reset gần endzone',
+      prompt: 'Đĩa sắp vào vùng ghi điểm, ở bên trái bạn. Bạn đứng đâu để đỡ?',
+      explain: 'Đứng trước vạch vùng vàng, giữa sân, hơi sau người cầm đĩa. Không ai trống thì đĩa về bạn.',
       me: look(66, 20, 76, 17),
       teammates: [pt(78, 11), pt(86, 18.5), pt(90, 22), pt(94, 15), pt(88, 30), pt(92, 8)],
       zone: pt(75, 19),
@@ -339,7 +340,7 @@ export function startLesson(role) {
 }
 
 export function current(state) {
-  return SCENARIOS[state.role][state.index];
+  return state.role === 'tutorial' ? TUTORIAL[state.index] : SCENARIOS[state.role][state.index];
 }
 
 // ---------------------------------------------------------------- F4 · chấm điểm
@@ -352,6 +353,7 @@ export function judge(zone, point) {
 export function answer(state, point, stall = 0) {
   if (state.answered || !point) return state;
   const correct = judge(current(state).zone, point);
+  if (!correct && state.role === 'tutorial') return { ...state, correct: false, tap: point, misses: (state.misses || 0) + 1 }; // F12: chạm lại được
   if (!correct) return { ...state, answered: true, correct, tap: point, lives: state.lives - 1, combo: 0 };
   const combo = state.combo + 1;
   return { ...state, answered: true, correct, tap: point, score: state.score + 1, combo, points: state.points + pointsFor(combo, stall) };
@@ -375,6 +377,7 @@ export function stallCount(t) {
 /** Hết đếm stall mà chưa chạm: tính là sai (mất đĩa). */
 export function stallOut(state) {
   if (state.answered) return state;
+  if (state.role === 'tutorial') return { ...state, misses: (state.misses || 0) + 1 }; // F12: đếm lại, không phạt
   return { ...state, answered: true, correct: false, tap: null, stalled: true, lives: state.lives - 1, combo: 0 };
 }
 
@@ -386,7 +389,7 @@ export function toMinimap(p, w, h) {
 
 export function next(state) {
   if (!state.answered || isFinished(state)) return state;
-  return { ...state, index: state.index + 1, answered: false, correct: null, tap: null, stalled: false };
+  return { ...state, index: state.index + 1, answered: false, correct: null, tap: null, stalled: false, misses: 0 };
 }
 
 // ---------------------------------------------------------------- F6 · kết thúc bài
@@ -397,4 +400,93 @@ export function isFinished(state) {
 
 export function passed(state) {
   return isFinished(state) && state.lives > 0;
+}
+
+// ---------------------------------------------------------------- F12 · dễ hiểu cho người chưa từng chơi
+
+/** Từ chuyên môn: không được nằm trong title/prompt/explain — chỉ nằm trong term (hiện sau khi trả lời). */
+export const JARGON = ['stack', 'cutter', 'handler', 'under', 'deep', 'clear', 'reset', 'dump', 'swing', 'give-and-go', 'endzone', 'stall', 'force', 'mark'];
+
+/** Một bước tập chơi: như tình huống nhưng ít người, có vòng sáng gợi ý (rings) và có/không đếm giờ. */
+function step(o) {
+  return {
+    id: o.id, title: o.title, prompt: o.prompt, explain: o.explain, term: '',
+    me: { x: 40, y: 18.5, heading: 0 }, // đứng giữa sân, nhìn về phía tấn công
+    disc: { ...o.teammates[0] },
+    teammates: o.teammates,
+    opponents: o.opponents,
+    myMarker: -1,
+    markedBehind: false,
+    zone: { ...o.zone, r: o.r ?? ZONE_R },
+    rings: o.rings,
+    stall: !!o.stall,
+  };
+}
+
+export const TUTORIAL = [
+  step({
+    id: 'T1', title: 'Tập 1 · Chạy tới đón đĩa', prompt: 'Chạm vào vòng sáng để chạy tới đó!',
+    explain: 'Chuẩn! Chạm vào cỏ = chạy tới đó. Đồng đội áo vàng sẽ ném đĩa cho bạn.',
+    teammates: [pt(53, 13)], opponents: [], zone: pt(50, 21.5), r: 4.5, rings: [pt(50, 21.5)],
+  }),
+  step({
+    id: 'T2', title: 'Tập 2 · Né áo trắng', prompt: 'Áo trắng là đối thủ. Chạy tới vòng KHÔNG có ai!',
+    explain: 'Quá chuẩn! Chỗ có áo trắng là bị chặn. Luôn chạy vào chỗ trống.',
+    teammates: [pt(58, 18.5)], opponents: [pt(47.3, 22.2)], zone: pt(47, 15), r: 3, rings: [pt(47, 22), pt(47, 15)],
+  }),
+  step({
+    id: 'T3', title: 'Tập 3 · Tự tìm chỗ trống', prompt: 'Hết vòng sáng rồi! Tự tìm chỗ trống trước khi hết 10 giây.',
+    explain: 'Bạn đã biết đọc sân! 🎉 Vào trận: tìm chỗ trống, chạm thật nhanh.',
+    teammates: [pt(58, 18.5)], opponents: [pt(50, 23), pt(53, 25.5), pt(56, 22.5), pt(47.5, 22.5), pt(59.4, 19.4)],
+    zone: pt(52, 14.5), r: 5, rings: [], stall: true,
+  }),
+];
+
+export function startTutorial() {
+  return { role: 'tutorial', index: 0, score: 0, total: TUTORIAL.length, answered: false, correct: null, tap: null,
+    lives: LIVES, combo: 0, points: 0, stalled: false, misses: 0 };
+}
+
+// ---------------------------------------------------------------- F13 · cảm giác đã
+
+const PRAISE = ['', 'Hay!', 'Tuyệt!', 'Quá đỉnh!'];
+/** Chữ khen to dần theo combo. */
+export function comboWord(combo) {
+  return combo >= 4 ? 'Không thể cản! 🔥' : PRAISE[Math.max(0, combo)] ?? '';
+}
+
+/** Số sao cuối point theo số pha đọc đúng. */
+export function starsFor(score) {
+  return score >= 5 ? 3 : score === 4 ? 2 : score >= 2 ? 1 : 0;
+}
+
+// ---------------------------------------------------------------- F14 · đồ hoạ người
+
+/**
+ * Dáng người lúc t giây khi di chuyển với tốc độ speed (m/s). Góc tính bằng radian, 0 = thẳng đứng.
+ * Tay đánh ngược nhịp chân như người chạy thật; đứng yên thì chỉ nhún rất nhẹ.
+ */
+export function bodyPose(t, speed) {
+  const v = Math.max(0, speed);
+  const amp = v < 0.2 ? 0.05 : Math.min(0.8, 0.2 * v);
+  const freq = 1.4 + 0.22 * v; // bước/giây tăng theo tốc độ
+  const w = Math.sin(2 * Math.PI * freq * t);
+  const legL = amp * w;
+  const legR = -legL;
+  return { legL, legR, armL: 0.9 * legR, armR: 0.9 * legL,
+    bob: Math.abs(w) * Math.min(0.06, 0.012 * v) + 0.01 * Math.sin(2 * Math.PI * 0.8 * t) };
+}
+
+const SKINS = ['#F2C79B', '#C98E5F', '#8D5A3B', '#E8B48A', '#5E3A24'];
+const HAIRS = ['#1A1410', '#3B2416', '#6B4A2B', '#0E0E0E'];
+const MATE_NO = [7, 23, 10, 4, 17, 88];
+const OPP_NO = [3, 11, 21, 9, 14, 5, 30];
+/** Ngoại hình cố định của cầu thủ thứ i (0–5 đồng đội, 6–12 đối thủ). */
+export function lookOf(i) {
+  return {
+    skin: SKINS[(i * 3) % SKINS.length],
+    hair: HAIRS[(i * 7 + 1) % HAIRS.length],
+    number: i < 6 ? MATE_NO[i % 6] : OPP_NO[(i - 6) % 7],
+    long: i % 4 === 1, // tóc dài buộc sau
+  };
 }

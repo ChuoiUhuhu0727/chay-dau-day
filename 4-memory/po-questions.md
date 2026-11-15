@@ -12,3 +12,6 @@
 - Câu hỏi cho PO (F10): Công thức điểm `100 × combo (tối đa ×3) + 10 × (10 − stall)` — có muốn thưởng thêm khi Ghi điểm (ví dụ +500)?
 - Câu hỏi cho PO (F11): Tạo property Google Analytics 4 rồi dán Measurement ID (G-…) vào game/track-config.js? Chưa có ID thì sự kiện chỉ ghi trong máy, chưa có dữ liệu thật cho Round 2.
 - Câu hỏi cho PO (F11): Bật GA4 thì cần trang chính sách quyền riêng tư ngắn (game không thu dữ liệu cá nhân, chỉ hành động trong game) — thêm vào README hay một trang riêng?
+- Câu hỏi cho PO (F12, 2026-11-15): Mình viết lại 10 tình huống bằng lời thường + gọi người theo màu áo (áo vàng/trắng/đỏ). Nhờ đội trưởng CLB đọc xem có sai chiến thuật không?
+- Câu hỏi cho PO (F12): Phần tập chơi chỉ hiện khi bấm nút chính "Chơi ngay"; bấm thẳng nút vai thì vào trận luôn (cho người đã biết chơi). Ổn không, hay bắt buộc mọi người mới phải tập?
+- Câu hỏi cho PO (F13): Âm thanh bật sẵn khi mở game (tắt bằng 🔇). Muốn mặc định tắt không (ví dụ người chơi trên lớp)?
