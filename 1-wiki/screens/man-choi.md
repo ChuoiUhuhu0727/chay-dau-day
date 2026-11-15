@@ -27,3 +27,4 @@ Sau khi trả lời: `#explain` ngắn + nhãn `#term` "Dân Ultimate gọi là:
 **F13:** `#countdown` "3… 2… 1… Chạm!" lúc vào pha · hạt bắn, chớp sáng `#flash`, chữ khen `.callout` · tim vỡ `.heart-break` · `#stage.hurry` 3 giây cuối stall · nút `#sound`.
 **F14:** người cartoon có dáng chạy, mây, hàng cây 2 lớp, cột đèn, sương chân trời, viền tối.
 Tính năng: [F12](../features/F12-de-hieu-cho-nguoi-moi.md) · [F13](../features/F13-cam-giac-da.md) · [F14](../features/F14-do-hoa-nguoi-va-san.md)
+**F16:** lúc đĩa bay có vệt vàng + vòng đáp trắng trên cỏ; bắt đúng thì quay chậm, chạy ≥ 6m thì máy quay hạ thấp (lao người). Tấm đáp án có dòng tường thuật `#caption` trên cùng. HUD có 3 ❤️ (F10 mới). Tính năng: [F16](../features/F16-khoanh-khac-highlight.md)

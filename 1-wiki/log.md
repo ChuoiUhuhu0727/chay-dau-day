@@ -39,3 +39,9 @@
 - 2026-11-15 · build · F13 ✅ passing (Cảm giác "đã": âm thanh, hiệu ứng, combo, sao)
 - 2026-11-15 · build · F14 ✅ passing (Đồ hoạ: người đẹp hơn, sân có không khí)
 - 2026-11-15 · build · F12 ✅ dễ hiểu + tập 3 bước · F13 ✅ âm thanh/hiệu ứng/sao · F14 ✅ người cartoon + cảnh · F11 ✅ thêm 3 sự kiện (11) — verify xanh lần 1
+- 2026-11-15 · build · F6 ✅ passing (Kết thúc bài: X/5, qua bài, chơi lại)
+- 2026-11-15 · build · F10 ✅ passing (Một point liên tục: mạng, đếm stall, combo)
+- 2026-11-15 · build · F11 ✅ passing (Event tracking: đo người chơi làm gì)
+- 2026-11-15 · build · F15 ✅ passing (Luật Ultimate trong 30 giây + mục tiêu rõ ở màn đầu)
+- 2026-11-15 · build · F16 ✅ passing (Khoảnh khắc highlight: vệt đĩa, vòng đáp, quay chậm, lời tường thuật)
+- 2026-11-15 · build · F15 ✅ luật Ultimate + mục tiêu · F16 ✅ vệt đĩa, vòng đáp, quay chậm, tường thuật · F6/F10 ✅ đổi sang 3 mạng (qua bài ≥ 3/5) · F11 ✅ 12 sự kiện — verify xanh lần 1

@@ -1,4 +1,4 @@
-// F6 — Kết thúc bài: X/5, qua bài. Luật kết thúc theo F10 (2 mạng → sai 2 lần là turnover).
+// F6 — Kết thúc bài: X/5, qua bài. Luật kết thúc theo F10 (3 mạng → sai 3 lần là turnover; đổi từ 2 mạng tối 2026-11-15).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { startLesson, answer, next, current, isFinished, passed } from '../logic.js';
@@ -24,19 +24,21 @@ test('isFinished đúng khi đã trả lời tình huống thứ 5', () => {
   assert.equal(isFinished(s), true);
 });
 
-test('isFinished đúng khi hết mạng giữa chừng (sai 2 lần = turnover)', () => {
-  const { s, played } = play('cutter', [true, false, false, true, true]);
-  assert.equal(played, 3);
+test('isFinished đúng khi hết mạng giữa chừng (sai 3 lần = turnover)', () => {
+  const { s, played } = play('cutter', [true, false, false, false, true]);
+  assert.equal(played, 4);
   assert.equal(isFinished(s), true);
 });
 
-test('4/5 và 5/5 là qua bài; sai 2 lần là chưa qua', () => {
+test('3/5, 4/5 và 5/5 là qua bài; sai 3 lần là chưa qua', () => {
   const four = play('cutter', [true, false, true, true, true]).s;
   assert.equal(four.score, 4);
   assert.equal(passed(four), true);
   assert.equal(passed(play('handler', [true, true, true, true, true]).s), true);
   const three = play('cutter', [true, false, false, true, true]).s;
-  assert.equal(passed(three), false);
+  assert.equal(three.score, 3);
+  assert.equal(passed(three), true);
+  assert.equal(passed(play('cutter', [true, false, false, false, true]).s), false);
   assert.equal(passed(play('handler', [false, false, false, false, false]).s), false);
 });
 

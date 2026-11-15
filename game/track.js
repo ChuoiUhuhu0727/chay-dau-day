@@ -15,6 +15,7 @@ export const EVENTS = {
   tutorial_step: ['step', 'tries'], // F12
   tutorial_done: ['ms'], // F12
   sound_toggle: ['on'], // F13
+  rules_open: ['from'], // F15
 };
 
 const PERSONAL = ['name', 'email', 'phone', 'user', 'ip'];

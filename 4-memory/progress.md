@@ -54,3 +54,17 @@
 - 2026-11-15 · F12 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F13 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F14 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F6 ⏳ mở lại
+- 2026-11-15 · F10 ⏳ mở lại
+- 2026-11-15 · F11 ⏳ mở lại
+- 2026-11-15 · F6 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F10 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F11 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F15 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F16 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F15 luật Ultimate + mục tiêu, F16 highlight (vệt đĩa, vòng đáp, quay chậm, tường thuật), 3 mạng (F6/F10) — chạy verify
+- 2026-11-15 · F6 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F10 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F11 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F15 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F16 ✅ passing (verify.sh xanh)

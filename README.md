@@ -48,14 +48,16 @@ All features are specified in [`1-wiki/features/`](1-wiki/features/). Each page 
 | F3 | Club-style start screen | Fulbright Ultimate Club look (blue gradient, black-and-gold crest, bee mascot). Pick your role. |
 | F4 | Tap to choose + judging | Tap where you would run. Correct within a 4 m zone. Instant feedback (bounce / shake). |
 | F5 | Answer | The correct zone lights up, plus a top-down mini-map with an arrow and a one-line "why" |
-| F6 | End of a point | X/5. **Score** (pass) or **Turnover** (try again). |
+| F6 | End of a point | X/5. **Score** (pass, ≥ 3/5) or **Turnover** (try again). |
 | F7 | Target endzone | The endzone you attack is highlighted. A compass shows its direction and distance. |
 | F8 | Live play | A defender marks you up close and everyone keeps moving while you think. After you tap, you run and the disc flies. |
 | F9 | Fullscreen | The field fills the whole screen. The HUD sits on top of it. Fullscreen button; works in portrait and landscape. |
-| F10 | One continuous point | **2 lives**, a 10-second **stall count** like real Ultimate, **combo** scoring, a best score saved on the device |
-| F11 | Event tracking | 11 events through one `track()` function, GA4-ready (see the tracking plan below) |
+| F10 | One continuous point | **3 lives** (raised from 2 after a teammate who had never played lost in two taps "like a flash"), a 10-second **stall count** like real Ultimate, **combo** scoring, a best score saved on the device |
+| F11 | Event tracking | 12 events through one `track()` function, GA4-ready (see the tracking plan below) |
 | F12 | Made for people who have never played | One rule taught everywhere: *run into the open space*. Short questions with no jargon; people are named by shirt colour (yellow = team, white = opponent, red = your marker). The Ultimate term appears only after you answer. A **3-step hands-on tutorial**: glowing ring + pointing hand → avoid the white shirt → find space alone before 10 s. |
 | F13 | Game feel ("juice") | Synthesized sound effects (no files) whose pitch rises with your combo, a mute button, particles, flashes, escalating praise ("Hay!" → "Tuyệt!" → "Quá đỉnh!"), the score flying into the HUD, a breaking heart, a 3-2-1 countdown, a ticking last 3 seconds of stall, 1–3 stars and a count-up on the result |
+| F15 | Ultimate rules in 30 seconds | A one-line goal on the start screen and a "📖 Luật Ultimate" sheet: 6 plain lines on how Ultimate works (7 a side, catch in the end zone, the thrower can't run, 10-second stall, turnovers, no contact / self-refereed) |
+| F16 | Highlight moments | Learned from a 3D Ultimate game teaser our team liked: a glowing trail behind the disc, a landing ring on the grass, slow motion and a low "layout dive" camera on the catch, and a commentator line ("Pha 2 · chạy 9m vào chỗ trống, bắt gọn! · COMBO ×2 · +290") |
 | F14 | Graphics | Cartoon sports players (shoes, shorts, shaded jerseys with numbers, hair, varied skin tones) with a running gait; clouds, two layers of tree line, floodlights, horizon haze and a vignette |
 
 The core loop runs end to end: open → 30-second tutorial (first time) → play 5 phases → stars and result → play again. It works on a 375 px phone and on desktop.
@@ -102,9 +104,9 @@ node 2-environment/serve.mjs        # → http://localhost:5173
 **Test:**
 
 ```bash
-node --test game/tests/             # 66 unit tests for the game rules (logic.js, track.js, sfx.js)
+node --test game/tests/             # 73 unit tests for the game rules (logic.js, track.js, sfx.js)
 bash test.sh                        # a bot plays the game in Chrome and writes a report with screenshots
-bash 3-verification/verify.sh       # the full gate: unit tests + bot run (118 checks); marks features ✅ only when green
+bash 3-verification/verify.sh       # the full gate: unit tests + bot run (127 checks); marks features ✅ only when green
 ```
 
 **Deploy:** the site is the `game/` folder. The `gh-pages` branch is a subtree of it. First bump the build version (`?v=` in the import map at the bottom of `game/index.html`) and commit; otherwise a returning visitor's browser can mix cached old modules with new ones for up to 10 minutes and the game fails to start:
@@ -144,6 +146,7 @@ Each event exists to answer a product question. We don't count things for fun.
 | `tutorial_step` | A tutorial step is completed | `step` (1–3), `tries` (wrong taps before the right one) | A step with many `tries` is confusing → fix that step's picture or words. |
 | `tutorial_done` | All 3 tutorial steps completed | `ms` | Funnel `tutorial_step 1 → tutorial_done → point_start`: does onboarding keep newcomers? |
 | `sound_toggle` | Tap 🔊/🔇 | `on` | How many people mute → are the sounds annoying? |
+| `rules_open` | Open the Ultimate rules sheet | `from` | How many players need the rules first → how many are complete newcomers? |
 
 **Round 2 metrics:**
 - `game_open → point_start` conversion
@@ -153,7 +156,7 @@ Each event exists to answer a product question. We don't count things for fun.
 - `stall` rate
 - median `read_ms`
 
-Tests check the plan itself: [`game/tests/F11.test.js`](game/tests/F11.test.js) (exactly 11 events, required parameters, PII rejected).
+Tests check the plan itself: [`game/tests/F11.test.js`](game/tests/F11.test.js) (exactly 12 events, required parameters, PII rejected).
 The bot also plays the game and asserts that each event fires with the right values.
 
 ## Privacy and policy compliance
@@ -195,7 +198,7 @@ How we used Claude at each stage:
 Timeline (from git):
 - **Oct 28:** harness from Apero.
 - **Oct 30:** first playable game, F1–F8 in one day.
-- **Nov 15:** fullscreen, the new game loop, tracking, the public launch, then (after playing the live link) plain-language copy + tutorial, game feel and new graphics.
+- **Nov 15:** fullscreen, the new game loop, tracking, the public launch, then (after playing the live link) plain-language copy + tutorial, game feel and new graphics; in the evening a teammate who had never played Ultimate tested it → rules sheet, 3 lives, highlight moments ([`raw/idea-5.md`](1-wiki/raw/idea-5.md)).
 
 ### What worked
 
@@ -249,7 +252,7 @@ game/                 the product (this folder is the website)
   track.js            event tracking (track-config.js holds the GA4 ID)
   sfx.js              synthesized sound effects (Web Audio)
   e2e.mjs  tests/     bot script + unit tests
-1-wiki/               specs: overview, features F1–F14, screens, decisions, lessons learned
+1-wiki/               specs: overview, features F1–F16, screens, decisions, lessons learned
 2-environment/        dev server, Chrome bot, AI working rules
 3-verification/       verify.sh — the gate
 4-memory/             feature status, progress, PO questions

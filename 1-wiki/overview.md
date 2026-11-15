@@ -19,7 +19,7 @@ Mỗi lượt = 1 tình huống:
 
 ## 3. Thắng / thua / kết thúc
 Mỗi bài có **5 tình huống**. Hết 5 tình huống thì bài kết thúc.
-**Thắng (qua bài)**: đúng ≥ 4/5. **Chưa qua (thua)**: đúng ≤ 3/5 → mời chơi lại. Không có hết giờ.
+**Thắng (qua bài)**: đúng ≥ 3/5 (3 mạng, F10). **Chưa qua (thua)**: sai 3 lần → mời chơi lại. Có đếm stall 10 giây (F10).
 
 ## 4. Điều khiển
 Chỉ **chạm / bấm chuột**. Chơi tốt trên điện thoại (màn 375px), cũng chạy trên máy tính.

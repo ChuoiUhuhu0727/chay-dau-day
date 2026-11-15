@@ -12,3 +12,5 @@ F12 (2026-11-15): nút chính to `#play` dưới khiên — chưa tập: "▶ Ch
 đã tập: "▶ Chơi" + nút `#how` "Cách chơi". Dưới đó "Hoặc chọn vai": `#role-cutter` **Người chạy** (Cutter) · `#role-handler` **Người ném** (Handler).
 Tagline: "Đọc sân như dân Ultimate — chạm vào chỗ trống!". F13: nút `#sound` 🔊/🔇 dưới nút ⛶; nút `#play` thở sáng.
 Tính năng: [F12](../features/F12-de-hieu-cho-nguoi-moi.md) · [F13](../features/F13-cam-giac-da.md)
+
+F15: dưới khiên có `#goal-line` "🎯 Mục tiêu: qua 5 pha… Sai 3 lần là mất đĩa."; nút `#rules-btn` "📖 Luật Ultimate" mở tấm `#rules` (6 dòng `.rule`, nút `#rules-close` "Đã hiểu!"). Tính năng: [F15](../features/F15-luat-ultimate.md)

@@ -361,7 +361,7 @@ export function answer(state, point, stall = 0) {
 
 // ---------------------------------------------------------------- F10 · một point liên tục: mạng, stall, combo
 
-export const LIVES = 2; // sai 2 lần = turnover → sống sót hết 5 pha ⇔ đúng ≥ 4/5
+export const LIVES = 3; // sai 3 lần = turnover → sống sót hết 5 pha ⇔ đúng ≥ 3/5 (PO đổi từ 2, tối 2026-11-15)
 export const STALL = 10; // người kèm đếm "Stall 1…10", mỗi giây một số
 
 /** Điểm cho một lần đọc đúng: combo (tối đa ×3) + thưởng nhanh tay. */
@@ -489,4 +489,40 @@ export function lookOf(i) {
     number: i < 6 ? MATE_NO[i % 6] : OPP_NO[(i - 6) % 7],
     long: i % 4 === 1, // tóc dài buộc sau
   };
+}
+
+// ---------------------------------------------------------------- F15 · luật Ultimate trong 30 giây
+
+export const RULES = [
+  { icon: '👥', text: 'Hai đội, mỗi đội 7 người, chơi bằng một chiếc đĩa.' },
+  { icon: '🏆', text: 'Ghi điểm = bắt được đĩa trong vùng ghi điểm của đối thủ.' },
+  { icon: '✋', text: 'Người cầm đĩa không được chạy — chỉ xoay người và ném.' },
+  { icon: '🏃', text: 'Vì vậy đồng đội phải chạy vào chỗ trống để nhận đĩa. Game này luyện đúng việc đó!' },
+  { icon: '⏱', text: 'Cầm đĩa tối đa 10 giây. Đĩa rơi, ra ngoài hay bị chặn = mất đĩa.' },
+  { icon: '🤝', text: 'Không va chạm, tự làm trọng tài — tinh thần fair play.' },
+];
+
+export function goalText() {
+  return `🎯 Mục tiêu: qua 5 pha, đưa đĩa tới vùng ghi điểm. Sai ${LIVES} lần là mất đĩa.`;
+}
+
+// ---------------------------------------------------------------- F16 · khoảnh khắc highlight
+
+/** Dòng tường thuật kiểu bình luận viên sau mỗi pha. */
+export function commentary({ phase, dist, correct, stalled, combo, gain }) {
+  if (stalled) return `📣 Pha ${phase} · đứng yên quá 10 giây — mất đĩa`;
+  if (!correct) return `📣 Pha ${phase} · chạy ${dist}m nhưng chỗ đó chưa trống — mất đĩa`;
+  return `📣 Pha ${phase} · chạy ${dist}m vào chỗ trống, bắt gọn!${combo >= 2 ? ` · COMBO ×${Math.min(combo, 3)}` : ''} · +${gain}`;
+}
+
+/** Tốc độ thời gian lúc chạy tới bắt đĩa: 12% cuối quay chậm 0.4×. */
+export function catchScale(u) {
+  return u >= 0.88 && u < 1 ? 0.4 : 1;
+}
+
+/** Máy quay hạ thấp bao nhiêu mét khi lao người bắt đĩa (chỉ khi chạy ≥ 6m); v = 0 → 1 ở đoạn cuối đường chạy. */
+export function layoutDip(dist, v) {
+  if (dist < 6) return 0;
+  const k = Math.min(1, Math.max(0, v));
+  return 0.55 * Math.sin((Math.PI / 2) * k);
 }

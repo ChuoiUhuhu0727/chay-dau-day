@@ -28,15 +28,16 @@ Câu hỏi sản phẩm mà mỗi sự kiện trả lời — mỗi sự kiện 
 | `tutorial_step` | Xong một bước tập chơi (F12) | `step` (1–3), `tries` (số lần chạm sai trước khi đúng) | Bước nào nhiều `tries` → bước đó khó hiểu, sửa chữ/hình bước đó. |
 | `tutorial_done` | Xong cả 3 bước tập (F12) | `ms` | Phễu `tutorial_step 1 → tutorial_done → point_start`: phần tập có giữ chân người mới không. |
 | `sound_toggle` | Bấm 🔊/🔇 (F13) | `on` | Bao nhiêu người tắt tiếng → âm thanh có gây phiền không. |
+| `rules_open` | Mở tấm luật Ultimate (F15) | `from` | Bao nhiêu người cần đọc luật trước khi chơi → người chơi có phải dân mới hoàn toàn không. |
 
 **Chỉ số theo dõi ở Round 2:** tỉ lệ `game_open → point_start`; tỉ lệ ghi điểm; số ván / người (`retry_click`);
 tỉ lệ sai và `decide_ms` theo `scenario_id`; tỉ lệ `stall`; trung vị `read_ms`.
 
-> 2026-11-15 · PO thêm phần tập chơi (F12) và âm thanh (F13) → tracking plan thêm 3 sự kiện (8 → 11). Test F11 cập nhật theo plan mới.
+> 2026-11-15 · PO thêm phần tập chơi (F12) và âm thanh (F13) → tracking plan thêm 3 sự kiện (8 → 11); tối cùng ngày thêm tấm luật (F15) → `rules_open` (12). Test F11 cập nhật theo plan mới.
 
 ## Done when
 - [ ] `makeEvent(name, params)` trả `{ name, params }` với `params.t` (ms từ lúc mở trang, số ≥ 0); tên sự kiện không có trong `EVENTS` → ném lỗi; thiếu tham số bắt buộc → ném lỗi.
-- [ ] `EVENTS` có đúng 11 sự kiện: `game_open`, `role_select`, `point_start`, `phase_answer`, `explanation_read`, `point_end`, `retry_click`, `fullscreen_toggle`, `tutorial_step`, `tutorial_done`, `sound_toggle`.
+- [ ] `EVENTS` có đúng 12 sự kiện: `game_open`, `role_select`, `point_start`, `phase_answer`, `explanation_read`, `point_end`, `retry_click`, `fullscreen_toggle`, `tutorial_step`, `tutorial_done`, `sound_toggle`, `rules_open`.
 - [ ] `makeEvent` từ chối tham số tên `name`, `email`, `phone`, `user`, `ip` (ném lỗi) — không thu dữ liệu cá nhân.
 - [ ] `GA_ID` mặc định để trống → trang không tải script nào từ `googletagmanager.com`.
 - [ ] Bot: mở trang → `window.__events` có `game_open`; chọn Cutter → có `role_select` (`role` = `cutter`) rồi `point_start` (`attempt` = 1).
