@@ -72,4 +72,4 @@ Muốn thêm tính năng? Cứ chat ý tưởng mới, rồi `/build` lại.
 
 > **AI nói "xong" chưa phải là xong. Máy chấm 🟢 mới là xong.**
 
-*Muốn xem bên trong harness có gì: đọc `README.md`.*
+*Muốn xem bên trong harness có gì: đọc `HARNESS.md`.*

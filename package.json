@@ -1,8 +1,8 @@
 {
-  "name": "mini-harness-parking-jam",
+  "name": "chay-dau-day",
   "private": true,
   "type": "module",
-  "description": "Mini harness: Wiki + Environment + Verification + Memory, chạy vòng lặp AI build game Parking Jam.",
+  "description": "Chạy Đâu Đây? — game luyện đọc sân Ultimate Frisbee góc nhìn thứ nhất, build bằng mini harness (Wiki + Environment + Verification + Memory).",
   "scripts": {
     "test:auto": "bash test.sh",
     "verify": "bash 3-verification/verify.sh",

@@ -33,3 +33,4 @@
 - 2026-11-15 · build · F11 ✅ passing (Event tracking: đo người chơi làm gì)
 - 2026-11-15 · build · F11 ✅ Event tracking (8 sự kiện qua track(), GA4 sẵn sàng nhưng tắt khi GA_ID trống) — verify xanh lần 2 (lần 1: check F8 chập chờn, xem learned.md)
 - 2026-11-15 · deploy · Game lên open web: https://chuoiuhuhu0727.github.io/chay-dau-day/ (GitHub Pages, nhánh gh-pages = thư mục game/)
+- 2026-11-15 · docs · README.md mới cho đề Apero (pitch, vấn đề, người dùng, kênh launch, doanh thu, tracking plan, workflow AI); README harness cũ đổi tên thành HARNESS.md
