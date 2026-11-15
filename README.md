@@ -107,7 +107,7 @@ bash test.sh                        # a bot plays the game in Chrome and writes 
 bash 3-verification/verify.sh       # the full gate: unit tests + bot run (118 checks); marks features ✅ only when green
 ```
 
-**Deploy:** the site is the `game/` folder. The `gh-pages` branch is a subtree of it:
+**Deploy:** the site is the `game/` folder. The `gh-pages` branch is a subtree of it. First bump the build version (`?v=` in the import map at the bottom of `game/index.html`) and commit; otherwise a returning visitor's browser can mix cached old modules with new ones for up to 10 minutes and the game fails to start:
 
 ```bash
 git branch -D gh-pages; git subtree split --prefix game -b gh-pages

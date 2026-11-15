@@ -346,6 +346,8 @@
     <button id="retry" class="btn pulse" type="button"><img src="./assets/rotate-ccw.svg" width="22" height="22" alt=""> Chơi lại</button>
   </section>
 </main>
-<script type="module" src="./ui.js"></script>
+<!-- Phiên bản build: đổi ?v= mỗi lần deploy để trình duyệt không trộn file cũ (Pages cache 10 phút) với file mới. -->
+<script type="importmap">{"imports": {"./logic.js": "./logic.js?v=202611151149", "./track.js": "./track.js?v=202611151149", "./track-config.js": "./track-config.js?v=202611151149", "./sfx.js": "./sfx.js?v=202611151149"}}</script>
+<script type="module" src="./ui.js?v=202611151149"></script>
 </body>
 </html>
