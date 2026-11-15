@@ -109,5 +109,21 @@
     ],
     "state": "passing",
     "verified_at": "2026-10-30T11:45:38.982Z"
+  },
+  {
+    "id": "F9",
+    "title": "Full màn hình",
+    "page": "1-wiki/features/F9-full-man-hinh.md",
+    "done": [
+      "`focal(cam, view)` = `min(view.w, view.h) / (2·tan(fov/2))` (sai số ≤ 1e-9) với khung 360×480, 390×844, 844×390, 1280×720; khung 360×480 vẫn cho `focal` = 360 / (2·tan 35°).",
+      "Với 4 khung 390×844, 844×390, 1280×720, 360×360: điểm trên cỏ 2.5m ngay trước mặt và điểm 30m ngay trước mặt đều chiếu vào trong khung (0 ≤ sx ≤ w, 0 ≤ sy ≤ h); `unproject` của điểm 2.5m trả lại đúng chỗ (sai số ≤ 0.05m).",
+      "Bot: ở màn chơi trên màn 390×844, `#field` phủ cả cửa sổ (rộng = `innerWidth`, cao = `innerHeight`, sai số ≤ 1px; góc trên trái ở (0, 0)) và trang không cuộn dọc (`scrollHeight` ≤ `innerHeight` + 1).",
+      "Bot: HUD `#score` và thẻ `#prompt` nằm trong khung sân (lớp phủ), không đẩy sân xuống.",
+      "Bot: nút `#fullscreen` hiện ở màn mở đầu và màn chơi, cỡ ≥ 40×40px, có `aria-label`.",
+      "Bot: sau khi chạm, nút `#next` nằm trọn trong cửa sổ (đáy ≤ `innerHeight`) mà không cần cuộn.",
+      "Bot: chạm vào `state().zoneScreen` vẫn chấm \"Đúng\" khi sân phủ cả cửa sổ (F4 không vỡ)."
+    ],
+    "state": "passing",
+    "verified_at": "2026-11-15T02:03:32.370Z"
   }
 ]

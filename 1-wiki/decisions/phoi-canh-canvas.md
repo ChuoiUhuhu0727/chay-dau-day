@@ -8,5 +8,6 @@
 - Người ngoài tầm mắt (sau lưng/hai bên) được vẽ thành chấm màu ở mép khung kèm chữ "N ngoài tầm mắt" —
   nhìn bằng mắt thật thì cutter quay mặt về đĩa sẽ không thấy stack sau lưng; chấm mép giúp người mới nhớ là có người ở đó.
 - Người kèm bạn (F8) đứng trước mặt 2–3m, lệch về phía ngược vùng đúng để không che chỗ cần chạm (bản đầu: chếch sau vai). Vạch mốc 5m / 10m / 15m trên cỏ giúp ước lượng khoảng cách.
-- Khung `#field` vuông 1:1, đường chân trời ở 40% chiều cao (bản đầu 3:4 bị trống nửa dưới).
+- Khung `#field` phủ cả cửa sổ (F9, PO chọn 2026-11-15; trước đó vuông 1:1), đường chân trời ở 40% chiều cao.
+  FOV 70° áp cho **cạnh ngắn**: `focal = min(w, h) / (2·tan 35°)` → màn ngang thấy rộng hơn mà không mất cỏ trước chân; khung 360×480 giữ số cũ.
 - Pha bóng chuyển động (F8, gộp từ F9 cũ): chỉ phần vẽ chạy theo thời gian; chấm điểm vẫn dùng camera đứng yên của tình huống, nên chỉ cho chạm ở pha `decide` (sau 2 giây vào pha). Vị trí theo thời gian là hàm thuần (`introPose`, `runPose`, `discArc`) để test được.

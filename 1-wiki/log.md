@@ -24,3 +24,6 @@
 - 2026-10-30 · build · F9 ✅ passing (Trận đấu chuyển động: bạn chạy, cả sân chạy)
 - 2026-10-30 · /game · gộp F8 (người kèm động) + F9 (trận đấu chuyển động) → F8 Trận đấu sống động (PO chọn)
 - 2026-10-30 · build · F8 ✅ passing (Trận đấu sống động: người kèm bám sát, bạn chạy, cả sân chạy)
+- 2026-11-15 · build · F9 Full màn hình: viết wiki + test + code, thử tay ở 390×844 / 844×390 / desktop qua server Python — chưa verify.sh (máy chưa có Node)
+- 2026-11-15 · ghi lại cho Round 2: đồ hoạ 3D (Three.js + mô hình có bản quyền) — PO muốn, nhưng không kịp hạn 15/11
+- 2026-11-15 · build · F9 ✅ passing (Full màn hình)

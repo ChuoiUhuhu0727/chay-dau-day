@@ -34,8 +34,9 @@ export function toCamera(cam, p) {
   return { z: dx * fx + dy * fy, u: dx * rx + dy * ry };
 }
 
+// F9: FOV áp cho cạnh ngắn của khung — màn ngang thấy rộng hơn mà vẫn thấy cỏ ngay trước chân.
 export function focal(cam, view) {
-  return view.w / 2 / Math.tan(cam.fov / 2);
+  return Math.min(view.w, view.h) / 2 / Math.tan(cam.fov / 2);
 }
 
 export const NEAR = 0.3;
