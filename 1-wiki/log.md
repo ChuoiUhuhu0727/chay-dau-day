@@ -45,3 +45,5 @@
 - 2026-11-15 · build · F15 ✅ passing (Luật Ultimate trong 30 giây + mục tiêu rõ ở màn đầu)
 - 2026-11-15 · build · F16 ✅ passing (Khoảnh khắc highlight: vệt đĩa, vòng đáp, quay chậm, lời tường thuật)
 - 2026-11-15 · build · F15 ✅ luật Ultimate + mục tiêu · F16 ✅ vệt đĩa, vòng đáp, quay chậm, tường thuật · F6/F10 ✅ đổi sang 3 mạng (qua bài ≥ 3/5) · F11 ✅ 12 sự kiện — verify xanh lần 1
+- 2026-11-15 · build · F14 ✅ passing (Đồ hoạ: người đẹp hơn, sân có không khí)
+- 2026-11-15 · build · F14 ✅ đổi cảnh sang ban ngày thoáng đãng (trời xanh sáng, mặt trời, mây trắng, đồi xanh, cỏ tươi) theo raw/idea-6.md — verify xanh

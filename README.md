@@ -58,7 +58,7 @@ All features are specified in [`1-wiki/features/`](1-wiki/features/). Each page 
 | F13 | Game feel ("juice") | Synthesized sound effects (no files) whose pitch rises with your combo, a mute button, particles, flashes, escalating praise ("Hay!" → "Tuyệt!" → "Quá đỉnh!"), the score flying into the HUD, a breaking heart, a 3-2-1 countdown, a ticking last 3 seconds of stall, 1–3 stars and a count-up on the result |
 | F15 | Ultimate rules in 30 seconds | A one-line goal on the start screen and a "📖 Luật Ultimate" sheet: 6 plain lines on how Ultimate works (7 a side, catch in the end zone, the thrower can't run, 10-second stall, turnovers, no contact / self-refereed) |
 | F16 | Highlight moments | Learned from a 3D Ultimate game teaser our team liked: a glowing trail behind the disc, a landing ring on the grass, slow motion and a low "layout dive" camera on the catch, and a commentator line ("Pha 2 · chạy 9m vào chỗ trống, bắt gọn! · COMBO ×2 · +290") |
-| F14 | Graphics | Cartoon sports players (shoes, shorts, shaded jerseys with numbers, hair, varied skin tones) with a running gait; clouds, two layers of tree line, floodlights, horizon haze and a vignette |
+| F14 | Graphics | Cartoon sports players (shoes, shorts, shaded jerseys with numbers, hair, varied skin tones) with a running gait; a bright daytime scene (sun, white clouds, distant hills, a green tree line, floodlight poles, horizon haze). We first drew a dark navy night sky in the club colours; the PO found it "stuffy" next to the teaser our team liked, so the sky is now daytime and the club colours stay in the UI |
 
 The core loop runs end to end: open → 30-second tutorial (first time) → play 5 phases → stars and result → play again. It works on a 375 px phone and on desktop.
 

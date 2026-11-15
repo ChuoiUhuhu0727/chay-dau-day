@@ -16,7 +16,7 @@ const minimap = $('minimap');
 const ROLE_NAME = { handler: 'Người ném', cutter: 'Người chạy', tutorial: 'Tập chơi' }; // F12: tên dễ hiểu
 const C = {
   mate: '#F5A300', opp: '#FFFFFF', ink: '#111111', accent: '#FFC93C', wrong: '#E5484D',
-  grass: '#2E8B3E', stripe: '#37A04D', endzone: '#25733A', rough: '#1F5A2A', line: 'rgba(255,255,255,.92)',
+  grass: '#5CB85A', stripe: '#6AC468', endzone: '#4EA651', rough: '#4E9A4A', line: 'rgba(255,255,255,.92)',
 };
 
 let state = null;
@@ -509,16 +509,16 @@ function drawField() {
 
   // trời: xanh đậm như logo CLB, sáng dần về đường chân trời
   const sky = ctx.createLinearGradient(0, 0, 0, hy);
-  sky.addColorStop(0, '#050A1F');
-  sky.addColorStop(0.6, '#0D3A9E');
-  sky.addColorStop(1, '#2A78F0');
+  sky.addColorStop(0, '#3D9BE9'); // F14: trời ban ngày, thoáng (PO đổi tối 2026-11-15)
+  sky.addColorStop(0.6, '#7DBDF2');
+  sky.addColorStop(1, '#D6EEFF');
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, view.w, hy + 1);
   const scenery = drawSky(ctx, cam, f, hy); // F14: mây, hàng cây 2 lớp
 
   // cỏ ngoài sân
   const rough = ctx.createLinearGradient(0, hy, 0, view.h);
-  rough.addColorStop(0, '#174A22');
+  rough.addColorStop(0, '#8DBF86');
   rough.addColorStop(1, C.rough);
   ctx.fillStyle = rough;
   ctx.fillRect(0, hy, view.w, view.h - hy);
@@ -540,8 +540,8 @@ function drawField() {
   scenery.lights = drawLights(ctx, cam, f); // F14: cột đèn sân
   // F14: sương mờ gần chân trời — xa thì nhạt như mắt thật
   const haze = ctx.createLinearGradient(0, hy, 0, hy + view.h * 0.16);
-  haze.addColorStop(0, 'rgba(140,180,255,.32)');
-  haze.addColorStop(1, 'rgba(140,180,255,0)');
+  haze.addColorStop(0, 'rgba(225,240,255,.55)');
+  haze.addColorStop(1, 'rgba(225,240,255,0)');
   ctx.fillStyle = haze;
   ctx.fillRect(0, hy, view.w, view.h * 0.16);
   drawRings(ctx, cam, scn); // F12: vòng sáng lúc tập
@@ -638,7 +638,7 @@ function drawField() {
   // F13: hạt bắn · F14: viền tối quanh màn để mắt dồn vào giữa
   const vig = ctx.createRadialGradient(view.w / 2, view.h * 0.55, Math.min(view.w, view.h) * 0.35, view.w / 2, view.h * 0.55, Math.max(view.w, view.h) * 0.75);
   vig.addColorStop(0, 'rgba(0,0,20,0)');
-  vig.addColorStop(1, 'rgba(0,0,20,.42)');
+  vig.addColorStop(1, 'rgba(10,30,60,.18)');
   ctx.fillStyle = vig;
   ctx.fillRect(0, 0, view.w, view.h);
   drawFx(ctx);
@@ -965,8 +965,11 @@ function drawOffscreen(ctx, list, holderOff) {
       ctx.stroke();
     });
     const label = `${items.length} ngoài tầm mắt`;
-    ctx.fillStyle = '#FFFFFF';
     ctx.textAlign = side === 'left' ? 'left' : 'right';
+    ctx.strokeStyle = 'rgba(17,17,17,.75)';
+    ctx.lineWidth = 3;
+    ctx.strokeText(label, side === 'left' ? 4 : view.w - 4, bottom - items.length * 15 - 2);
+    ctx.fillStyle = '#FFFFFF';
     ctx.fillText(label, side === 'left' ? 4 : view.w - 4, bottom - items.length * 15 - 2);
   }
 }
@@ -1382,6 +1385,20 @@ function speedOf(key, p) {
 /** Mây trôi chậm + hàng cây 2 lớp ở chân trời (lớp gần trôi nhanh hơn khi bạn chạy → có chiều sâu). */
 function drawSky(ctx, cam, f, hy) {
   const w = view.w;
+  // mặt trời có quầng (cố định một hướng trên trời)
+  const ds = angleDiff(cam.heading, 2.5);
+  if (Math.abs(ds) < 1.2) {
+    const sx = w / 2 + f * Math.tan(ds);
+    const sy = hy * 0.8; // nắng chiều thấp gần chân trời — không bị thẻ chữ phía trên che
+    const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, 120);
+    g.addColorStop(0, 'rgba(255,252,230,.95)');
+    g.addColorStop(0.2, 'rgba(255,246,200,.55)');
+    g.addColorStop(1, 'rgba(255,246,200,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(sx, sy, 120, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#FFFBE6';
+    ctx.beginPath(); ctx.arc(sx, sy, 20, 0, Math.PI * 2); ctx.fill();
+  }
   let clouds = 0;
   for (let i = 0; i < 12; i++) {
     const d = angleDiff(cam.heading, i * (Math.PI / 6) + 0.2 + clock * 0.01);
@@ -1389,10 +1406,13 @@ function drawSky(ctx, cam, f, hy) {
     const x = w / 2 + f * Math.tan(d);
     const cw = 70 + (40 * ((i * 7) % 5)) / 4;
     if (x < -cw || x > w + cw) continue;
-    const y = hy * (0.16 + (0.5 * ((i * 5) % 7)) / 7);
-    ctx.fillStyle = 'rgba(200,220,255,.09)';
-    for (const [ox, oy, rx, ry] of [[0, 0, 1, 0.32], [-0.38, 0.08, 0.55, 0.24], [0.4, 0.06, 0.6, 0.26], [0.08, -0.12, 0.5, 0.3]]) {
-      ctx.beginPath(); ctx.ellipse(x + ox * cw, y + oy * cw, rx * cw * 0.6, ry * cw * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+    const y = hy * (0.42 + (0.4 * ((i * 5) % 7)) / 7); // mây nằm ở khoảng trời còn thấy được dưới các thẻ chữ
+    const puffs = [[0, 0, 1, 0.32], [-0.38, 0.08, 0.55, 0.24], [0.4, 0.06, 0.6, 0.26], [0.08, -0.12, 0.5, 0.3], [-0.15, -0.06, 0.45, 0.28]];
+    for (const [fill, dy] of [['rgba(190,210,232,.95)', 0.06], ['#FFFFFF', 0]]) { // mây trắng bồng bềnh, đáy hơi xám
+      ctx.fillStyle = fill;
+      for (const [ox, oy, rx, ry] of puffs) {
+        ctx.beginPath(); ctx.ellipse(x + ox * cw, y + (oy + dy) * cw, rx * cw * 0.6, ry * cw * 0.6, 0, 0, Math.PI * 2); ctx.fill();
+      }
     }
     clouds++;
   }
@@ -1409,8 +1429,8 @@ function drawSky(ctx, cam, f, hy) {
     ctx.closePath();
     ctx.fill();
   };
-  layer('#16438A', 10, 16, 2, 0, false); // đồi xa, xanh nhạt vì sương
-  layer('#0A2140', 5, 18, 3.2, (cam.x + cam.y) * 0.015, true); // hàng cây gần, tối
+  layer('#A8CAD6', 12, 20, 2, 0, false); // đồi xa, xanh nhạt vì sương
+  layer('#3F8F45', 5, 18, 3.2, (cam.x + cam.y) * 0.015, true); // hàng cây gần, xanh lá
   return { clouds, trees: 2, lights: 0 };
 }
 
@@ -1425,17 +1445,10 @@ function drawLights(ctx, cam, f) {
     const top = project(cam, p, view, 16);
     if (top.sx < -40 || top.sx > view.w + 40) continue;
     const k = f / foot.z;
-    ctx.strokeStyle = '#1B2540';
+    ctx.strokeStyle = '#7D8A9C'; // ban ngày: cột đèn xám, đèn tắt
     ctx.lineWidth = Math.max(1.2, 0.3 * k);
     ctx.beginPath(); ctx.moveTo(foot.sx, foot.sy); ctx.lineTo(top.sx, top.sy); ctx.stroke();
-    const R = Math.max(18, 4 * k);
-    const g = ctx.createRadialGradient(top.sx, top.sy, 0, top.sx, top.sy, R);
-    g.addColorStop(0, 'rgba(255,240,200,.9)');
-    g.addColorStop(0.25, 'rgba(255,214,120,.35)');
-    g.addColorStop(1, 'rgba(255,214,120,0)');
-    ctx.fillStyle = g;
-    ctx.beginPath(); ctx.arc(top.sx, top.sy, R, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#FFF4D0';
+    ctx.fillStyle = '#E6ECF3';
     ctx.fillRect(top.sx - Math.max(2, 0.6 * k), top.sy - Math.max(1.5, 0.3 * k), Math.max(4, 1.2 * k), Math.max(3, 0.6 * k));
     n++;
   }

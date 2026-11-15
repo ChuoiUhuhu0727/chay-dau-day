@@ -56,3 +56,6 @@ Tổng hợp bằng Web Audio, không file: nốt ngắn, sáng (sóng triangle/
 
 ## Người và cảnh (F14)
 Cartoon thể thao: khối tròn, viền đậm `#111`, áo màu rực có đổ bóng; mây mờ, hàng cây 2 lớp xanh đen, cột đèn quầng vàng.
+
+## Cảnh ban ngày (F14, PO đổi tối 2026-11-15)
+Trời `#3D9BE9` → chân trời `#D6EEFF`, mặt trời vàng nhạt có quầng, mây trắng `#FFFFFF` đáy `#DCE8F5`, đồi xa `#9DC3CF`, cây `#3F8F45`/`#2F7A3A`, cỏ `#5CB85A` sọc `#6AC468`, endzone `#4EA651`. Màu CLB chỉ dùng cho UI (HUD, nút, khiên), không dùng cho bầu trời.

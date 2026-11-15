@@ -118,6 +118,12 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F8: trong ≤ 2.5 giây chuyển sang phase = decide', (await S()).phase === 'decide' && introMs <= 2500, `${introMs}ms`);
   check('F13: sang decide thì #countdown ẩn', !(await visible('#countdown')));
   const scen = (await S()).drawn?.scenery;
+  const px = await evaluate(`(() => { const c = document.getElementById('field'); const x = c.getContext('2d');
+    const at = (fx, fy) => { const d = x.getImageData(Math.floor(c.width * fx), Math.floor(c.height * fy), 1, 1).data; return [d[0], d[1], d[2]]; };
+    return { sky: at(0.5, 0.01), grass: at(0.5, 0.97) }; })()`);
+  const lum = (c) => (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255;
+  check('F14: trời ban ngày — điểm trên cùng sáng (> 0.45) và xanh da trời (B > R)', lum(px.sky) > 0.45 && px.sky[2] > px.sky[0], `sky rgb(${px.sky}) sáng ${lum(px.sky).toFixed(2)}`);
+  check('F14: cỏ dưới chân màu xanh lá (G lớn nhất)', px.grass[1] > px.grass[0] && px.grass[1] > px.grass[2], `grass rgb(${px.grass})`);
   check('F14: cảnh có ≥ 2 đám mây, 2 lớp cây, ≥ 1 cột đèn', scen?.clouds >= 2 && scen?.trees >= 2 && scen?.lights >= 1, JSON.stringify(scen));
   const mA = (await S()).live.mates;
   await sleep(300);

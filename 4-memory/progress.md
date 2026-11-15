@@ -68,3 +68,6 @@
 - 2026-11-15 · F11 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F15 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F16 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F14 ⏳ mở lại
+- 2026-11-15 · F14 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F14 ✅ passing (verify.sh xanh)
