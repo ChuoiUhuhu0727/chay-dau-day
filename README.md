@@ -17,7 +17,7 @@
 *Chạy Đâu Đây?* is a mobile web game for new Ultimate Frisbee players. You are standing **on the field, at eye level**.
 The disc is with a handler, a defender is right in front of you and the stall count is ticking.
 You tap the grass where you would run. The game judges your choice right away. It shows the open space you should have
-attacked on a top-down diagram, with one sentence on *why*. Five plays make one point. Two mistakes and it is a turnover.
+attacked on a top-down diagram, with one sentence on *why*. Five plays make one point. Three mistakes and it is a turnover.
 Chain right reads into combos and beat your best score. A 3-minute session before practice teaches what normally takes
 a season of being yelled at to "get open!".
 
@@ -106,7 +106,7 @@ node 2-environment/serve.mjs        # → http://localhost:5173
 ```bash
 node --test game/tests/             # 73 unit tests for the game rules (logic.js, track.js, sfx.js)
 bash test.sh                        # a bot plays the game in Chrome and writes a report with screenshots
-bash 3-verification/verify.sh       # the full gate: unit tests + bot run (127 checks); marks features ✅ only when green
+bash 3-verification/verify.sh       # the full gate: unit tests + bot run (129 checks); marks features ✅ only when green
 ```
 
 **Deploy:** the site is the `game/` folder. The `gh-pages` branch is a subtree of it. First bump the build version (`?v=` in the import map at the bottom of `game/index.html`) and commit; otherwise a returning visitor's browser can mix cached old modules with new ones for up to 10 minutes and the game fails to start:
