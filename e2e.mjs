@@ -36,6 +36,12 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F3: nền body là radial-gradient', bg.includes('radial-gradient'), bg.slice(0, 40));
   const titleFont = await evaluate(`getComputedStyle(document.querySelector('.w-ultimate')).fontFamily`);
   check('F3: font tiêu đề không phải font mặc định (Montserrat)', /montserrat/i.test(titleFont), titleFont);
+  // ---------------- F9 · nút toàn màn hình ở màn mở đầu
+  const fsBtn = async () => evaluate(`(() => { const b = document.getElementById('fullscreen'); if (!b) return null; const r = b.getBoundingClientRect();
+    return { w: r.width, h: r.height, label: b.getAttribute('aria-label') || '' }; })()`);
+  let fb0 = await fsBtn();
+  check('F9: màn mở đầu có nút #fullscreen ≥ 40×40px, có aria-label', !!fb0 && (await visible('#fullscreen')) && fb0.w >= 40 && fb0.h >= 40 && fb0.label.length > 0,
+    fb0 ? `${Math.round(fb0.w)}×${Math.round(fb0.h)}px "${fb0.label}"` : 'không có nút');
   await shot('Màn mở đầu kiểu logo CLB');
 
   const tClick = Date.now();
@@ -70,6 +76,20 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F1: #field là <canvas> và hiện trên màn chơi', isCanvas && (await visible('#field')));
   check('F1: #field rộng ≤ 390px', f.w <= 390, `${Math.round(f.w)}px`);
   check('F1: state().camera có x, y, heading', ['x', 'y', 'heading'].every((k) => typeof s.camera?.[k] === 'number'), JSON.stringify(s.camera));
+
+  // ---------------- F9 · sân phủ cả cửa sổ, chữ nằm đè lên sân
+  const cover = await evaluate(`(() => { const r = document.getElementById('field').getBoundingClientRect();
+    return { x: r.left, y: r.top, w: r.width, h: r.height, iw: innerWidth, ih: innerHeight, sh: document.documentElement.scrollHeight }; })()`);
+  check('F9: #field phủ cả cửa sổ (góc (0,0), rộng = innerWidth, cao = innerHeight, ±1px)',
+    Math.abs(cover.x) <= 1 && Math.abs(cover.y) <= 1 && Math.abs(cover.w - cover.iw) <= 1 && Math.abs(cover.h - cover.ih) <= 1,
+    `(${Math.round(cover.x)},${Math.round(cover.y)}) ${Math.round(cover.w)}×${Math.round(cover.h)} / cửa sổ ${cover.iw}×${cover.ih}`);
+  check('F9: trang không cuộn dọc (scrollHeight ≤ innerHeight + 1)', cover.sh <= cover.ih + 1, `${cover.sh} / ${cover.ih}`);
+  const inside = (sel) => evaluate(`(() => { const a = document.querySelector(${JSON.stringify(sel)}).getBoundingClientRect(); const f = document.getElementById('field').getBoundingClientRect();
+    return a.width > 0 && a.top >= f.top - 1 && a.bottom <= f.bottom + 1 && a.left >= f.left - 1 && a.right <= f.right + 1; })()`);
+  check('F9: HUD #score nằm trong khung sân (lớp phủ)', await inside('#score'));
+  check('F9: thẻ #prompt nằm trong khung sân (lớp phủ)', await inside('#prompt'));
+  const fb1 = await fsBtn();
+  check('F9: màn chơi có nút #fullscreen ≥ 40×40px', !!fb1 && (await visible('#fullscreen')) && fb1.w >= 40 && fb1.h >= 40, fb1 ? `${Math.round(fb1.w)}×${Math.round(fb1.h)}px` : 'không có nút');
 
   // ---------------- F2 · tình huống
   check('F2: #prompt hiện đúng prompt của tình huống', (await text('#prompt')) === s.scenario.prompt, s.scenario.id);
@@ -107,6 +127,7 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(300);
   check('F4: chạm vào vùng đúng → #feedback có chữ "Đúng"', (await text('#feedback')).includes('Đúng'), await text('#feedback'));
   check('F4: chạm đúng → #score tăng 1', Number(await text('#score')) === before + 1, `${before} → ${await text('#score')}`);
+  check('F9: sân phủ cả cửa sổ mà chạm vào zoneScreen vẫn chấm "Đúng"', (await S()).correct === true);
   check('F8: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
   await shot('Chạm đúng — đang chạy tới, đĩa đang bay');
   const runMs = await waitPhase('done', 2500);
@@ -122,6 +143,9 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F5: #explain hiện đúng câu giải thích', (await visible('#explain')) && (await text('#explain')).includes(s.scenario.explain));
   const hn = await height('#next');
   check('F5: nút #next hiện, cao ≥ 44px', (await visible('#next')) && hn >= 44, `${Math.round(hn)}px`);
+  const nb = await evaluate(`(() => ({ b: document.getElementById('next').getBoundingClientRect().bottom, ih: innerHeight, sy: scrollY }))()`);
+  check('F9: nút #next nằm trọn trong cửa sổ, không cần cuộn (đáy ≤ innerHeight)', nb.b <= nb.ih && nb.sy === 0, `đáy ${Math.round(nb.b)} / ${nb.ih}, scrollY ${nb.sy}`);
+  await shot('F9 · tấm đáy đáp án đè lên sân full màn hình');
   await click('#next');
   await sleep(250);
   s = await S();

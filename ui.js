@@ -73,7 +73,7 @@ function renderScenario() {
   $('prompt').textContent = scn.prompt;
   $('feedback').textContent = '';
   $('feedback').className = '';
-  for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = true;
+  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'next']) $(id).hidden = true;
   $('hint').hidden = false;
   $('hint').textContent = '⏳ Đang vào pha bóng…';
   $('next').firstChild.textContent = state.index === state.total - 1 ? 'Xem kết quả ' : 'Tiếp ';
@@ -138,7 +138,7 @@ function onTap(ev) {
   }
   $('hint').hidden = true;
   $('explain').textContent = current(state).explain;
-  for (const id of ['minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
+  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
   answeredAt = clock;
   drawMinimap();
   // F8: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
@@ -228,9 +228,12 @@ function onNext() {
 // ---------------------------------------------------------------- vẽ sân góc nhìn thứ nhất
 
 function setupCanvas(cv, w, h) {
-  const dpr = Math.min(window.devicePixelRatio || 1, 3);
-  cv.width = Math.round(w * dpr);
-  cv.height = Math.round(h * dpr);
+  // F9: khung giờ to bằng cả màn hình → giới hạn dpr 2, và chỉ cấp lại bộ nhớ khi đổi cỡ (không phải mỗi khung hình)
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const W = Math.round(w * dpr);
+  const H = Math.round(h * dpr);
+  if (cv.width !== W) cv.width = W;
+  if (cv.height !== H) cv.height = H;
   const ctx = cv.getContext('2d');
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return ctx;
@@ -269,7 +272,7 @@ function line(ctx, cam, a, b, color, width) {
 function drawField() {
   if (!state) return;
   const w = field.clientWidth || 360;
-  view = { w, h: w };
+  view = { w, h: field.clientHeight || w }; // F9: khung = cả cửa sổ (dọc hoặc ngang)
   const ctx = setupCanvas(field, view.w, view.h);
   const scn = current(state);
   const snap = snapshot(scn);
@@ -778,6 +781,26 @@ $('next').addEventListener('click', (e) => { press(e.currentTarget); onNext(); }
 $('retry').addEventListener('click', (e) => { press(e.currentTarget); state = null; show('start'); });
 field.addEventListener('click', onTap);
 window.addEventListener('resize', () => { if (screen === 'play') { drawField(); if (state?.answered) drawMinimap(); } });
+
+// F9 · nút toàn màn hình (Fullscreen API). Trình duyệt không hỗ trợ (iPhone Safari) → ẩn nút, game vẫn phủ cả cửa sổ.
+const fsBtn = $('fullscreen');
+const root = document.documentElement;
+const fsOn = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+if (!(root.requestFullscreen || root.webkitRequestFullscreen)) fsBtn.hidden = true;
+fsBtn.addEventListener('click', async () => {
+  try {
+    if (fsOn()) await (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else await (root.requestFullscreen || root.webkitRequestFullscreen).call(root, { navigationUI: 'hide' });
+  } catch { /* người dùng hoặc trình duyệt từ chối: giữ nguyên */ }
+});
+const syncFs = () => {
+  const on = fsOn();
+  fsBtn.setAttribute('aria-label', on ? 'Thoát toàn màn hình' : 'Toàn màn hình');
+  fsBtn.title = fsBtn.getAttribute('aria-label');
+  $('fs-icon').setAttribute('d', on ? 'M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5' : 'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5');
+};
+document.addEventListener('fullscreenchange', syncFs);
+document.addEventListener('webkitfullscreenchange', syncFs);
 
 // Hợp đồng với bot test. Đừng xoá.
 window.__game = {

@@ -61,7 +61,11 @@
   .pick { text-align: center; font: 600 15px var(--cond); letter-spacing: .06em; color: var(--accent); margin: 0; text-transform: uppercase; }
 
   /* ---------- màn chơi ---------- */
-  #screen-play { display: flex; flex-direction: column; gap: 10px; animation: rise 300ms ease-out; }
+  /* F9: màn chơi phủ cả cửa sổ — sân là nền, chữ và nút nằm đè lên (lớp phủ) */
+  #screen-play { position: fixed; inset: 0; z-index: 1; background: #0B1E4F; animation: fadeIn 300ms ease-out; }
+  .overlay-top { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; flex-direction: column; gap: 8px;
+                 max-width: 560px; padding: max(10px, env(safe-area-inset-top)) 64px 0 max(12px, env(safe-area-inset-left));
+                 pointer-events: none; }
   .hud { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; background: var(--surface);
          border: 3px solid var(--primary); border-radius: 14px; }
   .hud img { width: 34px; height: 34px; }
@@ -72,30 +76,47 @@
   .card { background: rgba(17,17,17,.82); border-left: 5px solid var(--primary); border-radius: 12px; padding: 10px 12px; }
   #scn-title { margin: 0 0 2px; font: 600 14px var(--cond); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
   #prompt { margin: 0; font: 500 15px/1.4 var(--head); }
-  .stage { position: relative; width: 100%; max-width: 360px; margin: 0 auto; }
-  #field { display: block; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; border: 4px solid var(--surface);
-           outline: 3px solid var(--primary); cursor: crosshair; touch-action: manipulation; background: #0B1E4F; }
+  .stage { position: absolute; inset: 0; overflow: hidden; }
+  #field { position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+           cursor: crosshair; touch-action: manipulation; background: #0B1E4F; }
   #field.shake { animation: shake 360ms ease-out; }
   /* F8: người kèm lao tới → viền đỏ chớp quanh khung (chỉ đổi opacity) */
-  .pressure-ring { position: absolute; inset: 0; border-radius: 16px; pointer-events: none; opacity: 0;
-                   box-shadow: inset 0 0 0 4px var(--wrong), inset 0 0 36px rgba(229,72,77,.55); transition: opacity 160ms ease-out; }
+  .pressure-ring { position: absolute; inset: 0; pointer-events: none; opacity: 0;
+                   box-shadow: inset 0 0 0 6px var(--wrong), inset 0 0 60px rgba(229,72,77,.55); transition: opacity 160ms ease-out; }
   #field.pressure + .pressure-ring { opacity: 1; }
   /* F7: la bàn chỉ endzone đích */
-  .goal { position: absolute; top: 10px; left: 10px; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px;
+  .goal { align-self: flex-start; display: flex; align-items: center; gap: 6px; padding: 4px 10px 4px 6px;
           border-radius: 999px; background: rgba(17,17,17,.82); border: 2px solid var(--primary);
           font: 600 13px var(--cond); letter-spacing: .05em; pointer-events: none; }
   .goal b { color: var(--primary); font-weight: 600; }
   #goal-arrow { color: var(--accent); transition: transform 200ms ease-out; }
-  .hint { position: absolute; left: 50%; bottom: 12px; transform: translateX(-50%); padding: 4px 12px; border-radius: 999px;
+  .hint { position: absolute; z-index: 2; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%); padding: 4px 12px; border-radius: 999px;
           background: rgba(17,17,17,.75); font: 600 13px var(--cond); letter-spacing: .05em; white-space: nowrap; pointer-events: none; }
   .ripple { position: absolute; width: 44px; height: 44px; margin: -22px 0 0 -22px; border: 3px solid #fff; border-radius: 50%;
             pointer-events: none; animation: ripple 350ms ease-out forwards; }
   .float { position: absolute; font: 900 28px var(--head); color: var(--accent); text-shadow: 0 2px 0 var(--surface);
            pointer-events: none; animation: floatUp 800ms ease-out forwards; }
-  #feedback { margin: 0; text-align: center; font: 900 22px var(--head); text-transform: uppercase; min-height: 0; }
+  /* F9: chữ chấm điểm to giữa sân, kiểu game */
+  #feedback { position: absolute; z-index: 2; left: 0; right: 0; top: 36%; margin: 0; padding: 0 16px; text-align: center;
+              font: 900 26px/1.15 var(--head); text-transform: uppercase; pointer-events: none;
+              text-shadow: 0 3px 0 var(--surface), 0 0 18px rgba(0,0,0,.6); }
   #feedback.ok { color: var(--accent); animation: pop 300ms ease-out; }
   #feedback.no { color: var(--wrong); animation: shake 360ms ease-out; }
-  .answer { display: flex; flex-direction: column; gap: 10px; }
+  /* F9: tấm đáy (bottom sheet) đáp án trượt lên, nút Tiếp luôn nằm trong màn */
+  .answer { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 520px; max-height: 62%;
+            display: flex; flex-direction: column; gap: 10px;
+            padding: 12px max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+            background: rgba(5,10,31,.9); border-top: 3px solid var(--primary); border-radius: 18px 18px 0 0;
+            box-shadow: 0 -8px 30px rgba(0,0,0,.45); animation: sheetUp 280ms ease-out; }
+  .answer-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+  .answer #next { flex: none; }
+  /* F9: nút toàn màn hình — góc trên phải, ở mọi màn */
+  #fullscreen { position: fixed; z-index: 10; top: max(10px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right));
+                width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border-radius: 12px;
+                border: 2px solid var(--primary); background: rgba(17,17,17,.82); color: var(--accent); cursor: pointer;
+                transition: transform 120ms ease-out; }
+  #fullscreen:active { transform: scale(.92); }
+  #fullscreen svg { width: 24px; height: 24px; }
   #minimap { display: block; width: 100%; aspect-ratio: 100 / 37; border-radius: 10px; border: 3px solid var(--primary);
              background: #0B1E4F; animation: rise 300ms ease-out; }
   #explain { margin: 0; animation: rise 350ms ease-out; }
@@ -112,6 +133,16 @@
   .sub { margin: 8px 0 0; font: 500 14px var(--head); color: #D9E4FF; }
   .confetti { position: fixed; top: -40px; font-size: 26px; pointer-events: none; animation: fall linear forwards; }
 
+  /* F9: màn ngang thấp (điện thoại xoay ngang) — dồn lớp phủ sang trái cho giữa sân thoáng */
+  @media (orientation: landscape) and (max-height: 520px) {
+    .overlay-top { gap: 6px; }
+    .overlay-top .card { max-width: 360px; padding: 6px 10px; }
+    #prompt { font-size: 13px; line-height: 1.35; }
+    .answer { max-height: calc(100% - 64px); max-width: 440px; margin: 0 max(12px, env(safe-area-inset-right)) 0 auto; }
+    #feedback { right: min(470px, 55%); top: 56%; font-size: 22px; }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes sheetUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
   @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
   @keyframes grow { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
   @keyframes pop { 0% { transform: scale(.6); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
@@ -124,6 +155,12 @@
 </style>
 </head>
 <body>
+<!-- F9 · nút toàn màn hình (ẩn nếu trình duyệt không hỗ trợ) -->
+<button id="fullscreen" type="button" aria-label="Toàn màn hình" title="Toàn màn hình">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path id="fs-icon" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
+  </svg>
+</button>
 <main>
   <!-- F3 · Màn mở đầu -->
   <section id="screen-start">
@@ -147,36 +184,41 @@
 
   <!-- F1, F2, F4, F5 · Màn chơi -->
   <section id="screen-play" hidden>
-    <div class="hud">
-      <img src="./assets/bee.svg" width="34" height="34" alt="">
-      <span id="role-label">Cutter</span>
-      <span class="pill">Tình huống <span id="progress">1/5</span></span>
-      <span class="pill">⭐ <span id="score">0</span></span>
-    </div>
-    <div class="card">
-      <p id="scn-title"></p>
-      <p id="prompt"></p>
-    </div>
     <div class="stage" id="stage">
       <canvas id="field" aria-label="Sân nhìn từ mắt bạn — chạm vào chỗ bạn sẽ chạy tới"></canvas>
       <div class="pressure-ring" aria-hidden="true"></div>
-      <div id="goal" class="goal" title="Hướng tới endzone đối thủ — nơi ghi điểm">
-        <svg id="goal-arrow" data-deg="0" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 L20 20 L12 15 L4 20 Z" fill="currentColor" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/></svg>
-        <span><b>ENDZONE</b> · <span id="goal-dist">0</span>m</span>
+      <!-- F9: lớp phủ trên sân -->
+      <div class="overlay-top">
+        <div class="hud">
+          <img src="./assets/bee.svg" width="34" height="34" alt="">
+          <span id="role-label">Cutter</span>
+          <span class="pill">Tình huống <span id="progress">1/5</span></span>
+          <span class="pill">⭐ <span id="score">0</span></span>
+        </div>
+        <div class="card">
+          <p id="scn-title"></p>
+          <p id="prompt"></p>
+        </div>
+        <div id="goal" class="goal" title="Hướng tới endzone đối thủ — nơi ghi điểm">
+          <svg id="goal-arrow" data-deg="0" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M12 2 L20 20 L12 15 L4 20 Z" fill="currentColor" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          <span><b>ENDZONE</b> · <span id="goal-dist">0</span>m</span>
+        </div>
       </div>
       <span class="hint" id="hint">👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới</span>
-    </div>
-    <p id="feedback"></p>
-    <div class="answer">
-      <canvas id="minimap" hidden aria-label="Sơ đồ sân nhìn từ trên xuống"></canvas>
-      <div class="legend" id="legend" hidden>
-        <span><i class="dot" style="background:var(--primary)"></i>Đồng đội</span>
-        <span><i class="dot" style="background:#fff"></i>Đối thủ</span>
-        <span><i class="dot" style="background:var(--accent);border-color:#fff"></i>Bạn</span>
-        <span>◯ vùng đúng · ✕ chỗ bạn chạm</span>
+      <p id="feedback"></p>
+      <div class="answer" id="sheet" hidden>
+        <div class="answer-body">
+          <p id="explain" class="card" hidden></p>
+          <canvas id="minimap" hidden aria-label="Sơ đồ sân nhìn từ trên xuống"></canvas>
+          <div class="legend" id="legend" hidden>
+            <span><i class="dot" style="background:var(--primary)"></i>Đồng đội</span>
+            <span><i class="dot" style="background:#fff"></i>Đối thủ</span>
+            <span><i class="dot" style="background:var(--accent);border-color:#fff"></i>Bạn</span>
+            <span>◯ vùng đúng · ✕ chỗ bạn chạm</span>
+          </div>
+        </div>
+        <button id="next" class="btn" type="button" hidden>Tiếp <img src="./assets/arrow-right.svg" width="22" height="22" alt=""></button>
       </div>
-      <p id="explain" class="card" hidden></p>
-      <button id="next" class="btn" type="button" hidden>Tiếp <img src="./assets/arrow-right.svg" width="22" height="22" alt=""></button>
     </div>
   </section>
 
