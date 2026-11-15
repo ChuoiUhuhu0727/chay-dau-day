@@ -3,7 +3,7 @@
 **Learn to read an Ultimate Frisbee field from your own eyes, one point at a time.**
 
 ▶ **Play now (mobile or desktop):** https://chuoiuhuhu0727.github.io/chay-dau-day/
-🎬 **Demo video (2–3 min):** _TODO — paste the YouTube / Drive link here_
+🎬 **Demo video (2–3 min):** https://youtu.be/HciYSE2mA_4
 
 <p>
   <img src="docs/screens/1-start.png" width="190" alt="Start screen in Fulbright Ultimate Club style, choose Handler or Cutter">
