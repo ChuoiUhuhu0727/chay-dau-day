@@ -2,6 +2,8 @@
 
 **F9 — full màn hình:** `#field` phủ cả cửa sổ (dọc hoặc ngang); mọi thứ khác là lớp phủ đè lên sân. Nút ⛶ `#fullscreen` góc trên phải (mọi màn).
 
+**F10 — point liên tục:** HUD có mạng `#lives` (❤️/🖤); dưới HUD là thanh 5 pha `#track`, `Pha 2/5`, điểm trận `#points`. Ở pha `decide` hiện `#stall` "Stall N" giữa đáy (đỏ từ 7).
+
 Từ trên xuống (màn 375px):
 1. HUD: vai (`#role-label`) · tình huống `#progress` ("2/5") · điểm `#score`.
 2. `#prompt` — mô tả tình huống (1–2 câu).
@@ -17,4 +19,4 @@ Từ trên xuống (màn 375px):
 Hợp đồng bot: `window.__game.state()` có `role, index, score, answered, camera, zoneScreen {x,y}` (pixel CSS trong `#field`), `goal {distance, bearing}`, `marker {sx}`, `animating`,
 `drawn.players`. Bot click thẳng toạ độ trên `#field`.
 
-Tính năng: [F1](../features/F1-san-goc-nhin.md) · [F2](../features/F2-tinh-huong.md) · [F4](../features/F4-cham-cham-diem.md) · [F5](../features/F5-dap-an.md) · [F7](../features/F7-endzone-dich.md) · [F8](../features/F8-tran-dau-song-dong.md) · [F9](../features/F9-full-man-hinh.md)
+Tính năng: [F1](../features/F1-san-goc-nhin.md) · [F2](../features/F2-tinh-huong.md) · [F4](../features/F4-cham-cham-diem.md) · [F5](../features/F5-dap-an.md) · [F7](../features/F7-endzone-dich.md) · [F8](../features/F8-tran-dau-song-dong.md) · [F9](../features/F9-full-man-hinh.md) · [F10](../features/F10-point-lien-tuc.md)

@@ -3,6 +3,7 @@ import {
   FIELD, ZONE_R, startLesson, current, cameraOf, project, unproject, toCamera, focal, clipProject,
   answer, next, isFinished, passed, toMinimap, HORIZON, goalInfo, markerPose, GOAL,
   INTRO, EYE, introPose, runPose, runDuration, discArc,
+  LIVES, STALL, stallCount, stallOut,
 } from './logic.js';
 
 const $ = (id) => document.getElementById(id);
@@ -28,6 +29,8 @@ let phase = 'intro';
 let phaseStart = 0;
 let run = null;
 let live = null; // vị trí đang vẽ ở khung hình gần nhất (cho bot đọc)
+let decideAt = 0; // F10: lúc bắt đầu đếm stall
+let stallNow = 0;
 const HINT_TAP = '👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới';
 const beeImg = new Image();
 beeImg.src = './assets/bee.svg';
@@ -48,6 +51,7 @@ function startLoop() {
   const tick = () => {
     clock = now();
     drawField();
+    tickStall();
     loopId = requestAnimationFrame(tick);
   };
   loopId = requestAnimationFrame(tick);
@@ -69,6 +73,9 @@ function renderScenario() {
   const scn = current(state);
   $('progress').textContent = `${state.index + 1}/${state.total}`;
   $('score').textContent = state.score;
+  renderPoint();
+  $('stall').hidden = true;
+  stallNow = 0;
   $('scn-title').textContent = scn.title;
   $('prompt').textContent = scn.prompt;
   $('feedback').textContent = '';
@@ -76,7 +83,6 @@ function renderScenario() {
   for (const id of ['sheet', 'minimap', 'legend', 'explain', 'next']) $(id).hidden = true;
   $('hint').hidden = false;
   $('hint').textContent = '⏳ Đang vào pha bóng…';
-  $('next').firstChild.textContent = state.index === state.total - 1 ? 'Xem kết quả ' : 'Tiếp ';
   phase = 'intro';
   phaseStart = clock = now();
   run = null;
@@ -95,15 +101,30 @@ function updateGoal(cam) {
   if ($('goal-dist').textContent !== String(g.distance)) $('goal-dist').textContent = g.distance;
 }
 
+/** Kỷ lục mỗi vai, lưu trong máy. Trình duyệt chặn lưu trữ thì vẫn chạy, chỉ không nhớ. */
+function saveBest(role, points) {
+  const key = `cdd-best-${role}`;
+  let old = 0;
+  try { old = Number(localStorage.getItem(key)) || 0; } catch { /* không đọc được */ }
+  const isNew = points > old;
+  if (isNew) { try { localStorage.setItem(key, String(points)); } catch { /* không ghi được */ } }
+  return { value: Math.max(old, points), isNew };
+}
+
 function showResult() {
   const ok = passed(state);
   $('result-role').textContent = `Bài ${ROLE_NAME[state.role]} · vertical stack`;
   $('final-score').textContent = `${state.score}/${state.total}`;
-  $('verdict').textContent = ok ? 'Qua bài! 🐝' : 'Chưa qua — thử lại nhé';
+  $('final-points').textContent = `${state.points.toLocaleString('vi-VN')} điểm`;
+  const best = saveBest(state.role, state.points);
+  const isNew = best.isNew && state.points > 0;
+  $('best').textContent = isNew ? '🏆 Kỷ lục mới!' : `Kỷ lục: ${best.value.toLocaleString('vi-VN')}`;
+  $('best').className = isNew ? 'best new' : 'best';
+  $('verdict').textContent = ok ? 'Ghi điểm! Qua bài 🐝' : 'Turnover — Chưa qua';
   $('verdict').className = ok ? 'win' : '';
   $('verdict-sub').textContent = ok
-    ? 'Bạn đọc sân tốt rồi. Ra sân tập thử nhé!'
-    : `Cần đúng ít nhất 4/${state.total}. Xem lại sơ đồ đáp án rồi chơi lại.`;
+    ? 'Cả đội đưa đĩa vào endzone. Chơi lại để phá kỷ lục nhé!'
+    : `Mất đĩa ${LIVES} lần là turnover. Xem lại sơ đồ đáp án rồi thử lại.`;
   show('result');
   if (ok) confetti();
 }
@@ -122,25 +143,26 @@ function onTap(ev) {
     $('hint').textContent = '👇 Chạm thấp hơn — vào mặt cỏ nhé';
     return;
   }
-  state = answer(state, point);
+  const before = state.points;
+  state = answer(state, point, stallNow);
   const fb = $('feedback');
+  const x = ev.clientX - rect.left;
+  const y = ev.clientY - rect.top;
   if (state.correct) {
-    fb.textContent = 'Đúng! +1';
+    const gain = state.points - before;
+    fb.textContent = `Đúng! +${gain}`;
     fb.className = 'ok';
-    floatText('+1', ev.clientX - rect.left, ev.clientY - rect.top);
+    floatText(`+${gain}`, x, y);
+    if (state.combo >= 2) floatText(`COMBO ×${Math.min(state.combo, 3)}`, x, y - 34, 'combo');
     const sc = $('score');
     sc.textContent = state.score;
     sc.classList.remove('bump'); void sc.offsetWidth; sc.classList.add('bump');
   } else {
-    fb.textContent = 'Chưa đúng';
+    fb.textContent = 'Chưa đúng — mất đĩa!';
     fb.className = 'no';
     field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake');
   }
-  $('hint').hidden = true;
-  $('explain').textContent = current(state).explain;
-  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
-  answeredAt = clock;
-  drawMinimap();
+  reveal();
   // F8: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
   const scn = current(state);
   const d = Math.hypot(point.x - scn.me.x, point.y - scn.me.y);
@@ -160,7 +182,7 @@ function finishRun() {
   if (state.correct && !run.caught) {
     run.caught = true;
     const fb = $('feedback');
-    fb.textContent = 'Đúng! +1 · Bắt được đĩa!';
+    fb.textContent = `${fb.textContent.split(' · ')[0]} · Bắt được đĩa!`;
     fb.classList.remove('ok'); void fb.offsetWidth; fb.classList.add('ok');
   }
 }
@@ -185,7 +207,7 @@ function snapshot(scn) {
     opps = p.opps;
     disc = { ...p.disc, h: discArc(p.discU), held: p.u >= 1 };
     moving = p.u < 1;
-    if (p.u >= 1) { phase = 'decide'; $('hint').textContent = HINT_TAP; }
+    if (p.u >= 1) { phase = 'decide'; decideAt = clock; $('hint').textContent = HINT_TAP; }
   } else {
     // cả sân vẫn sống khi bạn đang nghĩ: đồng đội nhún, nhích; người cầm đĩa xoay người giả động tác
     mates = scn.teammates.map((p, i) => i === 0
@@ -218,10 +240,70 @@ function snapshot(scn) {
   return { cam, mates, opps, disc, shift };
 }
 
+/** Hiện đáp án sau khi chấm (chạm hoặc hết stall): tấm đáy, sơ đồ, giải thích, mạng/điểm. */
+function reveal() {
+  $('hint').hidden = true;
+  $('stall').hidden = true;
+  $('explain').textContent = current(state).explain;
+  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'next']) $(id).hidden = false;
+  $('next').firstChild.textContent = isFinished(state) ? 'Xem kết quả ' : 'Tiếp ';
+  answeredAt = clock;
+  renderPoint();
+  if (!state.correct) { const l = $('lives'); l.classList.remove('hit'); void l.offsetWidth; l.classList.add('hit'); }
+  drawMinimap();
+}
+
+/** F10 · mạng, thanh 5 pha, điểm trận. */
+function renderPoint() {
+  $('lives').textContent = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, LIVES - state.lives));
+  const pts = $('points');
+  if (pts.textContent !== String(state.points)) {
+    pts.textContent = state.points;
+    const wrap = pts.parentElement;
+    wrap.classList.remove('bump'); void wrap.offsetWidth; wrap.classList.add('bump');
+  }
+  const track = $('track');
+  if (track.children.length !== state.total) track.innerHTML = '<i></i>'.repeat(state.total);
+  [...track.children].forEach((seg, i) => {
+    seg.className = i < state.index ? (state.results?.[i] ? 'ok' : 'no')
+      : i === state.index ? (state.answered ? (state.correct ? 'ok' : 'no') : 'now') : '';
+  });
+}
+
+/** F10 · đếm stall ở pha decide; tới 10 mà chưa chạm → mất đĩa. */
+function tickStall() {
+  if (!state || state.answered || phase !== 'decide') return;
+  const t = clock - decideAt;
+  if (t >= STALL) return onStallOut();
+  const n = stallCount(t);
+  const box = $('stall');
+  box.hidden = false;
+  if (n !== stallNow) {
+    stallNow = n;
+    const b = $('stall-n');
+    b.textContent = n;
+    b.classList.remove('tick'); void b.offsetWidth; b.classList.add('tick');
+    box.classList.toggle('hot', n >= 7);
+  }
+}
+
+function onStallOut() {
+  state = stallOut(state);
+  stallNow = STALL;
+  const fb = $('feedback');
+  fb.textContent = 'Stall 10 — mất đĩa!';
+  fb.className = 'no';
+  field.classList.remove('shake'); void field.offsetWidth; field.classList.add('shake');
+  phase = 'done';
+  run = null;
+  reveal();
+}
+
 function onNext() {
   if (!state || !state.answered) return;
   if (isFinished(state)) return showResult();
-  state = next(state);
+  const results = [...(state.results || []), state.correct];
+  state = { ...next(state), results };
   renderScenario();
 }
 
@@ -745,9 +827,9 @@ function ripple(x, y) {
   setTimeout(() => r.remove(), 400);
 }
 
-function floatText(text, x, y) {
+function floatText(text, x, y, extra = '') {
   const el = document.createElement('span');
-  el.className = 'float';
+  el.className = `float ${extra}`.trim();
   el.textContent = text;
   el.style.left = `${x}px`;
   el.style.top = `${y - 30}px`;
@@ -822,6 +904,7 @@ window.__game = {
       marker: markerScreen ? { sx: markerScreen.sx * k, sy: markerScreen.sy * k } : null,
       animating: loopId !== 0,
       phase,
+      stall: stallNow,
       live,
       drawn,
     };

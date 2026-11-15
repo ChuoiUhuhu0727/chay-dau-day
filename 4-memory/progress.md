@@ -36,3 +36,9 @@
 - 2026-10-30 · F8 ✅ passing (verify.sh xanh)
 - 2026-11-15 · F9 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
 - 2026-11-15 · F9 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F6 ⏳ mở lại
+- 2026-11-15 · F6 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F10 🟡 claimed (Model báo đã làm) — chờ verify.sh chứng minh
+- 2026-11-15 · F10 point liên tục (mạng, stall, combo) xong code; F6 đổi luật theo F10 — chờ verify
+- 2026-11-15 · F6 ✅ passing (verify.sh xanh)
+- 2026-11-15 · F10 ✅ passing (verify.sh xanh)

@@ -27,3 +27,6 @@
 - 2026-11-15 · build · F9 Full màn hình: viết wiki + test + code, thử tay ở 390×844 / 844×390 / desktop qua server Python — chưa verify.sh (máy chưa có Node)
 - 2026-11-15 · ghi lại cho Round 2: đồ hoạ 3D (Three.js + mô hình có bản quyền) — PO muốn, nhưng không kịp hạn 15/11
 - 2026-11-15 · build · F9 ✅ passing (Full màn hình)
+- 2026-11-15 · build · F6 ✅ passing (Kết thúc bài: X/5, qua bài, chơi lại)
+- 2026-11-15 · build · F10 ✅ passing (Một point liên tục: mạng, đếm stall, combo)
+- 2026-11-15 · build · F10 ✅ Point liên tục (2 mạng, đếm stall 10, combo, kỷ lục) · F6 đổi luật kết thúc theo F10 (ngưỡng qua bài vẫn ≥ 4/5) — verify xanh lần 2 (lần 1: chữ "chưa qua" viết thường)

@@ -7,3 +7,6 @@
 - Câu hỏi cho PO: "endgoal" mình hiểu là endzone đối thủ (nơi ghi điểm) → tô vàng + la bàn chỉ hướng. Nếu ý vịt là "chỗ cần chạy tới" thì vùng đó vẫn phải ẩn tới khi chạm (không thì lộ đáp án) — đúng không?
 - Câu hỏi cho PO: Muốn áp lực hơn nữa thì thêm đồng hồ đếm stall (10 giây phải chạm) không? Bản này chưa có để người mới không bị quá tải.
 - Câu hỏi cho PO: Pha "vào trận" dài 2 giây và không cho chạm lúc đó — muốn ngắn hơn, hay cho chạm luôn (khó hơn, áp lực hơn)?
+- Câu hỏi cho PO (F10, 2026-11-15): Mình chọn **2 mạng** (sai 2 lần = turnover) để ngưỡng qua bài vẫn là ≥ 4/5 như cũ. Muốn 3 mạng cho dễ thở hơn với người mới không?
+- Câu hỏi cho PO (F10): Đã thêm đếm stall 10 giây (trả lời câu hỏi stall ở trên) — người mới có bị áp lực quá không? Có thể đổi `STALL` thành 15.
+- Câu hỏi cho PO (F10): Công thức điểm `100 × combo (tối đa ×3) + 10 × (10 − stall)` — có muốn thưởng thêm khi Ghi điểm (ví dụ +500)?
