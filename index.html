@@ -44,12 +44,12 @@
 
   /* ---------- màn mở đầu ---------- */
   #screen-start { display: flex; flex-direction: column; align-items: center; gap: 16px; animation: rise 400ms ease-out; }
-  #logo { width: 132px; height: 132px; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary);
+  #logo { width: 104px; height: 104px; animation: bob 2.4s ease-in-out infinite; border-radius: 50%; object-fit: cover; border: 4px solid var(--primary);
           box-shadow: 0 0 0 4px var(--surface), 0 12px 32px rgba(0,0,0,.5); }
   .crest { position: relative; width: 100%; padding: 6px; background: var(--primary);
            clip-path: polygon(0 0, 100% 0, 100% 74%, 50% 100%, 0 74%); }
   .crest-inner { background: var(--surface); clip-path: polygon(0 0, 100% 0, 100% 74%, 50% 100%, 0 74%);
-                 padding: 22px 16px 64px; text-align: center; }
+                 padding: 18px 16px 54px; text-align: center; }
   .w-fulbright { font: 900 30px/1 var(--head); letter-spacing: .01em; }
   .w-ultimate { margin: 6px -22px 4px; padding: 6px 0; background: var(--surface);
                 font: 900 50px/1 var(--head); letter-spacing: -.01em; color: var(--ink);
@@ -58,6 +58,14 @@
   .tagline { margin: 14px 0 0; font: 500 14px/1.4 var(--head); color: #D9E4FF; }
   .tagline b { color: var(--accent); }
   .roles { width: 100%; display: grid; gap: 14px; }
+  /* F12: nút chính to + nút vai phụ */
+  .btn-play { position: relative; min-height: 66px; font-size: 22px; }
+  .btn-play::after { content: ''; position: absolute; inset: -7px; border-radius: 17px; pointer-events: none;
+                     box-shadow: 0 0 26px 6px rgba(255,201,60,.75); opacity: 0; animation: glow 1.8s ease-in-out infinite; }
+  .btn-ghost { min-height: 44px; background: transparent; color: var(--accent); border: 2px solid var(--accent); box-shadow: none; font-size: 15px; }
+  .btn-alt { background: var(--surface); color: var(--ink); border-color: var(--primary); box-shadow: 0 5px 0 var(--primary); font-size: 15px; padding: 8px 6px; }
+  .btn-alt small { color: #C9D6F5; font-size: 12px; }
+  .roles-2 { grid-template-columns: 1fr 1fr; gap: 10px; }
   .pick { text-align: center; font: 600 15px var(--cond); letter-spacing: .06em; color: var(--accent); margin: 0; text-transform: uppercase; }
 
   /* ---------- màn chơi ---------- */
@@ -69,6 +77,13 @@
   .hud { display: flex; align-items: center; gap: 8px; padding: 6px 8px 6px 6px; background: var(--surface);
          border: 3px solid var(--primary); border-radius: 14px; }
   .hud img { width: 34px; height: 34px; }
+  /* F12: nút về màn chính trong HUD (HUD không nhận chạm, riêng nút thì có) */
+  .icon-btn { pointer-events: auto; flex: none; width: 40px; height: 40px; display: grid; place-items: center; padding: 0;
+              border: 2px solid var(--primary); border-radius: 10px; background: #1E2A4A; color: var(--accent); cursor: pointer; }
+  .icon-btn svg { width: 22px; height: 22px; }
+  #screen-play.tut #lives, #screen-play.tut .strip, #screen-play.tut #goal, #screen-play.tut .score-pill { display: none; }
+  .term { margin: 0; font: 600 13px var(--cond); letter-spacing: .03em; color: #C9D6F5; }
+  .term b { color: var(--accent); font-weight: 600; }
   #role-label { flex: 1; font: 600 17px var(--cond); letter-spacing: .05em; text-transform: uppercase; color: var(--primary); }
   .pill { font: 600 15px var(--cond); padding: 2px 10px; border-radius: 999px; background: #1E2A4A; }
   #score { display: inline-block; font: 900 22px var(--head); color: var(--accent); min-width: 22px; text-align: center; }
@@ -140,6 +155,35 @@
                 transition: transform 120ms ease-out; }
   #fullscreen:active { transform: scale(.92); }
   #fullscreen svg { width: 24px; height: 24px; }
+  /* F13: nút âm thanh ngay dưới nút toàn màn hình */
+  #sound { position: fixed; z-index: 10; top: calc(max(10px, env(safe-area-inset-top)) + 52px); right: max(12px, env(safe-area-inset-right));
+           width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border-radius: 12px; font-size: 20px;
+           border: 2px solid var(--primary); background: rgba(17,17,17,.82); cursor: pointer; transition: transform 120ms ease-out; }
+  #sound:active { transform: scale(.92); }
+  /* F13: juice */
+  #flash { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; }
+  #flash.ok { background: #FFF6D6; animation: flash 260ms ease-out; }
+  #flash.no { background: var(--wrong); animation: flash 320ms ease-out; }
+  .hurry-ring { position: absolute; inset: 0; z-index: 1; pointer-events: none; opacity: 0;
+                box-shadow: inset 0 0 0 5px var(--wrong), inset 0 0 90px rgba(229,72,77,.6); }
+  #stage.hurry .hurry-ring { animation: breath 520ms ease-in-out infinite alternate; }
+  #stage.hurry .stall b { transform: scale(1.35); }
+  #stage.punch #field { animation: punch 240ms ease-out; }
+  .callout { position: absolute; z-index: 3; left: 50%; top: 45%; pointer-events: none; white-space: nowrap;
+             font: 900 36px var(--head); color: var(--accent); text-transform: uppercase;
+             text-shadow: 0 4px 0 var(--surface), 0 0 24px rgba(245,163,0,.7); animation: callout 1000ms ease-out forwards; }
+  .callout.go { color: #fff; font-size: 44px; }
+  #countdown { position: absolute; z-index: 2; left: 50%; top: 44%; pointer-events: none; transform: translate(-50%, -50%);
+               font: 900 84px/1 var(--head); color: #fff; text-shadow: 0 6px 0 var(--surface), 0 0 30px rgba(0,0,0,.5); }
+  #countdown.tickin { animation: count 600ms ease-out; }
+  #hand { position: absolute; z-index: 2; font-size: 46px; pointer-events: none; transform: translate(-30%, 0); animation: point 900ms ease-in-out infinite; }
+  .fly { position: absolute; z-index: 4; pointer-events: none; font: 900 30px var(--head); color: var(--accent);
+         text-shadow: 0 3px 0 var(--surface); transform: translate(-50%, -50%); }
+  .heart-break { position: fixed; z-index: 4; font-size: 26px; pointer-events: none; animation: heartOff 900ms ease-in forwards; }
+  .stars { display: flex; justify-content: center; gap: 6px; margin: 2px 0 4px; }
+  .star { font-size: 46px; line-height: 1; color: #2A355A; text-shadow: 0 3px 0 #000; }
+  .star.on { color: var(--accent); animation: starPop 420ms cubic-bezier(.3,1.6,.5,1); }
+  .btn.pulse { animation: nudge 1.4s ease-in-out 1.2s infinite; }
   #minimap { display: block; width: 100%; aspect-ratio: 100 / 37; border-radius: 10px; border: 3px solid var(--primary);
              background: #0B1E4F; animation: rise 300ms ease-out; }
   #explain { margin: 0; animation: rise 350ms ease-out; }
@@ -147,7 +191,8 @@
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; border: 2px solid var(--surface); }
 
   /* ---------- màn kết quả ---------- */
-  #screen-result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 52px; }
+  #screen-result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 108px; }
+  #screen-result .crest-inner { padding-bottom: 78px; }
   #screen-result .crest { animation: grow 450ms ease-out; }
   .result-label { font: 600 18px var(--cond); letter-spacing: .1em; color: var(--primary); text-transform: uppercase; }
   #final-score { font: 900 88px/1 var(--head); text-shadow: 0 6px 0 var(--primary); }
@@ -164,6 +209,18 @@
     .answer { max-height: calc(100% - 64px); max-width: 440px; margin: 0 max(12px, env(safe-area-inset-right)) 0 auto; }
     #feedback { right: min(470px, 55%); top: 56%; font-size: 22px; }
   }
+  @keyframes glow { 50% { opacity: 1; } }
+  @keyframes bob { 50% { transform: translateY(-6px) rotate(-2deg); } }
+  @keyframes flash { from { opacity: .55; } to { opacity: 0; } }
+  @keyframes breath { from { opacity: .25; } to { opacity: 1; } }
+  @keyframes punch { 0% { transform: scale(1); } 35% { transform: scale(1.035); } 100% { transform: scale(1); } }
+  @keyframes callout { 0% { opacity: 0; transform: translate(-50%, 10px) scale(.4); } 18% { opacity: 1; transform: translate(-50%, 0) scale(1.18); }
+                       30% { transform: translate(-50%, 0) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -40px) scale(1); } }
+  @keyframes count { from { opacity: .2; transform: translate(-50%, -50%) scale(1.8); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+  @keyframes point { 50% { transform: translate(-30%, 12px); } }
+  @keyframes heartOff { 0% { transform: scale(1.4); } 100% { transform: translate(14px, 80px) rotate(40deg); opacity: 0; } }
+  @keyframes starPop { 0% { transform: scale(0) rotate(-40deg); } 100% { transform: scale(1) rotate(0); } }
+  @keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
   @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
   @keyframes sheetUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
   @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
@@ -174,7 +231,12 @@
   @keyframes ripple { from { opacity: 1; transform: scale(.2); } to { opacity: 0; transform: scale(1.4); } }
   @keyframes floatUp { from { opacity: 1; transform: translate(-50%, 0); } to { opacity: 0; transform: translate(-50%, -56px); } }
   @keyframes fall { to { transform: translateY(110vh) rotate(540deg); opacity: .8; } }
-  @media (prefers-reduced-motion: reduce) { * { animation-duration: 1ms !important; } }
+  /* F13: giảm chuyển động → bỏ lắc, nảy, rơi; vẫn giữ chữ khen hiện/mờ để người chơi biết kết quả */
+  @media (prefers-reduced-motion: reduce) {
+    #field.shake, #feedback.no, #feedback.ok, .lives.hit, #stage.punch #field, #logo, .btn-play::after, .btn.pulse, #hand,
+    #screen-start, #screen-result .crest, .star.on, #countdown.tickin { animation: none !important; }
+    .confetti { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -184,6 +246,8 @@
     <path id="fs-icon" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>
   </svg>
 </button>
+<!-- F13 · bật/tắt âm thanh -->
+<button id="sound" type="button" aria-pressed="true" aria-label="Tắt âm thanh" title="Tắt âm thanh">🔊</button>
 <main>
   <!-- F3 · Màn mở đầu -->
   <section id="screen-start">
@@ -195,13 +259,18 @@
           <div class="w-ultimate">ULTIMATE</div>
           <div class="w-club">CLUB</div>
         </h1>
-        <p class="tagline"><b>Chạy đâu đây?</b><br>Luyện đọc sân cho người mới — nhìn bằng mắt mình, chạm vào chỗ nên chạy tới.</p>
+        <p class="tagline"><b>Chạy đâu đây?</b><br>Đọc sân như dân Ultimate — chạm vào chỗ trống!</p>
       </div>
     </div>
-    <p class="pick">Chọn vai của bạn</p>
     <div class="roles">
-      <button id="role-handler" class="btn" type="button"><span>Handler<small>người chuyền đĩa</small></span></button>
-      <button id="role-cutter" class="btn" type="button"><span>Cutter<small>người chạy bắt đĩa</small></span></button>
+      <!-- F12 · nút chính: lần đầu vào phần tập 3 bước -->
+      <button id="play" class="btn btn-play" type="button"><span id="play-label">▶ Chơi ngay<small>30 giây tập chơi</small></span></button>
+      <button id="how" class="btn btn-ghost" type="button" hidden>❓ Cách chơi</button>
+    </div>
+    <p class="pick">Hoặc chọn vai</p>
+    <div class="roles roles-2">
+      <button id="role-cutter" class="btn btn-alt" type="button"><span>🏃 Người chạy<small>Cutter · chạy đón đĩa</small></span></button>
+      <button id="role-handler" class="btn btn-alt" type="button"><span>🥏 Người ném<small>Handler · giữ và chuyền</small></span></button>
     </div>
   </section>
 
@@ -210,13 +279,19 @@
     <div class="stage" id="stage">
       <canvas id="field" aria-label="Sân nhìn từ mắt bạn — chạm vào chỗ bạn sẽ chạy tới"></canvas>
       <div class="pressure-ring" aria-hidden="true"></div>
+      <div class="hurry-ring" aria-hidden="true"></div>
+      <div id="flash" aria-hidden="true"></div>
+      <div id="countdown" hidden>3</div>
+      <span id="hand" hidden aria-hidden="true">👆</span>
       <!-- F9: lớp phủ trên sân -->
       <div class="overlay-top">
         <div class="hud">
-          <img src="./assets/bee.svg" width="34" height="34" alt="">
-          <span id="role-label">Cutter</span>
+          <button id="home" class="icon-btn" type="button" aria-label="Về màn chính" title="Về màn chính">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3l9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg>
+          </button>
+          <span id="role-label">Người chạy</span>
           <span id="lives" class="lives" aria-label="Mạng còn lại">❤️❤️</span>
-          <span class="pill">⭐ <span id="score">0</span></span>
+          <span class="pill score-pill">⭐ <span id="score">0</span></span>
         </div>
         <!-- F10: tiến độ point — 5 pha tới endzone, điểm trận -->
         <div class="strip">
@@ -234,17 +309,20 @@
         </div>
       </div>
       <div id="stall" class="stall" hidden>Stall <b id="stall-n">1</b></div>
-      <span class="hint" id="hint">👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới</span>
+      <span class="hint" id="hint">👆 Chạm vào cỏ chỗ bạn muốn chạy tới</span>
       <p id="feedback"></p>
       <div class="answer" id="sheet" hidden>
         <div class="answer-body">
-          <p id="explain" class="card" hidden></p>
+          <div class="card">
+            <p id="explain" hidden></p>
+            <p id="term" class="term" hidden></p>
+          </div>
           <canvas id="minimap" hidden aria-label="Sơ đồ sân nhìn từ trên xuống"></canvas>
           <div class="legend" id="legend" hidden>
             <span><i class="dot" style="background:var(--primary)"></i>Đồng đội</span>
             <span><i class="dot" style="background:#fff"></i>Đối thủ</span>
             <span><i class="dot" style="background:var(--accent);border-color:#fff"></i>Bạn</span>
-            <span>◯ vùng đúng · ✕ chỗ bạn chạm</span>
+            <span>◯ chỗ trống · ✕ chỗ bạn chạm</span>
           </div>
         </div>
         <button id="next" class="btn" type="button" hidden>Tiếp <img src="./assets/arrow-right.svg" width="22" height="22" alt=""></button>
@@ -257,6 +335,7 @@
     <div class="crest">
       <div class="crest-inner">
         <div class="result-label" id="result-role">Kết quả</div>
+        <div id="stars" class="stars" aria-label="Số sao"><span class="star">★</span><span class="star">★</span><span class="star">★</span></div>
         <div id="final-score">0/5</div>
         <div id="final-points" class="final-points">0 điểm</div>
         <div id="best" class="best"></div>
@@ -264,7 +343,7 @@
         <p class="sub" id="verdict-sub"></p>
       </div>
     </div>
-    <button id="retry" class="btn" type="button"><img src="./assets/rotate-ccw.svg" width="22" height="22" alt=""> Chơi lại</button>
+    <button id="retry" class="btn pulse" type="button"><img src="./assets/rotate-ccw.svg" width="22" height="22" alt=""> Chơi lại</button>
   </section>
 </main>
 <script type="module" src="./ui.js"></script>
