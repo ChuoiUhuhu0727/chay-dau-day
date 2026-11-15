@@ -334,7 +334,8 @@ export function discArc(u) {
 
 export function startLesson(role) {
   if (role !== 'handler' && role !== 'cutter') throw new Error(`Vai không hợp lệ: ${role}`);
-  return { role, index: 0, score: 0, total: LESSON_SIZE, answered: false, correct: null, tap: null };
+  return { role, index: 0, score: 0, total: LESSON_SIZE, answered: false, correct: null, tap: null,
+    lives: LIVES, combo: 0, points: 0, stalled: false };
 }
 
 export function current(state) {
@@ -348,10 +349,33 @@ export function judge(zone, point) {
   return Math.hypot(point.x - zone.x, point.y - zone.y) <= zone.r;
 }
 
-export function answer(state, point) {
+export function answer(state, point, stall = 0) {
   if (state.answered || !point) return state;
   const correct = judge(current(state).zone, point);
-  return { ...state, answered: true, correct, tap: point, score: state.score + (correct ? 1 : 0) };
+  if (!correct) return { ...state, answered: true, correct, tap: point, lives: state.lives - 1, combo: 0 };
+  const combo = state.combo + 1;
+  return { ...state, answered: true, correct, tap: point, score: state.score + 1, combo, points: state.points + pointsFor(combo, stall) };
+}
+
+// ---------------------------------------------------------------- F10 · một point liên tục: mạng, stall, combo
+
+export const LIVES = 2; // sai 2 lần = turnover → sống sót hết 5 pha ⇔ đúng ≥ 4/5
+export const STALL = 10; // người kèm đếm "Stall 1…10", mỗi giây một số
+
+/** Điểm cho một lần đọc đúng: combo (tối đa ×3) + thưởng nhanh tay. */
+export function pointsFor(combo, stall) {
+  return 100 * Math.min(combo, 3) + 10 * Math.max(0, STALL - stall);
+}
+
+/** Số stall đang đếm sau t giây ở pha decide: 1 ở t = 0, tối đa 10. */
+export function stallCount(t) {
+  return Math.min(STALL, Math.max(1, Math.floor(t) + 1));
+}
+
+/** Hết đếm stall mà chưa chạm: tính là sai (mất đĩa). */
+export function stallOut(state) {
+  if (state.answered) return state;
+  return { ...state, answered: true, correct: false, tap: null, stalled: true, lives: state.lives - 1, combo: 0 };
 }
 
 // ---------------------------------------------------------------- F5 · đáp án
@@ -361,16 +385,16 @@ export function toMinimap(p, w, h) {
 }
 
 export function next(state) {
-  if (!state.answered || state.index >= state.total - 1) return state;
-  return { ...state, index: state.index + 1, answered: false, correct: null, tap: null };
+  if (!state.answered || isFinished(state)) return state;
+  return { ...state, index: state.index + 1, answered: false, correct: null, tap: null, stalled: false };
 }
 
 // ---------------------------------------------------------------- F6 · kết thúc bài
 
 export function isFinished(state) {
-  return state.answered && state.index === state.total - 1;
+  return state.answered && (state.index === state.total - 1 || state.lives <= 0); // F10: hết mạng = turnover
 }
 
 export function passed(state) {
-  return state.score >= 4;
+  return isFinished(state) && state.lives > 0;
 }

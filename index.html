@@ -102,6 +102,29 @@
               text-shadow: 0 3px 0 var(--surface), 0 0 18px rgba(0,0,0,.6); }
   #feedback.ok { color: var(--accent); animation: pop 300ms ease-out; }
   #feedback.no { color: var(--wrong); animation: shake 360ms ease-out; }
+  /* F10: mạng, thanh tiến độ, điểm trận, đếm stall */
+  .lives { font-size: 18px; letter-spacing: 1px; white-space: nowrap; }
+  .lives.hit { animation: shake 360ms ease-out; }
+  .strip { display: flex; align-items: center; gap: 8px; padding: 4px 8px; border-radius: 12px; background: rgba(17,17,17,.82); }
+  .track { flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; min-width: 90px; }
+  .track i { height: 8px; border-radius: 4px; background: #2A355A; }
+  .track i.ok { background: var(--accent); }
+  .track i.no { background: var(--wrong); }
+  .track i.now { background: #fff; animation: blink 900ms ease-in-out infinite; }
+  .pts { font: 900 16px var(--head); color: var(--accent); white-space: nowrap; }
+  .pts.bump { animation: bump 380ms ease-out; display: inline-block; }
+  .stall { position: absolute; z-index: 2; left: 50%; bottom: calc(max(16px, env(safe-area-inset-bottom)) + 40px); transform: translateX(-50%);
+           padding: 4px 16px; border-radius: 999px; background: rgba(17,17,17,.85); border: 2px solid var(--primary);
+           font: 600 18px var(--cond); letter-spacing: .08em; text-transform: uppercase; pointer-events: none; white-space: nowrap; }
+  .stall b { display: inline-block; min-width: 1.4em; text-align: center; font: 900 24px var(--head); color: var(--accent); }
+  .stall.hot { border-color: var(--wrong); }
+  .stall.hot b { color: var(--wrong); }
+  .stall b.tick { animation: bump 300ms ease-out; }
+  .combo { color: #fff; font-size: 22px; }
+  .final-points { margin-top: 8px; font: 900 26px var(--head); color: var(--accent); }
+  .best { margin-top: 4px; font: 600 15px var(--cond); letter-spacing: .05em; color: #D9E4FF; }
+  .best.new { color: var(--accent); animation: pop 400ms ease-out; }
+  @keyframes blink { 50% { opacity: .35; } }
   /* F9: tấm đáy (bottom sheet) đáp án trượt lên, nút Tiếp luôn nằm trong màn */
   .answer { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 520px; max-height: 62%;
             display: flex; flex-direction: column; gap: 10px;
@@ -124,7 +147,7 @@
   .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 4px; vertical-align: -1px; border: 2px solid var(--surface); }
 
   /* ---------- màn kết quả ---------- */
-  #screen-result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 12px; }
+  #screen-result { display: flex; flex-direction: column; align-items: center; gap: 18px; padding-top: 52px; }
   #screen-result .crest { animation: grow 450ms ease-out; }
   .result-label { font: 600 18px var(--cond); letter-spacing: .1em; color: var(--primary); text-transform: uppercase; }
   #final-score { font: 900 88px/1 var(--head); text-shadow: 0 6px 0 var(--primary); }
@@ -192,8 +215,14 @@
         <div class="hud">
           <img src="./assets/bee.svg" width="34" height="34" alt="">
           <span id="role-label">Cutter</span>
-          <span class="pill">Tình huống <span id="progress">1/5</span></span>
+          <span id="lives" class="lives" aria-label="Mạng còn lại">❤️❤️</span>
           <span class="pill">⭐ <span id="score">0</span></span>
+        </div>
+        <!-- F10: tiến độ point — 5 pha tới endzone, điểm trận -->
+        <div class="strip">
+          <div id="track" class="track" aria-hidden="true"></div>
+          <span class="pill">Pha <span id="progress">1/5</span></span>
+          <span class="pts"><span id="points">0</span> đ</span>
         </div>
         <div class="card">
           <p id="scn-title"></p>
@@ -204,6 +233,7 @@
           <span><b>ENDZONE</b> · <span id="goal-dist">0</span>m</span>
         </div>
       </div>
+      <div id="stall" class="stall" hidden>Stall <b id="stall-n">1</b></div>
       <span class="hint" id="hint">👆 Chạm vào mặt cỏ chỗ bạn sẽ chạy tới</span>
       <p id="feedback"></p>
       <div class="answer" id="sheet" hidden>
@@ -228,6 +258,8 @@
       <div class="crest-inner">
         <div class="result-label" id="result-role">Kết quả</div>
         <div id="final-score">0/5</div>
+        <div id="final-points" class="final-points">0 điểm</div>
+        <div id="best" class="best"></div>
         <p id="verdict"></p>
         <p class="sub" id="verdict-sub"></p>
       </div>

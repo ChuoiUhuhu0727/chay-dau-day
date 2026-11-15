@@ -68,6 +68,16 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const mB = (await S()).live.mates;
   const moved = Math.max(...mA.map((p, i) => gap(p, mB[i])));
   check('F8: lúc chờ chạm, đồng đội vẫn di chuyển (lệch > 0 sau 300ms)', moved > 0.01, `${moved.toFixed(2)}m`);
+
+  // ---------------- F10 · mạng, điểm trận, đếm stall
+  const hearts = async () => ((await text('#lives')).match(/❤️/g) || []).length;
+  check('F10: #lives có 2 ❤️ khi vào point', (await hearts()) === 2, await text('#lives'));
+  check('F10: #points = 0 khi vào point', Number(await text('#points')) === 0, await text('#points'));
+  check('F10: #stall hiện chữ "Stall" ở pha decide', (await visible('#stall')) && (await text('#stall')).includes('Stall'), await text('#stall'));
+  await sleep(1300);
+  const st = (await S()).stall;
+  check('F10: sau 1.5 giây số stall ≥ 2', st >= 2, `stall=${st}`);
+  await shot('Đếm stall đang chạy — 2 mạng, điểm trận 0');
   s = await S();
 
   // ---------------- F1 · sân góc nhìn thứ nhất
@@ -159,24 +169,35 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await sleep(300);
   check('F4: chạm xa vùng đúng → #feedback có chữ "Chưa đúng"', (await text('#feedback')).includes('Chưa đúng'), await text('#feedback'));
   check('F4: chạm sai → #score giữ nguyên', Number(await text('#score')) === before2);
-  await shot('Chạm sai — xem mũi tên chỉ chỗ đúng');
+  check('F10: chạm sai → #lives còn 1 ❤️', (await hearts()) === 1, await text('#lives'));
+  check('F10: chạm sai → state().combo = 0', (await S()).combo === 0, `combo=${(await S()).combo}`);
+  await shot('Chạm sai — mất 1 mạng, xem mũi tên chỉ chỗ đúng');
 
-  // ---------------- F6 · chơi hết bài: 4 đúng 1 sai
+  // ---------------- F6 · chơi hết bài: 4 đúng 1 sai · F10 · combo ở 2 lần đúng liền (C3, C4)
+  const gains = [];
   for (let i = 2; i < 5; i++) {
     await click('#next');
     await waitDecide();
+    const p0 = Number(await text('#points'));
     await tapCorrect();
     await sleep(150);
+    gains.push(Number(await text('#points')) - p0);
+    if (i === 3) {
+      check('F10: đúng 2 lần liền → state().combo = 2', (await S()).combo === 2, `combo=${(await S()).combo}`);
+      check('F10: lần đúng thứ 2 liền được nhiều điểm hơn lần thứ nhất (combo)', gains[0] > 0 && gains[1] > gains[0], `+${gains[0]} rồi +${gains[1]}`);
+      await shot('COMBO ×2 — điểm trận tăng nhanh hơn');
+    }
   }
   await click('#next');
   await sleep(400);
   check('F6: hết 5 tình huống → #screen-result hiện', await visible('#screen-result'));
   check('F6: 4 đúng 1 sai → #final-score = 4/5', (await text('#final-score')) === '4/5', await text('#final-score'));
   check('F6: 4/5 → #verdict có chữ "Qua bài"', (await text('#verdict')).includes('Qua bài'), await text('#verdict'));
+  check('F10: màn kết quả có #final-points và #best', (await visible('#final-points')) && (await visible('#best')), `${await text('#final-points')} · ${await text('#best')}`);
   check('F8: sang màn kết quả thì state().animating = false', (await S()).animating === false);
-  await shot('Qua bài 4/5');
+  await shot('Ghi điểm! Qua bài 4/5');
 
-  // ---------------- F6 · chơi lại, sai cả 5 (vai Handler)
+  // ---------------- F6 + F10 · chơi lại vai Handler: hết stall rồi sai → turnover
   await click('#retry');
   await sleep(300);
   check('F6: bấm #retry → về #screen-start', await visible('#screen-start'));
@@ -185,16 +206,23 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   s = await S();
   check('F7: tình huống H1 vẽ cổng endzone đích trên canvas', s.scenario.id === 'H1' && s.drawn.goal === true, `${s.scenario.id}, drawn.goal=${s.drawn.goal}`);
   await shot('Tình huống 1 — nhìn bằng mắt handler, thấy endzone đích');
-  for (let i = 0; i < 5; i++) {
-    await waitDecide();
-    await tapWrong();
-    await sleep(150);
-    await click('#next');
-    await sleep(200);
-  }
-  check('F6: sai cả 5 → #final-score = 0/5', (await text('#final-score')) === '0/5', await text('#final-score'));
-  check('F6: 0/5 → #verdict có chữ "Chưa qua"', (await text('#verdict')).includes('Chưa qua'), await text('#verdict'));
-  await shot('Chưa qua 0/5');
+  const lives0 = (await S()).lives;
+  const t0 = Date.now();
+  while (!(await S()).answered && Date.now() - t0 <= 11000) await sleep(200);
+  check('F10: không chạm tới hết đếm stall (≤ 11 giây) → #feedback có chữ "Stall"', (await text('#feedback')).includes('Stall'), `${await text('#feedback')} · ${Date.now() - t0}ms`);
+  check('F10: hết stall → state().lives giảm 1', (await S()).lives === lives0 - 1, `${lives0} → ${(await S()).lives}`);
+  check('F10: hết stall → nút #next hiện', await visible('#next'));
+  await shot('Stall 10 — mất đĩa');
+  await click('#next');
+  await waitDecide();
+  await tapWrong();
+  await sleep(300);
+  await click('#next');
+  await sleep(400);
+  check('F6: sai 2 lần → turnover, #screen-result hiện', await visible('#screen-result'));
+  check('F6: turnover → #final-score = 0/5', (await text('#final-score')) === '0/5', await text('#final-score'));
+  check('F6: turnover → #verdict có chữ "Chưa qua"', (await text('#verdict')).includes('Chưa qua'), await text('#verdict'));
+  await shot('Turnover — chưa qua 0/5');
 
   await click('#retry');
   await sleep(300);
