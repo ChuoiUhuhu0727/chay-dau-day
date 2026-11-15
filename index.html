@@ -216,6 +216,13 @@
   .sub { margin: 8px 0 0; font: 500 14px var(--head); color: #D9E4FF; }
   .confetti { position: fixed; top: -40px; font-size: 26px; pointer-events: none; animation: fall linear forwards; }
 
+  /* F10/F12: điện thoại hẹp (≤ 380px) — HUD có 3 tim vẫn đủ chỗ cho tên vai */
+  @media (max-width: 380px) {
+    .hud { gap: 5px; }
+    #role-label { font-size: 14px; letter-spacing: .02em; }
+    .lives { font-size: 13px; }
+    .hud .pill { padding: 2px 8px; }
+  }
   /* F9: màn ngang thấp (điện thoại xoay ngang) — dồn lớp phủ sang trái cho giữa sân thoáng */
   @media (orientation: landscape) and (max-height: 520px) {
     .overlay-top { gap: 6px; }
@@ -376,7 +383,7 @@
   </section>
 </main>
 <!-- Phiên bản build: đổi ?v= mỗi lần deploy để trình duyệt không trộn file cũ (Pages cache 10 phút) với file mới. -->
-<script type="importmap">{"imports": {"./logic.js": "./logic.js?v=202611151907", "./track.js": "./track.js?v=202611151907", "./track-config.js": "./track-config.js?v=202611151907", "./sfx.js": "./sfx.js?v=202611151907"}}</script>
-<script type="module" src="./ui.js?v=202611151907"></script>
+<script type="importmap">{"imports": {"./logic.js": "./logic.js?v=202611151943", "./track.js": "./track.js?v=202611151943", "./track-config.js": "./track-config.js?v=202611151943", "./sfx.js": "./sfx.js?v=202611151943"}}</script>
+<script type="module" src="./ui.js?v=202611151943"></script>
 </body>
 </html>
