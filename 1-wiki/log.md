@@ -32,3 +32,4 @@
 - 2026-11-15 · build · F10 ✅ Point liên tục (2 mạng, đếm stall 10, combo, kỷ lục) · F6 đổi luật kết thúc theo F10 (ngưỡng qua bài vẫn ≥ 4/5) — verify xanh lần 2 (lần 1: chữ "chưa qua" viết thường)
 - 2026-11-15 · build · F11 ✅ passing (Event tracking: đo người chơi làm gì)
 - 2026-11-15 · build · F11 ✅ Event tracking (8 sự kiện qua track(), GA4 sẵn sàng nhưng tắt khi GA_ID trống) — verify xanh lần 2 (lần 1: check F8 chập chờn, xem learned.md)
+- 2026-11-15 · deploy · Game lên open web: https://chuoiuhuhu0727.github.io/chay-dau-day/ (GitHub Pages, nhánh gh-pages = thư mục game/)
