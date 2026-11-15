@@ -6,11 +6,12 @@ import { startLesson, answer, next, current, isFinished, passed, LIVES, STALL, p
 const hit = (s) => { const z = current(s).zone; return { x: z.x, y: z.y }; };
 const miss = (s) => { const z = current(s).zone; return { x: z.x + 12, y: z.y }; };
 
-test('startLesson có 2 mạng, combo 0, điểm 0; LIVES = 2, STALL = 10', () => {
-  assert.equal(LIVES, 2);
+// 2026-11-15 tối: PO đổi 2 → 3 mạng (xem trang F10).
+test('startLesson có 3 mạng, combo 0, điểm 0; LIVES = 3, STALL = 10', () => {
+  assert.equal(LIVES, 3);
   assert.equal(STALL, 10);
   const s = startLesson('cutter');
-  assert.equal(s.lives, 2);
+  assert.equal(s.lives, 3);
   assert.equal(s.combo, 0);
   assert.equal(s.points, 0);
 });
@@ -27,7 +28,7 @@ test('answer đúng: score +1, combo +1, cộng điểm theo combo và stall; m�
   assert.equal(s.score, 1);
   assert.equal(s.combo, 1);
   assert.equal(s.points, pointsFor(1, 2));
-  assert.equal(s.lives, 2);
+  assert.equal(s.lives, 3);
   const again = answer(s, miss(s), 0);
   assert.deepEqual(again, s, 'gọi lần 2 không đổi gì');
   s = answer(next(s), hit(next(s)), 4);
@@ -41,7 +42,7 @@ test('answer sai: −1 mạng, combo về 0, điểm giữ nguyên', () => {
   const before = s.points;
   s = next(s);
   s = answer(s, miss(s), 1);
-  assert.equal(s.lives, 1);
+  assert.equal(s.lives, 2);
   assert.equal(s.combo, 0);
   assert.equal(s.points, before);
   assert.equal(s.score, 1);
@@ -54,7 +55,7 @@ test('stallOut: tính là sai, đánh dấu stalled; đã trả lời thì khôn
   assert.equal(out.answered, true);
   assert.equal(out.correct, false);
   assert.equal(out.stalled, true);
-  assert.equal(out.lives, 1);
+  assert.equal(out.lives, 2);
   assert.equal(out.combo, 0);
   assert.equal(out.tap, null);
   assert.deepEqual(stallOut(out), out);
@@ -71,6 +72,9 @@ test('stallCount: 1 ở t = 0, 4 ở t = 3.5, luôn trong [1, 10]', () => {
 
 test('hết mạng giữa chừng là kết thúc (turnover), không qua bài', () => {
   let s = startLesson('cutter');
+  s = answer(s, miss(s), 0);
+  assert.equal(isFinished(s), false);
+  s = next(s);
   s = answer(s, miss(s), 0);
   assert.equal(isFinished(s), false);
   s = next(s);

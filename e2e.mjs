@@ -72,6 +72,20 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   check('F13: bấm #sound → state().sound đổi, localStorage cdd-sound đổi theo; bấm lại → như cũ',
     typeof sound0 === 'boolean' && sound1 === !sound0 && sound2 === sound0 && stored1 === (sound1 ? '1' : '0') && stored2 === (sound2 ? '1' : '0'),
     `${sound0} → ${sound1} (${stored1}) → ${sound2} (${stored2})`);
+  // ---------------- F15 · mục tiêu + luật Ultimate
+  const gl = await text('#goal-line');
+  check('F15: #goal-line có "Mục tiêu" và "Sai 3 lần"', gl.includes('Mục tiêu') && gl.includes('Sai 3 lần'), gl);
+  const rb = await height('#rules-btn');
+  check('F15: nút #rules-btn hiện, cao ≥ 44px', (await visible('#rules-btn')) && rb >= 44, `${Math.round(rb)}px`);
+  await click('#rules-btn');
+  await sleep(250);
+  const nRules = await evaluate(`document.querySelectorAll('#rules .rule').length`);
+  check('F15: bấm #rules-btn → #rules hiện 6 dòng .rule, có "10 giây"', (await visible('#rules')) && nRules === 6 && (await text('#rules')).includes('10 giây'), `${nRules} dòng`);
+  check('F15: mở luật → window.__events có rules_open', !!(await lastEv('rules_open')));
+  await shot('F15 · Luật Ultimate trong 30 giây');
+  await click('#rules-close');
+  await sleep(150);
+  check('F15: bấm #rules-close → #rules ẩn', !(await visible('#rules')));
   await shot('Màn mở đầu kiểu logo CLB');
 
   const tClick = Date.now();
@@ -113,13 +127,13 @@ export async function play({ evaluate, click, shot, check, sleep }) {
 
   // ---------------- F10 · mạng, điểm trận, đếm stall
   const hearts = async () => ((await text('#lives')).match(/❤️/g) || []).length;
-  check('F10: #lives có 2 ❤️ khi vào point', (await hearts()) === 2, await text('#lives'));
+  check('F10: #lives có 3 ❤️ khi vào point', (await hearts()) === 3, await text('#lives'));
   check('F10: #points = 0 khi vào point', Number(await text('#points')) === 0, await text('#points'));
   check('F10: #stall hiện chữ "Stall" ở pha decide', (await visible('#stall')) && (await text('#stall')).includes('Stall'), await text('#stall'));
   await sleep(1300);
   const st = (await S()).stall;
   check('F10: sau 1.5 giây số stall ≥ 2', st >= 2, `stall=${st}`);
-  await shot('Đếm stall đang chạy — 2 mạng, điểm trận 0');
+  await shot('Đếm stall đang chạy — 3 mạng, điểm trận 0');
   s = await S();
 
   // ---------------- F1 · sân góc nhìn thứ nhất
@@ -189,10 +203,27 @@ export async function play({ evaluate, click, shot, check, sleep }) {
     pa1?.params.outcome === 'correct' && pa1.params.scenario_id === 'C1' && pa1.params.phase === 1 && pa1.params.decide_ms > 0, JSON.stringify(pa1?.params));
   check('F8: chạm xong thì phase = run (bạn chạy tới đó)', phaseAfterTap === 'run', phaseAfterTap);
   await shot('Chạm đúng — đang chạy tới, đĩa đang bay');
-  const runMs = await waitPhase('done', 2500);
+  // F8 chờ chạy xong (như waitPhase) · F16 đo vệt đĩa, vòng đáp, độ cao máy quay trong lúc chờ
+  let runMs = -1;
+  let minH = 9;
+  let trailMax = 0;
+  let landing = false;
+  const tRun = Date.now();
+  while (Date.now() - tRun <= 2500) {
+    const q = await S();
+    minH = Math.min(minH, q.live?.camera?.h ?? 9);
+    trailMax = Math.max(trailMax, q.fx?.trail ?? 0);
+    landing = landing || !!q.fx?.landing;
+    if (q.phase === 'done') { runMs = Date.now() - tRun; break; }
+    await sleep(40);
+  }
+  check('F16: đĩa bay có vệt sáng (fx.trail ≥ 3) và vòng đáp (fx.landing)', trailMax >= 3 && landing, `trail=${trailMax}, landing=${landing}`);
+  check('F16: chạy ≥ 6m → máy quay hạ thấp như lao người (camera.h < 1.4)', minH < 1.4, `thấp nhất ${minH.toFixed(2)}m`);
   s = await S();
   check('F8: chạy xong trong ≤ 2.5 giây (phase = done)', runMs >= 0, runMs >= 0 ? `${runMs + 300}ms` : 'hết giờ');
   check('F8: camera tới chỗ đã chạm (≤ 0.5m)', !!s.tap && gap(s.live.camera, s.tap) <= 0.5, s.tap ? `${gap(s.live.camera, s.tap).toFixed(2)}m` : 'không có tap');
+  const cap1 = await text('#caption');
+  check('F16: sau khi chạm đúng #caption hiện, có "Pha 1", "m" và "+"', (await visible('#caption')) && cap1.includes('Pha 1') && cap1.includes('m') && cap1.includes('+'), cap1);
   check('F8: chạm đúng → #feedback có chữ "Bắt được"', (await text('#feedback')).includes('Bắt được'), await text('#feedback'));
   await shot('Bắt được đĩa — hiện đáp án');
 
@@ -219,10 +250,11 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   await tapWrong();
   await sleep(300);
   const fx2 = await evaluate(`({ hb: document.querySelectorAll('.heart-break').length, sfx: (window.__sfx || []).slice(-6) })`);
+  check('F16: chạm sai → #caption có "mất đĩa"', (await text('#caption')).includes('mất đĩa'), await text('#caption'));
   check('F13: chạm sai → window.__sfx có "wrong" và có tim vỡ .heart-break', fx2.sfx.includes('wrong') && fx2.hb > 0, `${fx2.hb} tim vỡ · ${fx2.sfx.join(', ')}`);
   check('F4: chạm xa vùng đúng → #feedback có chữ "Chưa đúng"', (await text('#feedback')).includes('Chưa đúng'), await text('#feedback'));
   check('F4: chạm sai → #score giữ nguyên', Number(await text('#score')) === before2);
-  check('F10: chạm sai → #lives còn 1 ❤️', (await hearts()) === 1, await text('#lives'));
+  check('F10: chạm sai → #lives còn 2 ❤️', (await hearts()) === 2, await text('#lives'));
   check('F10: chạm sai → state().combo = 0', (await S()).combo === 0, `combo=${(await S()).combo}`);
   const pa2 = await lastEv('phase_answer');
   check('F11: chạm sai → phase_answer outcome = wrong', pa2?.params.outcome === 'wrong', JSON.stringify(pa2?.params));
@@ -292,13 +324,15 @@ export async function play({ evaluate, click, shot, check, sleep }) {
   const pa3 = await lastEv('phase_answer');
   check('F11: hết stall → phase_answer outcome = stall', pa3?.params.outcome === 'stall', JSON.stringify(pa3?.params));
   await shot('Stall 10 — mất đĩa');
-  await click('#next');
-  await waitDecide();
-  await tapWrong();
-  await sleep(300);
+  for (let k = 0; k < 2; k++) { // 3 mạng: hết stall + 2 lần chạm sai = 3 lần mất đĩa
+    await click('#next');
+    await waitDecide();
+    await tapWrong();
+    await sleep(300);
+  }
   await click('#next');
   await sleep(400);
-  check('F6: sai 2 lần → turnover, #screen-result hiện', await visible('#screen-result'));
+  check('F6: sai 3 lần → turnover, #screen-result hiện', await visible('#screen-result'));
   check('F6: turnover → #final-score = 0/5', (await text('#final-score')) === '0/5', await text('#final-score'));
   check('F6: turnover → #verdict có chữ "Chưa qua"', (await text('#verdict')).includes('Chưa qua'), await text('#verdict'));
   const pe2 = await lastEv('point_end');

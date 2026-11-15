@@ -5,6 +5,7 @@ import {
   INTRO, EYE, introPose, runPose, runDuration, discArc,
   LIVES, STALL, stallCount, stallOut,
   startTutorial, comboWord, starsFor, bodyPose, lookOf,
+  RULES, goalText, commentary, catchScale, layoutDip,
 } from './logic.js';
 import { track, initTracking } from './track.js';
 import { sfx, unlock, setMuted, isMuted, buzz } from './sfx.js';
@@ -108,7 +109,8 @@ function renderScenario() {
   $('prompt').textContent = scn.prompt;
   $('feedback').textContent = '';
   $('feedback').className = '';
-  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'term', 'next', 'hand']) $(id).hidden = true;
+  for (const id of ['sheet', 'minimap', 'legend', 'explain', 'term', 'next', 'hand', 'caption']) $(id).hidden = true;
+  fx.trail = [];
   if (state.role === 'tutorial') $('role-label').textContent = `Tập ${state.index + 1}/${state.total}`;
   $('stage').classList.remove('hurry');
   $('countdown').hidden = false;
@@ -186,6 +188,8 @@ function onTap(ev) {
   }
   const before = state.points;
   state = answer(state, point, stallNow);
+  const me0 = current(state).me;
+  lastPlay = { dist: Math.round(Math.hypot(point.x - me0.x, point.y - me0.y)), gain: state.points - before };
   const fb = $('feedback');
   const x = ev.clientX - rect.left;
   const y = ev.clientY - rect.top;
@@ -227,7 +231,8 @@ function onTap(ev) {
   // F8: bạn chạy tới chỗ vừa chạm; đĩa bay tới bạn (đúng) hoặc tới vùng đúng (sai)
   const scn = current(state);
   const d = Math.hypot(point.x - scn.me.x, point.y - scn.me.y);
-  run = { to: point, start: clock, dur: runDuration(d), discTo: state.correct ? point : { x: scn.zone.x, y: scn.zone.y }, caught: false };
+  run = { to: point, start: clock, dur: runDuration(d), discTo: state.correct ? point : { x: scn.zone.x, y: scn.zone.y }, caught: false,
+    t: 0, last: clock, dist: d, doneAt: 0 }; // F16: t = thời gian đã chạy (có quay chậm)
   phase = 'run';
 }
 
@@ -240,6 +245,7 @@ function angleDiff(a, b) {
 /** Gọi khi đĩa tới nơi lúc chạy xong. */
 function finishRun() {
   phase = 'done';
+  run.doneAt = clock;
   if (state.correct && !run.caught) {
     run.caught = true;
     const fb = $('feedback');
@@ -257,6 +263,7 @@ function finishRun() {
  */
 function snapshot(scn) {
   const base = cameraOf(scn);
+  dipNow = 0;
   let cam = base;
   let mates = scn.teammates;
   let opps = scn.opponents;
@@ -281,7 +288,11 @@ function snapshot(scn) {
   }
 
   if (run && (phase === 'run' || phase === 'done')) {
-    const u = Math.min(1, (clock - run.start) / run.dur);
+    // F16: đọc đúng thì 12% cuối đường chạy quay chậm
+    const step = Math.max(0, clock - run.last);
+    run.last = clock;
+    run.t += step * (state.correct ? catchScale(run.t / run.dur) : 1);
+    const u = Math.min(1, run.t / run.dur);
     const at = runPose(scn.me, run.to, u);
     // nửa đầu: ngoái nửa vòng theo hướng chạy; nửa sau: quay mặt về người cầm đĩa để bắt (như cutter thật)
     const holder0 = scn.teammates[0];
@@ -296,11 +307,20 @@ function snapshot(scn) {
     shift = { x: lag.x - scn.me.x, y: lag.y - scn.me.y };
     // đĩa: rời tay người cầm đĩa ngay khi bạn bắt đầu chạy, tới nơi cùng lúc bạn tới
     const holder = mates[0];
-    if (u < 1) disc = { ...runPose(holder, run.discTo, u), h: discArc(u), held: false };
+    if (u < 1) {
+      disc = { ...runPose(holder, run.discTo, u), h: discArc(u), held: false };
+      const tail = fx.trail[fx.trail.length - 1];
+      if (!tail || Math.hypot(tail.x - disc.x, tail.y - disc.y) > 0.25) fx.trail = [...fx.trail.slice(-11), { x: disc.x, y: disc.y, h: disc.h }];
+    } else fx.trail = [];
+    if (state.correct) { // F16: lao người — máy quay hạ thấp ở đoạn cuối, đứng dậy sau khi bắt
+      const dip = u < 1 ? layoutDip(run.dist, (u - 0.75) / 0.25) : layoutDip(run.dist, 1) * Math.max(0, 1 - (clock - (run.doneAt || clock)) / 0.5);
+      dipNow = dip;
+    }
     else disc = state.correct ? { ...run.discTo, h: 1.05, held: false, mine: true } : { ...run.discTo, h: 0.04, held: false };
     if (u >= 1 && phase === 'run') finishRun();
   }
   if (moving) cam = { ...cam, h: EYE + 0.045 * Math.sin(clock * 2 * Math.PI * 2.6) }; // nhún theo bước chạy
+  if (dipNow > 0) cam = { ...cam, h: (cam.h ?? EYE) - dipNow };
   return { cam, mates, opps, disc, shift };
 }
 
@@ -316,6 +336,12 @@ function reveal() {
   for (const id of ['minimap', 'legend']) $(id).hidden = tut; // F12: lúc tập chỉ cần một câu khen
   $('term').hidden = !scn.term;
   $('hand').hidden = true;
+  const cap = $('caption'); // F16
+  cap.hidden = tut;
+  if (!tut) {
+    cap.textContent = commentary({ phase: state.index + 1, dist: state.stalled ? 0 : lastPlay.dist, correct: state.correct, stalled: state.stalled, combo: state.combo, gain: state.stalled ? 0 : lastPlay.gain });
+    cap.className = state.correct ? 'caption' : 'caption no';
+  }
   $('stage').classList.remove('hurry');
   $('next').firstChild.textContent = tut ? (isFinished(state) ? 'Vào trận thật ' : 'Bước tiếp ') : isFinished(state) ? 'Xem kết quả ' : 'Tiếp ';
   answeredAt = clock;
@@ -476,7 +502,7 @@ function drawField() {
   const snap = snapshot(scn);
   snapDisc = snap.disc;
   const cam = snap.cam;
-  live = { camera: { x: cam.x, y: cam.y, heading: cam.heading }, mates: snap.mates.map((p) => ({ x: p.x, y: p.y })), disc: snap.disc };
+  live = { camera: { x: cam.x, y: cam.y, heading: cam.heading, h: cam.h ?? EYE }, mates: snap.mates.map((p) => ({ x: p.x, y: p.y })), disc: snap.disc };
   updateGoal(cam);
   const f = focal(cam, view);
   const hy = view.h * HORIZON;
@@ -519,6 +545,7 @@ function drawField() {
   ctx.fillStyle = haze;
   ctx.fillRect(0, hy, view.w, view.h * 0.16);
   drawRings(ctx, cam, scn); // F12: vòng sáng lúc tập
+  drawLanding(ctx, cam); // F16: vòng đáp chỗ đĩa sẽ tới
 
   // vạch mốc khoảng cách tính từ chân bạn: giúp ước lượng "chạy bao xa"
   ctx.font = '600 11px Oswald, sans-serif';
@@ -598,6 +625,7 @@ function drawField() {
   if (d.mine) drawCaughtDisc(ctx);
   const holderOff = d.held ? offScreen.find((o) => o.holder) : null;
   drawOffscreen(ctx, offScreen, holderOff);
+  drawTrail(ctx, cam); // F16: vệt sáng sau đĩa
   for (const [draw, x, y] of tags) draw(ctx, x, y);
 
   // áp lực: người kèm lao sát (hoặc đứng sau lưng) → viền đỏ chớp
@@ -1150,10 +1178,36 @@ function press(btn) {
 // ---------------------------------------------------------------- F12 · màn mở đầu, phần tập
 
 let snapDisc = null;
+let lastPlay = { dist: 0, gain: 0 }; // F16: quãng chạy và điểm của lần chạm vừa rồi
+let dipNow = 0; // F16: máy quay đang hạ thấp bao nhiêu (lao người)
+fx.trail = [];
+
+/** F16 · vòng trắng nhấp nháy trên cỏ chỗ đĩa sẽ tới. */
+function drawLanding(ctx, cam) {
+  if (phase !== 'run' || !run || run.t >= run.dur) return;
+  const pulse = 0.5 + 0.5 * Math.sin(clock * 12);
+  poly(ctx, clipProject(cam, circle(run.discTo, 1.3), view), `rgba(255,255,255,${0.12 + 0.12 * pulse})`, '#FFFFFF', 2.5);
+  poly(ctx, clipProject(cam, circle(run.discTo, 0.35), view), '#FFFFFF');
+}
+
+/** F16 · vệt sáng nối các vị trí gần nhất của đĩa, mờ dần về phía đuôi. */
+function drawTrail(ctx, cam) {
+  const pts = fx.trail.map((p) => project(cam, p, view, p.h)).filter(Boolean);
+  if (pts.length < 2) return;
+  ctx.lineCap = 'round';
+  for (let i = 1; i < pts.length; i++) {
+    const a = i / pts.length;
+    ctx.strokeStyle = `rgba(255,201,60,${0.15 + 0.6 * a})`;
+    ctx.lineWidth = 2 + 7 * a;
+    ctx.beginPath(); ctx.moveTo(pts[i - 1].sx, pts[i - 1].sy); ctx.lineTo(pts[i].sx, pts[i].sy); ctx.stroke();
+  }
+  ctx.lineCap = 'butt';
+}
 let tags = []; // nhãn trên đầu (ĐĨA, KÈM BẠN) vẽ sau cùng để không bị người gần che // đĩa ở khung hình đang vẽ (để biết người cầm đĩa có đang cầm không)
 
 /** Nút chính đổi theo việc đã tập chơi hay chưa. */
 function renderStart() {
+  $('goal-line').textContent = goalText(); // F15
   const done = load('cdd-tutorial-done') === '1';
   $('play-label').innerHTML = done ? '▶ Chơi<small>vào trận ngay</small>' : '▶ Chơi ngay<small>30 giây tập chơi</small>';
   $('how').hidden = !done;
@@ -1398,6 +1452,11 @@ $('play').addEventListener('click', (e) => {
   sfx('click');
   begin(load('cdd-tutorial-done') === '1' ? (load('cdd-last-role') === 'handler' ? 'handler' : 'cutter') : 'tutorial');
 });
+// F15 · tấm luật Ultimate
+$('rules-list').innerHTML = RULES.map((r) => `<li class="rule"><span aria-hidden="true">${r.icon}</span>${r.text}</li>`).join('');
+$('rules-btn').addEventListener('click', (e) => { press(e.currentTarget); sfx('click'); $('rules').hidden = false; track('rules_open', { from: screen }); });
+$('rules-close').addEventListener('click', () => { sfx('click'); $('rules').hidden = true; });
+$('rules').addEventListener('click', (e) => { if (e.target === $('rules')) $('rules').hidden = true; });
 $('how').addEventListener('click', (e) => { press(e.currentTarget); sfx('click'); begin('tutorial'); });
 $('home').addEventListener('click', () => { sfx('click'); state = null; show('start'); renderStart(); });
 // F13 · bật/tắt âm thanh, nhớ trong máy
@@ -1481,7 +1540,7 @@ window.__game = {
       live,
       drawn,
       sound: !isMuted(),
-      fx: { particles: fx.particles.length },
+      fx: { particles: fx.particles.length, trail: fx.trail.length, landing: phase === 'run' && !!run && run.t < run.dur },
       ringsScreen: (scn.rings || []).map((r) => { const q = project(cam, r, view); return q && { x: q.sx * k, y: q.sy * k, correct: Math.hypot(r.x - scn.zone.x, r.y - scn.zone.y) < 1e-6 }; }),
     };
   },

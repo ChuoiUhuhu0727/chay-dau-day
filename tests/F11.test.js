@@ -4,11 +4,11 @@ import assert from 'node:assert/strict';
 import { EVENTS, makeEvent } from '../track.js';
 import { GA_ID } from '../track-config.js';
 
-// 2026-11-15: plan thêm tutorial_step, tutorial_done (F12) và sound_toggle (F13) — xem trang F11.
-test('EVENTS có đúng 11 sự kiện của tracking plan', () => {
+// 2026-11-15: plan thêm tutorial_step, tutorial_done (F12), sound_toggle (F13), rules_open (F15) — xem trang F11.
+test('EVENTS có đúng 12 sự kiện của tracking plan', () => {
   assert.deepEqual(Object.keys(EVENTS).sort(), [
     'explanation_read', 'fullscreen_toggle', 'game_open', 'phase_answer', 'point_end', 'point_start', 'retry_click', 'role_select',
-    'sound_toggle', 'tutorial_done', 'tutorial_step',
+    'rules_open', 'sound_toggle', 'tutorial_done', 'tutorial_step',
   ]);
 });
 
