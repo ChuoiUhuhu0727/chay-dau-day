@@ -232,16 +232,42 @@ Timeline (from git):
   reported `prefers-reduced-motion`. An old CSS rule set every animation to 1 ms, so flying text and confetti (which end
   at opacity 0) vanished instantly and the game looked flat on that machine. The bot caught it because it runs with the same
   setting. Reduced motion should remove big movement, not feedback.
-- _TODO (team): add 1–2 things from your own experience, e.g. prompts that worked or didn't, time spent, surprises._
+
+### What we learned about prompting and working with Claude
+
+- **Effective prompting:** asking Claude to explain its approach and outline the steps it plans to take before execution
+  helped the team understand the proposed solution, review the plan and catch misunderstandings earlier.
+- **Context matters:** when given enough context about the project, tools and desired outcome, Claude could set up parts
+  of the working environment and carry out tasks more independently. The team still needed to provide clear constraints
+  and verify the result.
+- **Human contribution:** the team made the product and game-design decisions, played the game ourselves to check whether
+  the Ultimate concepts were represented accurately, and evaluated whether the experience felt understandable and
+  enjoyable. Claude accelerated implementation, but did not replace product judgment or play-testing.
+
+### Product validation (internal team testing)
+
+We tested the game internally and used the feedback to refine the beginner experience:
+- **Make the goal clearer before play begins.** New players should understand what the game is teaching them and what
+  they are expected to do.
+- **Provide a short introduction and an easy-to-find rules reference.** This feedback informed the clearer goal on the
+  start screen and the "📖 Luật Ultimate" rules sheet, so beginners can check the basic rules before or during play.
+- **Test pacing and the number of plays.** We shaped a point around five phases and adjusted the pace to make it more
+  approachable for beginners.
+- We also noticed a gap between the game's stimulation/game feel and the experience of playing Ultimate in real life.
+  The game is a simplified learning tool, not a full simulation; further play-testing with beginners and feedback from
+  club captains will help us make the scenarios and on-field decisions feel more authentic.
+
+These were internal team tests, not a formal study with external users. The 10 scenarios still need review by club
+captains before we can claim that they fully represent real match situations.
 
 ## Team
 
 | Member | Role | Contributions |
 |---|---|---|
-| _TODO name_ | _e.g. Product owner / game design_ | _e.g. idea, scenario review, play-testing, PO decisions_ |
-| _TODO name_ | _e.g. AI build lead_ | _e.g. ran Claude Code / harness, reviewed code and tests, deploy_ |
-| _TODO name_ | _e.g. Tracking & growth_ | _e.g. tracking plan, GA4 setup, launch in club groups_ |
-| _TODO name_ | _e.g. Demo & docs_ | _e.g. demo video, README, user interviews_ |
+| Hoàng Nguyễn Ngọc Giang | Game designer / coder | Developed the product idea and used Claude Code to build the game. |
+| Nguyễn Hoàng Ngọc Trinh | Demo video & documentation | Responsible for the demo video and supporting documentation. |
+| Trần Gia Bảo Châu | Documentation & assignment finalization | Contributed to the documentation, finalized the assignment submission and proofread the materials. |
+| Lê Khánh Huyền | Tester & ideation | Participated in idea development, tested the game internally and provided feedback on the beginner experience. |
 
 ## Repository map
 
@@ -267,7 +293,3 @@ HARNESS.md            how the AI harness works (template from Apero)
 - More scenarios: horizontal stack, defence. Have club captains review them.
 - 3D field and players. Shareable result card.
 - Answer open PO questions using data: 2 vs 3 lives, 10 vs 15 s stall.
-
----
-
-*Products that pass Apero's gating are published under Apero's name; copyright belongs to Apero (per the assignment brief).*
