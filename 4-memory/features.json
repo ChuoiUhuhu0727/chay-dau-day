@@ -208,6 +208,7 @@
       "`lookOf(i)` cố định (gọi 2 lần ra như nhau), trả `skin`, `hair`, `number`; 13 cầu thủ (i = 0…12) có ít nhất 4 màu da khác nhau và `number` khác nhau trong cùng một đội.",
       "Bot: lúc vào pha (`intro`) có ít nhất 1 người được vẽ với dáng chạy (`state().drawn.running` ≥ 1); ở `decide` vẫn vẽ 14 (13 người + đĩa) như F2.",
       "Bot: cảnh vẽ đủ lớp: `state().drawn.scenery` có `clouds` ≥ 2, `trees` ≥ 2 lớp, `lights` ≥ 1.",
+      "Bot: trời ban ngày — điểm ảnh trên cùng giữa `#field` sáng (độ sáng > 0.45) và xanh da trời (B > R); điểm ảnh cỏ ngay dưới chân có G lớn nhất trong R, G, B.",
       "Bot: chụp ảnh màn chơi để PO duyệt bằng mắt (đẹp hay chưa là PO quyết, không phải bot)."
     ],
     "state": "passing",
@@ -238,5 +239,59 @@
     ],
     "state": "passing",
     "verified_at": "2026-11-15T11:55:53.815Z"
+  },
+  {
+    "id": "F17",
+    "title": "Giải thích \"đập vào mắt\": chữ to + mũi tên vẽ ngay trên sân",
+    "page": "1-wiki/features/F17-giai-thich-dap-vao-mat.md",
+    "done": [
+      "Cả 10 tình huống có `hook` (1–18 ký tự) và `why` (≤ 70 ký tự); cả hai không chứa từ trong `JARGON`.",
+      "Cả 10 tình huống có `cues` ≥ 3, trong đó có đúng 1 `arrow` đi từ vị trí của bạn (`me`) tới tâm vùng đúng, ít nhất 1 `space` nằm trong vùng đúng, và ít nhất 1 `block` hoặc `throw`.",
+      "`cueTimes(cues)` trả thời điểm xuất hiện tăng dần, cách nhau ≥ 0.3 giây; cue cuối xuất hiện trước 2 giây.",
+      "Bot: chạm (đúng hoặc sai) ở C1 → trong 2 giây `#hook` hiện, chữ cao ≥ 28px, nội dung đúng `hook` của C1; `state().cuesDrawn` ≥ 3, mũi tên nằm trong màn hình.",
+      "Bot: tấm đáp án có `hook` và `why`; tổng chữ trong tấm (trừ `term`) ≤ 120 ký tự.",
+      "Bot: chụp ảnh lúc mũi tên + ✕ đang hiện để PO duyệt bằng mắt."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F18",
+    "title": "Đọc chuyển động: chỗ trống *sắp* mở ra",
+    "page": "1-wiki/features/F18-doc-chuyen-dong.md",
+    "done": [
+      "Ít nhất 5/10 tình huống có `motion` không rỗng; `posAt` ở t = 0 bằng vị trí ban đầu, ở t ≥ start + dur bằng `to`, ở giữa thì nằm giữa (không vượt quá).",
+      "Tình huống có `motion`: `judgeAt(scenario, tap, t)` — chạm vào vùng đúng khi chỗ đó **chưa** trống (áo trắng trong vùng, t nhỏ) → sai; cùng chỗ đó sau khi trống → đúng.",
+      "Bot: ở một tình huống có `motion`, vị trí trên màn hình của người di chuyển lệch ≥ 30px giữa đầu `decide` và 2.5 giây sau.",
+      "Bot: tấm đáp án của tình huống đó có cue `follow` được vẽ (`state().cuesDrawn` có `follow`)."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F19",
+    "title": "Trận liền mạch (phần 1): chạy liên tục, đón đĩa",
+    "page": "1-wiki/features/F19-tran-lien-mach.md",
+    "done": [
+      "`sim.js`: `createMatch(seed)` + `step(world, dt, input)` thuần, cùng seed + cùng input → cùng kết quả.",
+      "Bạn chạy về phía điểm chạm, không nhanh hơn 6 m/s, tới nơi thì dừng; chạm chỗ mới giữa chừng thì đổi hướng ngay bước sau.",
+      "Áo trắng kèm bạn đi theo bạn nhưng chậm một nhịp: bạn đổi hướng gắt thì trong 0.3 giây đầu khoảng cách tăng.",
+      "Người cầm đĩa ném cho người trống: dựng thế có đúng 1 người trống → `step` tới lúc ném thì đĩa bay về người đó; không ai trống tới stall 10 → `turnover`.",
+      "Đồng đội bắt đĩa trong vùng ghi điểm → `world.result = 'score'`.",
+      "Bot: chọn \"Trận liền mạch\", chạm vài chỗ → bạn di chuyển trên màn (`state().match.me` đổi ≥ 3m), đồng đội và áo trắng cũng đổi chỗ; trận tự kết thúc (score hoặc turnover) trong 90 giây."
+    ],
+    "state": "pending"
+  },
+  {
+    "id": "F20",
+    "title": "Trận liền mạch (phần 2): cầm đĩa, chuyền, rồi clear",
+    "page": "1-wiki/features/F20-tran-lien-mach-chuyen-va-clear.md",
+    "done": [
+      "Bạn cầm đĩa: `step` với input chạy → vị trí bạn không đổi; stall tăng 1 mỗi giây; stall 10 → `turnover`.",
+      "`throwTo(world, i)`: đồng đội trống → đĩa bay, đồng đội bắt; đồng đội bị kèm < 1.5m → có thể `turnover` (theo seed, lặp được).",
+      "`inLane(world)`: bạn đứng giữa người cầm đĩa và vùng ghi điểm, gần đường thẳng < 2m → true; ngoài đó → false.",
+      "Bot: đứng trong đường chuyền > 2 giây → hiện \"Clear!\" chữ cao ≥ 28px và mũi tên; ra khỏi đường → chữ tắt.",
+      "Bot: trận liền mạch, bạn bắt được đĩa rồi chạm đồng đội trống → đĩa bay đi, `state().match.holder` đổi sang đồng đội.",
+      "Hết point có màn \"xem lại\" với ≥ 1 khoảnh khắc (bắt / chuyền / clear) vẽ bằng hình F17."
+    ],
+    "state": "pending"
   }
 ]

@@ -15,3 +15,5 @@
 - Câu hỏi cho PO (F12, 2026-11-15): Mình viết lại 10 tình huống bằng lời thường + gọi người theo màu áo (áo vàng/trắng/đỏ). Nhờ đội trưởng CLB đọc xem có sai chiến thuật không?
 - Câu hỏi cho PO (F12): Phần tập chơi chỉ hiện khi bấm nút chính "Chơi ngay"; bấm thẳng nút vai thì vào trận luôn (cho người đã biết chơi). Ổn không, hay bắt buộc mọi người mới phải tập?
 - Câu hỏi cho PO (F13): Âm thanh bật sẵn khi mở game (tắt bằng 🔇). Muốn mặc định tắt không (ví dụ người chơi trên lớp)?
+- Câu hỏi cho PO (F17, 2026-11-18): Vịt gửi cách vịt giải thích ít nhất 3 tình huống (giọng nói với người mới) + "trước khi cắt, mình nhìn những gì, theo thứ tự nào" — Claude chắt lọc thành câu chốt to (hook) và câu "tại sao" (why) cho 10 tình huống.
+- Câu hỏi cho PO (F19, 2026-11-18): Trận liền mạch chỉ cho vai Người chạy trước (Người cầm đĩa để sau)? Một trận = 1 point, hay chơi tới khi mất đĩa 3 lần như bây giờ?
